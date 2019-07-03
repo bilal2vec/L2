@@ -29,6 +29,15 @@
 				"isDefault": true
 			},
 			"problemMatcher": ["$gcc"]
+		},
+		{
+			"label": "clean up files",
+			"type": "shell",
+			"command": "rm -rf build && rm lib/libL2.a && rm main.out",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
 		}
 	]
 }
