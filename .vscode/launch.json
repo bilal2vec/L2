@@ -1,0 +1,65 @@
+// {
+// 	// Use IntelliSense to learn about possible attributes.
+// 	// Hover to view descriptions of existing attributes.
+// 	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+// 	"version": "0.2.0",
+// 	"configurations": [
+// 		{
+// 			"name": "(gdb) Launch",
+// 			"type": "cppdbg",
+//             "request": "launch",
+// 			"program": "/home/bilal/L2/a.out",
+// 			"args": [],
+// 			"stopAtEntry": false,
+// 			"cwd": "/home/bilal/L2/",
+// 			"environment": [],
+// 			"externalConsole": true,
+// 			"MIMode": "gdb",
+// 			"setupCommands": [
+// 				{
+// 					"description": "Enable pretty-printing for gdb",
+// 					"text": "-enable-pretty-printing",
+// 					"ignoreFailures": true
+// 				}
+// 			]
+// 		}
+// 	]
+// }
+
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "(gdb) Launch",
+			"type": "cppdbg",
+			"request": "launch",
+			"program": "/home/bilal/L2/main.out",
+			"args": [""],
+			"stopAtEntry": true,
+			"cwd": "/home/bilal/L2/",
+			"environment": [],
+			"externalConsole": false, //true,
+			"windows": {
+				"MIMode": "gdb",
+				"miDebuggerPath": "/usr/bin/gdb",
+				"setupCommands": [
+					{
+						"description": "Enable pretty-printing for gdb",
+						"text": "-enable-pretty-printing",
+						"ignoreFailures": true
+					}
+				]
+			},
+			"pipeTransport": {
+				"pipeCwd": "",
+				"pipeProgram": "bash.exe", //"c:\\windows\\sysnative\\bash.exe",
+				"pipeArgs": ["-c"],
+				"debuggerPath": "/usr/bin/gdb"
+			},
+			"sourceFileMap": {
+				"/mnt/c": "${env:systemdrive}/",
+				"/usr": "C:\\Users\\bk\\AppData\\Local\\Packages\\CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc\\LocalState\\rootfs\\usr\\"
+			}
+		}
+	]
+}

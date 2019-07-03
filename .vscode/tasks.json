@@ -1,0 +1,34 @@
+{
+	"version": "2.0.0",
+	"windows": {
+		"options": {
+			"shell": {
+				"executable": "c:\\windows\\sysnative\\bash.exe",
+				"args": ["-c"]
+			}
+		}
+	},
+	"tasks": [
+		{
+			"label": "build main.cpp",
+			"type": "shell",
+			"command": "g++",
+			"args": ["-g", "-o", "main.out", "main.cpp", "-Llib", "-lL2"],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"problemMatcher": ["$gcc"]
+		},
+		{
+			"label": "build L2",
+			"type": "shell",
+			"command": "rm -rf build && mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=../ && make && make install",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"problemMatcher": ["$gcc"]
+		}
+	]
+}
