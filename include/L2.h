@@ -1,1 +1,3 @@
-int temp();
+#pragma once
+
+#include "tensor.h"

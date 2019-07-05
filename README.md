@@ -2,6 +2,56 @@
 
 A C++ deep learning library
 
+## ToDo
+
+-   tensors
+
+## Tensor
+
+-   move code into separate functions
+-   handle higher dimensional tensors
+-   improve API
+
+    -   allow not passing in one or more start or stops in index
+    -   If indices aren't passed, all items in that dimension should be included
+        -   do this by setting defaults in index to -1 then processing them to be the size of that dimension
+    -   use structs for indexing params and storing sizes and shapes
+    -   indexing should be with array of initilizer lists; each list specifies start and end positions for a dimension
+    -   generalize functions to work with an arbitary number of dimensions
+    -   infer stride in constructor
+
+-   indexing
+
+    -   (row_begin, row_end] and (col_begin, col_end]
+    -   How to return slices from an array instead of just single values?
+
+        -   stride code: https://github.com/ThinkingTransistor/Sigma/blob/fe645441eb523996d3bfc6de9ad72e814a146195/Sigma.Core/MathAbstract/NDArrayUtils.cs#L24
+
+    -   use chars for indices with ":" for all; cast all others to ints?
+
+-   implementation details
+
+    -   store data, sizes, and strides in separate structs
+    -   store the data as a pointer and return a pointer whenever indexing
+    -   also handle cloning tensors
+
+-   dimensions
+-   reshape
+
+-   copying
+-   dtype
+
+-   operators
+-   \+ \- / \* (by scalars, tensors, etc)
+-   mat dot
+
+-   tensor.zeros/random
+
+## things to know
+
+-   template classes must be defined and implemented in headers
+    -   https://stackoverflow.com/questions/1724036/splitting-templated-c-classes-into-hpp-cpp-files-is-it-possible
+
 ## Structure
 
 -   .h files in include/
@@ -9,8 +59,6 @@ A C++ deep learning library
 -   compiled library is in lib/
 -   use #pragma once in header files
 -   for additional files, add the path to the cpp file to add_library in CMakeLists.txt
-
-## ToDo
 
 ## Debugger
 

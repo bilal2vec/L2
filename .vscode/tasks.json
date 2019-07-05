@@ -13,12 +13,21 @@
 			"label": "build main.cpp",
 			"type": "shell",
 			"command": "g++",
-			"args": ["-g", "-o", "main.out", "main.cpp", "-Llib", "-lL2"],
+			"args": [
+				"-g",
+				"-o",
+				"main.out",
+				"main.cpp",
+				"-Llib",
+				"-lL2"
+			],
 			"group": {
 				"kind": "build",
 				"isDefault": true
 			},
-			"problemMatcher": ["$gcc"]
+			"problemMatcher": [
+				"$gcc"
+			]
 		},
 		{
 			"label": "build L2",
@@ -28,7 +37,9 @@
 				"kind": "build",
 				"isDefault": true
 			},
-			"problemMatcher": ["$gcc"]
+			"problemMatcher": [
+				"$gcc"
+			]
 		},
 		{
 			"label": "clean up files",
@@ -37,7 +48,8 @@
 			"group": {
 				"kind": "build",
 				"isDefault": true
-			}
+			},
+			"problemMatcher": []
 		}
 	]
 }
