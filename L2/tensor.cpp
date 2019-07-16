@@ -7,7 +7,7 @@ Tensor::Tensor(double x) : data(1, x), sizes(1, 1), strides(1, 1) {}
 
 Tensor::Tensor(std::vector<double> x) : data(x), sizes(1, static_cast<int>(x.size())), strides(1, 1) {}
 Tensor::Tensor(std::vector<double> x, std::vector<int> size) : data(x), sizes(size), strides(get_strides(sizes)) {}
-Tensor::Tensor(std::vector<double> x, std::initializer_list<int> size) : data(x), sizes(size), strides(get_strides(sizes)) {}
+// Tensor::Tensor(std::vector<double> x, std::initializer_list<int> size) : data(x), sizes(size), strides(get_strides(sizes)) {}
 
 int Tensor::get_physical_idx(std::vector<int> indices)
 {
