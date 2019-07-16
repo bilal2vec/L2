@@ -34,7 +34,6 @@ public:
     Tensor(double x);
     Tensor(std::vector<double> x);
     Tensor(std::vector<double> x, std::vector<int> sizes);
-    Tensor(std::vector<double> x, std::initializer_list<int> sizes);
 
     Tensor operator()(std::vector<index> indices);
 
