@@ -21,6 +21,19 @@ int Tensor::get_physical_idx(std::vector<int> indices)
     return physical_idx;
 }
 
+std::vector<index> Tensor::process_index(std::vector<index> indices)
+{
+    for (int i = 0; i < indices.size(); ++i)
+    {
+        if (indices[i].stop == -1)
+        {
+            indices[i].stop = sizes[i];
+        }
+    }
+
+    return indices;
+}
+
 std::vector<int> Tensor::get_sizes(std::vector<index> indices)
 {
     std::vector<int> slice_sizes;
@@ -60,6 +73,8 @@ std::vector<int> Tensor::get_strides(std::vector<int> sizes)
 // tensor indexing and slicing
 Tensor Tensor::operator()(std::vector<index> indices)
 {
+    indices = process_index(indices);
+
     std::vector<double> slice;
     std::vector<int> slice_sizes = get_sizes(indices);
 

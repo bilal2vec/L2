@@ -25,6 +25,7 @@ private:
     }
 
     int get_physical_idx(std::vector<int> indices);
+    std::vector<index> process_index(std::vector<index> indices);
 
     std::vector<int> get_sizes(std::vector<index> indices);
     std::vector<int> get_strides(std::vector<int> sizes);
