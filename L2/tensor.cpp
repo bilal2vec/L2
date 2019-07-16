@@ -20,6 +20,33 @@ int Tensor::get_physical_idx(std::vector<int> indices)
     return physical_idx;
 }
 
+int Tensor::sum_sizes(std::vector<int> sizes)
+{
+    int sum = 0;
+
+    for (int size : sizes)
+    {
+        sum *= size;
+    }
+
+    return sum;
+}
+
+bool Tensor::valid_sizes(std::vector<int> new_sizes)
+{
+    int current_sizes_sum = sum_sizes(sizes);
+    int new_sizes_sum = sum_sizes(new_sizes);
+
+    if (current_sizes_sum == new_sizes_sum)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
 std::vector<index> Tensor::process_index(std::vector<index> indices)
 {
     for (int i = 0; i < indices.size(); ++i)
@@ -115,6 +142,15 @@ Tensor Tensor::operator()(std::vector<index> indices)
         }
     }
     return Tensor(slice, slice_sizes);
+}
+
+void Tensor::view(std::vector<int> new_sizes)
+{
+    if (valid_sizes(new_sizes))
+    {
+        sizes = new_sizes;
+        strides = get_strides(sizes);
+    }
 }
 
 void Tensor::print()

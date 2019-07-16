@@ -5,6 +5,7 @@ A C++ deep learning library
 ## ToDo
 
 -   tensors
+-   error handling and checking
 
 ## Tensor
 
@@ -32,20 +33,21 @@ A C++ deep learning library
 -   implementation details
 
     -   store data, sizes, and strides in separate structs
-    -   store the data as a pointer and return a pointer whenever indexing
-    -   also handle cloning tensors
+    -   dimensions
 
--   dimensions
 -   reshape
 
--   copying
+-   tensor.zeros/random
+
 -   dtype
 
 -   operators
 -   \+ \- / \* (by scalars, tensors, etc)
 -   mat dot
 
--   tensor.zeros/random
+-   store the data as a pointer and return a pointer whenever indexing
+-   also handle cloning tensors
+-   copying
 
 ## things to know
 
