@@ -7,6 +7,10 @@ A C++ deep learning library
 -   tensors
 -   error handling and checking
 
+## Done
+
+-   sum_sizes => sizes_to_n_elements
+
 ## Tensor
 
 -   move code into separate functions

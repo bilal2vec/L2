@@ -17,20 +17,20 @@ int main()
     // z.print();
 
     // 2d array
-    std::vector<double> x{1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8, 9.9};
+    // std::vector<double> x{1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8, 9.9};
 
-    Tensor y(x, {3, 3});
+    // Tensor y(x, {3, 3});
 
-    Tensor z = y({{0, 2}, {0, 3}}); // row
-    // Tensor z = y({{0, 3}, {0, 1}}); // col
-    // Tensor z = y({{0, 3}, {0, 3}}); // all
-    // Tensor z = y({{0, 1}, {0, 1}}); // one
+    // Tensor z = y({{0, 2}, {0, 3}}); // row
+    // // Tensor z = y({{0, 3}, {0, 1}}); // col
+    // // Tensor z = y({{0, 3}, {0, 3}}); // all
+    // // Tensor z = y({{0, 1}, {0, 1}}); // one
 
-    z.print();
+    // z.print();
 
-    z.view({1, 6});
+    // z.view({1, 6});
 
-    z.print();
+    // z.print();
 
     // 3d array
     // std::vector<double> x{1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8};
@@ -40,6 +40,10 @@ int main()
     // Tensor z = y({{1, 2}, {0, 2}, {0, 2}});
 
     // z.print();
+
+    Tensor y({3, 3});
+
+    y.print();
 
     return 0;
 }
