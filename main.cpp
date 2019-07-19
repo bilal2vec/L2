@@ -2,7 +2,6 @@
 #include <vector>
 
 #include "include/L2.h"
-#include "include/tensor.h"
 
 int main()
 {
@@ -41,7 +40,12 @@ int main()
 
     // z.print();
 
-    Tensor y({3, 3});
+    // Tensor y({3, 3});
+
+    // y.print();
+
+    // Tensor y = Tensor({3, 3}).normal_(10, 0.1);
+    Tensor y = Tensor({3, 3}).uniform_(0, 1);
 
     y.print();
 
