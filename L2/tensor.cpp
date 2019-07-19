@@ -5,8 +5,9 @@
 
 Tensor::Tensor(double x) : data(1, x), sizes(1, 1), strides(1, 1) {}
 
-Tensor::Tensor(std::vector<double> x) : data(x), sizes(1, static_cast<int>(x.size())), strides(1, 1) {}
-Tensor::Tensor(std::vector<double> x, std::vector<int> size) : data(x), sizes(size), strides(get_strides(sizes)) {}
+Tensor::Tensor(std::vector<int> sizes) : data(sizes_to_n_elements(sizes), 0), sizes(sizes), strides(get_strides(sizes)) {}
+
+Tensor::Tensor(std::vector<double> x, std::vector<int> sizes) : data(x), sizes(sizes), strides(get_strides(sizes)) {}
 
 int Tensor::get_physical_idx(std::vector<int> indices)
 {
@@ -20,9 +21,9 @@ int Tensor::get_physical_idx(std::vector<int> indices)
     return physical_idx;
 }
 
-int Tensor::sum_sizes(std::vector<int> sizes)
+int Tensor::sizes_to_n_elements(std::vector<int> sizes)
 {
-    int sum = 0;
+    int sum = 1;
 
     for (int size : sizes)
     {
@@ -34,8 +35,8 @@ int Tensor::sum_sizes(std::vector<int> sizes)
 
 bool Tensor::valid_sizes(std::vector<int> new_sizes)
 {
-    int current_sizes_sum = sum_sizes(sizes);
-    int new_sizes_sum = sum_sizes(new_sizes);
+    int current_sizes_sum = sizes_to_n_elements(sizes);
+    int new_sizes_sum = sizes_to_n_elements(new_sizes);
 
     if (current_sizes_sum == new_sizes_sum)
     {

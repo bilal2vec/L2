@@ -25,7 +25,7 @@ private:
     }
 
     int get_physical_idx(std::vector<int> indices);
-    int sum_sizes(std::vector<int> sizes);
+    int sizes_to_n_elements(std::vector<int> sizes);
     bool valid_sizes(std::vector<int> new_sizes);
 
     std::vector<index> process_index(std::vector<index> indices);
@@ -35,7 +35,8 @@ private:
 
 public:
     Tensor(double x);
-    Tensor(std::vector<double> x);
+
+    Tensor(std::vector<int> sizes);
     Tensor(std::vector<double> x, std::vector<int> sizes);
 
     Tensor operator()(std::vector<index> indices);
