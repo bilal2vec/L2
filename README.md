@@ -4,6 +4,7 @@ A C++ deep learning library
 
 ## ToDo
 
+-   namespace
 -   tensors
 -   error handling and checking
 
@@ -41,7 +42,10 @@ A C++ deep learning library
 
 -   reshape
 
--   tensor.zeros/random
+-   tensor.zeros/random **done**
+
+    -   normal and uniform distributions
+    -   specify means and stddevs
 
 -   dtype
 

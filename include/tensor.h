@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <random>
 
 #include "index.h"
 
@@ -40,6 +41,9 @@ public:
     Tensor(std::vector<double> x, std::vector<int> sizes);
 
     Tensor operator()(std::vector<index> indices);
+
+    Tensor normal_(double mean = 0, double stddev = 1);
+    Tensor uniform_(double low = 0, double high = 1);
 
     void view(std::vector<int> new_sizes);
 

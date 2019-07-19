@@ -1,4 +1,5 @@
 #include <iostream>
+#include <random>
 
 #include "tensor.h"
 #include "index.h"
@@ -143,6 +144,44 @@ Tensor Tensor::operator()(std::vector<index> indices)
         }
     }
     return Tensor(slice, slice_sizes);
+}
+
+Tensor Tensor::normal_(double mean, double stddev)
+{
+    std::random_device random_device{};
+    std::mt19937 pseudorandom_generator{random_device()};
+
+    std::normal_distribution<double> distribution{mean, stddev};
+
+    std::vector<double> normal_tensor;
+
+    for (int i = 0; i < data.size(); ++i)
+    {
+        double sample = distribution(pseudorandom_generator);
+
+        normal_tensor.push_back(sample);
+    }
+
+    return Tensor(normal_tensor, sizes);
+}
+
+Tensor Tensor::uniform_(double low, double high)
+{
+    std::random_device random_device{};
+    std::mt19937 pseudorandom_generator{random_device()};
+
+    std::uniform_real_distribution<double> distribution{low, high};
+
+    std::vector<double> uniform_tensor;
+
+    for (int i = 0; i < data.size(); ++i)
+    {
+        double sample = distribution(pseudorandom_generator);
+
+        uniform_tensor.push_back(sample);
+    }
+
+    return Tensor(uniform_tensor, sizes);
 }
 
 void Tensor::view(std::vector<int> new_sizes)
