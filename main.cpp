@@ -45,9 +45,72 @@ int main()
     // y.print();
 
     // Tensor y = Tensor({3, 3}).normal_(10, 0.1);
-    Tensor y = Tensor({3, 3}).uniform_(0, 1);
 
-    y.print();
+    // y.print();
+
+    // Tensor<double> y = Tensor<double>({3, 3}).normal_(10, 0.1);
+
+    // std::vector<int> z = y.size();
+
+    // for (int i : z)
+    // {
+    //     std::cout << i << ", ";
+    // }
+
+    // y.print();
+
+    // Tensor<double> z = y / 3;
+
+    // z.print();
+
+    // std::vector<double> a{
+    //     1,
+    //     1,
+    //     1,
+    //     1,
+    //     1,
+    //     1,
+    //     1,
+    //     1,
+    //     1,
+    // };
+    // std::vector<double> b{0, 1, 2};
+
+    // Tensor<double> y = Tensor<double>(a, {3, 3}); // 2, 2
+    // Tensor<double> z = Tensor<double>(b, {3});    // 1, 2
+
+    // y.print();
+    // z.print();
+
+    // Tensor<double> zz = y + z;
+
+    // std::cout << "\n\n";
+
+    // zz.print();
+
+    // x.print();
+    // y.print();
+    // z.print();
+
+    std::vector<double> a{0, 1, 2, 3, 4, 5, 6, 7};
+    std::vector<double> b{0, 1, 2, 3};
+
+    Tensor<double> y = Tensor<double>(a, {1, 2, 2, 2}); // 2, 2
+    Tensor<double> z = Tensor<double>(b, {2, 2});       // 1, 2
+
+    Tensor<double> zz = y + z;
+
+    zz.print();
+
+    // std::vector<double> a{0, 1, 2};
+    // std::vector<double> b{5};
+
+    // Tensor<double> y = Tensor<double>(a, {3}); // 2, 2
+    // Tensor<double> z = Tensor<double>(b, {1}); // 1, 2
+
+    // Tensor<double> zz = y + z;
+
+    // zz.print();
 
     return 0;
 }

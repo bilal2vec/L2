@@ -7,6 +7,8 @@ A C++ deep learning library
 -   namespace
 -   tensors
 -   error handling and checking
+-   raise error on when using normal\_ or uniform\_ bool
+-   change some code to use iterators over vectors instead of for loops
 
 ## Done
 
@@ -40,18 +42,28 @@ A C++ deep learning library
     -   store data, sizes, and strides in separate structs
     -   dimensions
 
--   reshape
+-   reshape **done**
 
 -   tensor.zeros/random **done**
 
     -   normal and uniform distributions
     -   specify means and stddevs
 
--   dtype
+-   dtype **done**
 
 -   operators
+    -   same sizes and broadcasting
+    -   both tensors need broadcasting; (2, 1, 2) (1, 2, 1)
 -   \+ \- / \* (by scalars, tensors, etc)
 -   mat dot
+-   concat
+
+-   operability between tensors of different types
+-   changing dtypes
+-   return dtype
+-   return size
+
+    -   use structs to store sizes and strides
 
 -   store the data as a pointer and return a pointer whenever indexing
 -   also handle cloning tensors
