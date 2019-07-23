@@ -51,23 +51,39 @@ A C++ deep learning library
 
 -   dtype **done**
 
--   operators
-    -   same sizes and broadcasting
-    -   both tensors need broadcasting; (2, 1, 2) (1, 2, 1)
--   \+ \- / \* (by scalars, tensors, etc)
--   mat dot
--   concat
+-   broadcasting
 
--   operability between tensors of different types
--   changing dtypes
--   return dtype
--   return size
+    -   both tensors need broadcasting; (2, 1, 2) (1, 2, 1)
+    -   generalize broadcasting function for multiple operators
+    -   stride should be 0 on broadcasted dimensions
+
+    -   find what the size of the resulting tensor should be
+    -   clone both tensors a and b
+    -   change their sizes to match the size of the resulting tensor
+    -   change the elements of strides that have been broadcasted in sizes to be 0
+    -   create a new vector to hold the results
+    -   iterate over the new sizes
+    -   for each lowest level for loop, use get_physical_idx to convert the symbolic idxs to actual idxs and add the elements from both tensors
+    -   return a new tensor
+
+*   operators
+
+    -   same sizes and broadcasting
+
+*   \+ \- / \* (by scalars, tensors, etc)
+*   mat dot
+*   concat
+
+*   operability between tensors of different types
+*   changing dtypes
+*   return dtype
+*   return size
 
     -   use structs to store sizes and strides
 
--   store the data as a pointer and return a pointer whenever indexing
--   also handle cloning tensors
--   copying
+*   store the data as a pointer and return a pointer whenever indexing
+*   also handle cloning tensors
+*   copying
 
 ## things to know
 
