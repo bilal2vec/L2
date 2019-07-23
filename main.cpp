@@ -79,24 +79,15 @@ int main()
     // Tensor<double> y = Tensor<double>(a, {3, 3}); // 2, 2
     // Tensor<double> z = Tensor<double>(b, {3});    // 1, 2
 
-    // y.print();
-    // z.print();
-
     // Tensor<double> zz = y + z;
-
-    // std::cout << "\n\n";
 
     // zz.print();
 
-    // x.print();
-    // y.print();
-    // z.print();
+    std::vector<double> a{0, 1, 2};
+    std::vector<double> b{0, 1, 2};
 
-    std::vector<double> a{0, 1, 2, 3, 4, 5, 6, 7};
-    std::vector<double> b{0, 1, 2, 3};
-
-    Tensor<double> y = Tensor<double>(a, {1, 2, 2, 2}); // 2, 2
-    Tensor<double> z = Tensor<double>(b, {2, 2});       // 1, 2
+    Tensor<double> y = Tensor<double>(a, {3, 1});
+    Tensor<double> z = Tensor<double>(b, {3});
 
     Tensor<double> zz = y + z;
 

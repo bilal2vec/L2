@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <random>
+#include <tuple>
 
 #include "index.h"
 
@@ -27,11 +28,14 @@ private:
     }
 
     int get_physical_idx(std::vector<int> indices);
+    int get_physical_idx(std::vector<int> indices, std::vector<int> strides);
     int sizes_to_n_elements(std::vector<int> sizes);
     bool valid_sizes(std::vector<int> new_sizes);
 
     std::vector<int> expand_sizes(std::vector<int> size, int size_diff);
     std::vector<int> broadcast_sizes(std::vector<int> sizes_a, std::vector<int> sizes_b);
+
+    std::tuple<std::vector<int>, std::vector<int>> broadcast_strides(std::vector<int> lhs_sizes, std::vector<int> rhs_sizes, std::vector<int> new_sizes);
     bool broadcastable_with(std::vector<int> new_sizes);
 
     std::vector<index> process_index(std::vector<index> indices);

@@ -2,11 +2,25 @@
 #include <vector>
 #include <cmath>     // std::abs
 #include <algorithm> //std::max
+#include <tuple>     //std::tuple
 
 #include "tensor.h"
 
 template <class T>
 int Tensor<T>::get_physical_idx(std::vector<int> indices)
+{
+    int physical_idx = 0;
+
+    for (int i = 0; i < static_cast<int>(indices.size()); ++i)
+    {
+        physical_idx += (indices[i] * strides[i]);
+    }
+
+    return physical_idx;
+}
+
+template <class T>
+int Tensor<T>::get_physical_idx(std::vector<int> indices, std::vector<int> strides)
 {
     int physical_idx = 0;
 
@@ -71,21 +85,37 @@ std::vector<int> Tensor<T>::broadcast_sizes(std::vector<int> sizes_a, std::vecto
 }
 
 template <class T>
+std::tuple<std::vector<int>, std::vector<int>> Tensor<T>::broadcast_strides(std::vector<int> lhs_sizes, std::vector<int> rhs_sizes, std::vector<int> new_sizes)
+{
+
+    std::vector<int> lhs_strides = get_strides(lhs_sizes);
+    std::vector<int> rhs_strides = get_strides(rhs_sizes);
+
+    for (int i = 0; i < new_sizes.size(); ++i)
+    {
+        if (lhs_sizes[i] != new_sizes[i])
+        {
+            lhs_strides[i] = 0;
+        }
+
+        if (rhs_sizes[i] != new_sizes[i])
+        {
+            rhs_strides[i] = 0;
+        }
+    }
+
+    return {lhs_strides, rhs_strides};
+}
+
+template <class T>
 bool Tensor<T>::broadcastable_with(std::vector<int> new_sizes)
 {
     std::vector<int> current_sizes = size();
-    int size_diff = size().size() - new_sizes.size();
+    int size_diff = current_sizes.size() - new_sizes.size();
 
-    // expand current_sizes to match length of new_sizes
-    if (size_diff > 0)
-    {
-        new_sizes = expand_sizes(new_sizes, std::abs(size_diff));
-    }
-    // expand new_sizes to match length of current_sizes
-    else if (size_diff < 0)
-    {
-        current_sizes = expand_sizes(size(), std::abs(size_diff));
-    }
+    // expand new_sizes and current_sizes to match length of new_sizes
+    new_sizes = (size_diff > 0) ? expand_sizes(new_sizes, std::abs(size_diff)) : new_sizes;
+    current_sizes = (size_diff < 0) ? expand_sizes(current_sizes, std::abs(size_diff)) : current_sizes;
 
     for (int i = current_sizes.size() - 1; i >= 0; --i)
     {
@@ -233,93 +263,60 @@ Tensor<T> Tensor<T>::operator+(Tensor<T> other)
     }
     else if (broadcastable_with(other.size()))
     {
-        // stride should be 0 on broadcasted dimensions
+        // expand lhs and rhs sizes to have the same number of elements
+        int size_diff = size().size() - other.size().size();
 
-        // find what the size of the resulting tensor should be
-        // clone both tensors a and b
-        // change their sizes to match the size of the resulting tensor
-        // change the elements of strides that have been broadcasted in sizes to be 0
-        // create a new vector to hold the results
-        // iterate over the new sizes
-        // for each lowest level for loop, use get_physical_idx to convert the symbolic idxs to actual idxs and add the elements from both tensors
-        // return a new tensor
+        std::vector<int> lhs_sizes = (size_diff < 0) ? expand_sizes(size(), std::abs(size_diff)) : size();
+        std::vector<int> rhs_sizes = (size_diff > 0) ? expand_sizes(other.size(), std::abs(size_diff)) : other.size();
 
-        Tensor<T> a = Tensor<T>(data, size());
-        Tensor<T> b = Tensor<T>(other.data, other.size());
+        // broadcast lhs_sizes and rhs_sizes to get the broadcasted size
+        std::vector<int> new_sizes = broadcast_sizes(lhs_sizes, rhs_sizes);
 
-        int size_diff = a.size().size() - b.size().size();
+        // update strides and zero out broadcasted dimensions
+        std::vector<int> lhs_strides;
+        std::vector<int> rhs_strides;
+        std::tie(lhs_strides, rhs_strides) = broadcast_strides(lhs_sizes, rhs_sizes, new_sizes);
 
-        // expand current_sizes to match length of new_sizes
-        if (size_diff > 0)
-        {
-            b.sizes = expand_sizes(b.size(), std::abs(size_diff));
-        }
-        // expand new_sizes to match length of current_sizes
-        else if (size_diff < 0)
-        {
-            a.sizes = expand_sizes(a.size(), std::abs(size_diff));
-        }
-
-        a.strides = get_strides(a.sizes);
-        b.strides = get_strides(b.sizes);
-
-        std::vector<int> new_size = broadcast_sizes(a.size(), b.size());
-
-        for (int i = 0; i < new_size.size(); ++i)
-        {
-            if (a.size()[i] != new_size[i])
-            {
-                a.strides[i] = 0;
-            }
-
-            if (b.size()[i] != new_size[i])
-            {
-                b.strides[i] = 0;
-            }
-        }
-
-        a.sizes = new_size;
-        b.sizes = new_size;
-
+        // perform operation on data element wise and save
         std::vector<T> new_data;
 
-        int length = static_cast<int>(new_size.size());
-        for (int i = 0; i < new_size[0]; ++i)
+        int length = static_cast<int>(new_sizes.size());
+        for (int i = 0; i < new_sizes[0]; ++i)
         {
             if (length > 1)
             {
-                for (int j = 0; j < new_size[1]; ++j)
+                for (int j = 0; j < new_sizes[1]; ++j)
                 {
                     if (length > 2)
                     {
-                        for (int k = 0; k < new_size[2]; ++k)
+                        for (int k = 0; k < new_sizes[2]; ++k)
                         {
                             if (length > 3)
                             {
-                                for (int m = 0; m < new_size[3]; ++m)
+                                for (int m = 0; m < new_sizes[3]; ++m)
                                 {
-                                    new_data.push_back(a.data[a.get_physical_idx({i, j, k, m})] + b.data[b.get_physical_idx({i, j, k, m})]);
+                                    new_data.push_back(data[get_physical_idx({i, j, k, m}, lhs_strides)] + other.data[get_physical_idx({i, j, k, m}, rhs_strides)]);
                                 }
                             }
                             else
                             {
-                                new_data.push_back(a.data[a.get_physical_idx({i, j, k})] + b.data[b.get_physical_idx({i, j, k})]);
+                                new_data.push_back(data[get_physical_idx({i, j, k}, lhs_strides)] + other.data[get_physical_idx({i, j, k}, rhs_strides)]);
                             }
                         }
                     }
                     else
                     {
-                        new_data.push_back(a.data[a.get_physical_idx({i, j})] + b.data[b.get_physical_idx({i, j})]);
+                        new_data.push_back(data[get_physical_idx({i, j}, lhs_strides)] + other.data[get_physical_idx({i, j}, rhs_strides)]);
                     }
                 }
             }
             else
             {
-                new_data.push_back(a.data[a.get_physical_idx({i})] + b.data[b.get_physical_idx({i})]);
+                new_data.push_back(data[get_physical_idx({i}, lhs_strides)] + other.data[get_physical_idx({i}, rhs_strides)]);
             }
         }
 
-        return Tensor<T>(new_data, new_size);
+        return Tensor<T>(new_data, new_sizes);
     }
     else
     {
