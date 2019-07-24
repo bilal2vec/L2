@@ -7,6 +7,7 @@ A C++ deep learning library
 -   namespace
 -   tensors
 -   error handling and checking
+    -   try removing broadcastable_with
 -   raise error on when using normal\_ or uniform\_ bool
 -   change some code to use iterators over vectors instead of for loops
 
@@ -51,7 +52,7 @@ A C++ deep learning library
 
 -   dtype **done**
 
--   broadcasting
+-   broadcasting **done**
 
     -   both tensors need broadcasting; (2, 1, 2) (1, 2, 1)
     -   generalize broadcasting function for multiple operators
@@ -66,11 +67,11 @@ A C++ deep learning library
     -   for each lowest level for loop, use get_physical_idx to convert the symbolic idxs to actual idxs and add the elements from both tensors
     -   return a new tensor
 
-*   operators
+*   operators **done**
 
     -   same sizes and broadcasting
 
-*   \+ \- / \* (by scalars, tensors, etc)
+*   \+ \- / \* (by scalars, tensors, etc) **done**
 *   mat dot
 *   concat
 

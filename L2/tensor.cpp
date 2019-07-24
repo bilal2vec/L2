@@ -3,6 +3,7 @@
 #include <cmath>     // std::abs
 #include <algorithm> //std::max
 #include <tuple>     //std::tuple
+#include <string>
 
 #include "tensor.h"
 
@@ -59,6 +60,58 @@ bool Tensor<T>::valid_sizes(std::vector<int> new_sizes)
     {
         return false;
     }
+}
+
+template <class T>
+std::vector<index> Tensor<T>::process_index(std::vector<index> indices)
+{
+    for (int i = 0; i < indices.size(); ++i)
+    {
+        if (indices[i].stop == -1)
+        {
+            indices[i].stop = sizes[i];
+        }
+    }
+
+    return indices;
+}
+
+template <class T>
+std::vector<int> Tensor<T>::get_sizes(std::vector<index> indices)
+{
+    std::vector<int> slice_sizes;
+
+    for (index idx : indices)
+    {
+        // Add number of elements in dimension to slice_sizes if not 1
+        if ((idx.stop - idx.start) > 1)
+        {
+            slice_sizes.push_back(idx.stop - idx.start);
+        }
+    }
+
+    // slice_size is 1 if selecting single element from tensor
+    if (static_cast<int>(slice_sizes.size()) == 0)
+    {
+        slice_sizes.push_back(1);
+    }
+
+    return slice_sizes;
+}
+
+template <class T>
+std::vector<int> Tensor<T>::get_strides(std::vector<int> sizes)
+{
+    std::vector<int> strides;
+
+    // from: https://github.com/ThinkingTransistor/Sigma/blob/fe645441eb523996d3bfc6de9ad72e814a146195/Sigma.Core/MathAbstract/NDArrayUtils.cs#L24
+    int current_stride = 1;
+    for (int i = static_cast<int>(sizes.size()) - 1; i >= 0; --i)
+    {
+        strides.insert(strides.begin(), current_stride);
+        current_stride *= sizes[i];
+    }
+    return strides;
 }
 
 template <class T>
@@ -128,55 +181,100 @@ bool Tensor<T>::broadcastable_with(std::vector<int> new_sizes)
 }
 
 template <class T>
-std::vector<index> Tensor<T>::process_index(std::vector<index> indices)
+T Tensor<T>::operation(T lhs, T rhs, std::string op)
 {
-    for (int i = 0; i < indices.size(); ++i)
+    if (op == "+")
     {
-        if (indices[i].stop == -1)
-        {
-            indices[i].stop = sizes[i];
-        }
+        return lhs + rhs;
     }
-
-    return indices;
+    else if (op == "-")
+    {
+        return lhs - rhs;
+    }
+    else if (op == "*")
+    {
+        return lhs * rhs;
+    }
+    else if (op == "/")
+    {
+        return lhs / rhs;
+    }
 }
 
 template <class T>
-std::vector<int> Tensor<T>::get_sizes(std::vector<index> indices)
+Tensor<T> Tensor<T>::tensor_elementwise_op(Tensor<T> other, std::string op)
 {
-    std::vector<int> slice_sizes;
+    // expand lhs and rhs sizes to have the same number of elements
+    int size_diff = size().size() - other.size().size();
 
-    for (index idx : indices)
+    std::vector<int> lhs_sizes = (size_diff < 0) ? expand_sizes(size(), std::abs(size_diff)) : size();
+    std::vector<int> rhs_sizes = (size_diff > 0) ? expand_sizes(other.size(), std::abs(size_diff)) : other.size();
+
+    // broadcast lhs_sizes and rhs_sizes to get the broadcasted size
+    std::vector<int> new_sizes = broadcast_sizes(lhs_sizes, rhs_sizes);
+
+    // update strides and zero out broadcasted dimensions
+    std::vector<int> lhs_strides;
+    std::vector<int> rhs_strides;
+    std::tie(lhs_strides, rhs_strides) = broadcast_strides(lhs_sizes, rhs_sizes, new_sizes);
+
+    // perform operation on data element wise and save
+    std::vector<T> new_data;
+
+    int length = static_cast<int>(new_sizes.size());
+    for (int i = 0; i < new_sizes[0]; ++i)
     {
-        // Add number of elements in dimension to slice_sizes if not 1
-        if ((idx.stop - idx.start) > 1)
+        if (length > 1)
         {
-            slice_sizes.push_back(idx.stop - idx.start);
+            for (int j = 0; j < new_sizes[1]; ++j)
+            {
+                if (length > 2)
+                {
+                    for (int k = 0; k < new_sizes[2]; ++k)
+                    {
+                        if (length > 3)
+                        {
+                            for (int m = 0; m < new_sizes[3]; ++m)
+                            {
+                                T op_result = operation(data[get_physical_idx({i, j, k, m}, lhs_strides)], other.data[get_physical_idx({i, j, k, m}, rhs_strides)], op);
+                                new_data.push_back(op_result);
+                            }
+                        }
+                        else
+                        {
+                            T op_result = operation(data[get_physical_idx({i, j, k}, lhs_strides)], other.data[get_physical_idx({i, j, k}, rhs_strides)], op);
+                            new_data.push_back(op_result);
+                        }
+                    }
+                }
+                else
+                {
+                    T op_result = operation(data[get_physical_idx({i, j}, lhs_strides)], other.data[get_physical_idx({i, j}, rhs_strides)], op);
+                    new_data.push_back(op_result);
+                }
+            }
+        }
+        else
+        {
+            T op_result = operation(data[get_physical_idx({i}, lhs_strides)], other.data[get_physical_idx({i}, rhs_strides)], op);
+            new_data.push_back(op_result);
         }
     }
 
-    // slice_size is 1 if selecting single element from tensor
-    if (static_cast<int>(slice_sizes.size()) == 0)
-    {
-        slice_sizes.push_back(1);
-    }
-
-    return slice_sizes;
+    return Tensor<T>(new_data, new_sizes);
 }
 
 template <class T>
-std::vector<int> Tensor<T>::get_strides(std::vector<int> sizes)
+Tensor<T> Tensor<T>::scalar_elementwise_op(T other, std::string op)
 {
-    std::vector<int> strides;
+    std::vector<T> new_data;
 
-    // from: https://github.com/ThinkingTransistor/Sigma/blob/fe645441eb523996d3bfc6de9ad72e814a146195/Sigma.Core/MathAbstract/NDArrayUtils.cs#L24
-    int current_stride = 1;
-    for (int i = static_cast<int>(sizes.size()) - 1; i >= 0; --i)
+    for (int i = 0; i < data.size(); ++i)
     {
-        strides.insert(strides.begin(), current_stride);
-        current_stride *= sizes[i];
+        new_data.push_back(operation(data[i], other, op));
     }
-    return strides;
+
+    return Tensor<T>(new_data, sizes);
 }
 
 template <class T>
@@ -237,179 +335,49 @@ Tensor<T> Tensor<T>::operator()(std::vector<index> indices)
 template <class T>
 Tensor<T> Tensor<T>::operator+(T other)
 {
-    std::vector<T> new_data;
-
-    for (int i = 0; i < data.size(); ++i)
-    {
-        new_data.push_back(data[i] + other);
-    }
-
-    return Tensor<T>(new_data, sizes);
+    return scalar_elementwise_op(other, "+");
 }
 
 template <class T>
 Tensor<T> Tensor<T>::operator+(Tensor<T> other)
 {
-    if (size() == other.size())
-    {
-        std::vector<T> new_data;
-
-        for (int i = 0; i < data.size(); ++i)
-        {
-            new_data.push_back(data[i] + other.data[i]);
-        }
-
-        return Tensor<T>(new_data, sizes);
-    }
-    else if (broadcastable_with(other.size()))
-    {
-        // expand lhs and rhs sizes to have the same number of elements
-        int size_diff = size().size() - other.size().size();
-
-        std::vector<int> lhs_sizes = (size_diff < 0) ? expand_sizes(size(), std::abs(size_diff)) : size();
-        std::vector<int> rhs_sizes = (size_diff > 0) ? expand_sizes(other.size(), std::abs(size_diff)) : other.size();
-
-        // broadcast lhs_sizes and rhs_sizes to get the broadcasted size
-        std::vector<int> new_sizes = broadcast_sizes(lhs_sizes, rhs_sizes);
-
-        // update strides and zero out broadcasted dimensions
-        std::vector<int> lhs_strides;
-        std::vector<int> rhs_strides;
-        std::tie(lhs_strides, rhs_strides) = broadcast_strides(lhs_sizes, rhs_sizes, new_sizes);
-
-        // perform operation on data element wise and save
-        std::vector<T> new_data;
-
-        int length = static_cast<int>(new_sizes.size());
-        for (int i = 0; i < new_sizes[0]; ++i)
-        {
-            if (length > 1)
-            {
-                for (int j = 0; j < new_sizes[1]; ++j)
-                {
-                    if (length > 2)
-                    {
-                        for (int k = 0; k < new_sizes[2]; ++k)
-                        {
-                            if (length > 3)
-                            {
-                                for (int m = 0; m < new_sizes[3]; ++m)
-                                {
-                                    new_data.push_back(data[get_physical_idx({i, j, k, m}, lhs_strides)] + other.data[get_physical_idx({i, j, k, m}, rhs_strides)]);
-                                }
-                            }
-                            else
-                            {
-                                new_data.push_back(data[get_physical_idx({i, j, k}, lhs_strides)] + other.data[get_physical_idx({i, j, k}, rhs_strides)]);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        new_data.push_back(data[get_physical_idx({i, j}, lhs_strides)] + other.data[get_physical_idx({i, j}, rhs_strides)]);
-                    }
-                }
-            }
-            else
-            {
-                new_data.push_back(data[get_physical_idx({i}, lhs_strides)] + other.data[get_physical_idx({i}, rhs_strides)]);
-            }
-        }
-
-        return Tensor<T>(new_data, new_sizes);
-    }
-    else
-    {
-        std::cout << "False";
-        return Tensor<T>(data, sizes);
-    }
+    return tensor_elementwise_op(other, "+");
 }
 
 template <class T>
 Tensor<T> Tensor<T>::operator-(T other)
 {
-    std::vector<T> new_data;
-
-    for (int i = 0; i < data.size(); ++i)
-    {
-        new_data.push_back(data[i] - other);
-    }
-
-    return Tensor<T>(new_data, sizes);
+    return scalar_elementwise_op(other, "-");
 }
 
 template <class T>
 Tensor<T> Tensor<T>::operator-(Tensor<T> other)
 {
-    if (size() == other.size())
-    {
-        std::vector<T> new_data;
-
-        for (int i = 0; i < data.size(); ++i)
-        {
-            new_data.push_back(data[i] - other.data[i]);
-        }
-
-        return Tensor<T>(new_data, sizes);
-    }
+    return tensor_elementwise_op(other, "-");
 }
 
 template <class T>
 Tensor<T> Tensor<T>::operator*(T other)
 {
-    std::vector<T> new_data;
-
-    for (int i = 0; i < data.size(); ++i)
-    {
-        new_data.push_back(data[i] * other);
-    }
-
-    return Tensor<T>(new_data, sizes);
+    return scalar_elementwise_op(other, "*");
 }
 
 template <class T>
 Tensor<T> Tensor<T>::operator*(Tensor<T> other)
 {
-    if (size() == other.size())
-    {
-        std::vector<T> new_data;
-
-        for (int i = 0; i < data.size(); ++i)
-        {
-            new_data.push_back(data[i] * other.data[i]);
-        }
-
-        return Tensor<T>(new_data, sizes);
-    }
+    return tensor_elementwise_op(other, "*");
 }
 
 template <class T>
 Tensor<T> Tensor<T>::operator/(T other)
 {
-    std::vector<T> new_data;
-
-    for (int i = 0; i < data.size(); ++i)
-    {
-        new_data.push_back(data[i] / other);
-    }
-
-    return Tensor<T>(new_data, sizes);
+    return scalar_elementwise_op(other, "/");
 }
 
 template <class T>
 Tensor<T> Tensor<T>::operator/(Tensor<T> other)
 {
-    if (size() == other.size())
-    {
-        std::vector<T> new_data;
-
-        for (int i = 0; i < data.size(); ++i)
-        {
-            new_data.push_back(data[i] / other.data[i]);
-        }
-
-        return Tensor<T>(new_data, sizes);
-    }
+    return tensor_elementwise_op(other, "/");
 }
 
 template <class T>
