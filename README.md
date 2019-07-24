@@ -6,7 +6,6 @@ A C++ deep learning library
 
 -   tensors
 -   error handling and checking
--   raise error on when using normal\_ or uniform\_ bool
 -   change some code to use iterators over vectors instead of for loops
 
 ## Done
@@ -14,6 +13,7 @@ A C++ deep learning library
 -   sum_sizes => sizes_to_n_elements
 -   namespace
 -   try removing broadcastable_with
+-   raise error on when using normal\_ or uniform\_ bool **not making bool tensors anymore**
 
 ## Tensor
 

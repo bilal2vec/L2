@@ -432,4 +432,4 @@ void Tensor<T>::print()
 template class Tensor<int>;
 template class Tensor<float>;
 template class Tensor<double>;
-} // namespace L2
+}
