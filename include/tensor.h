@@ -3,6 +3,7 @@
 #include <vector>
 #include <random>
 #include <tuple>
+#include <string>
 
 #include "index.h"
 
@@ -32,16 +33,21 @@ private:
     int sizes_to_n_elements(std::vector<int> sizes);
     bool valid_sizes(std::vector<int> new_sizes);
 
+    std::vector<index> process_index(std::vector<index> indices);
+
+    std::vector<int> get_sizes(std::vector<index> indices);
+    std::vector<int> get_strides(std::vector<int> sizes);
+
     std::vector<int> expand_sizes(std::vector<int> size, int size_diff);
     std::vector<int> broadcast_sizes(std::vector<int> sizes_a, std::vector<int> sizes_b);
 
     std::tuple<std::vector<int>, std::vector<int>> broadcast_strides(std::vector<int> lhs_sizes, std::vector<int> rhs_sizes, std::vector<int> new_sizes);
     bool broadcastable_with(std::vector<int> new_sizes);
 
-    std::vector<index> process_index(std::vector<index> indices);
+    T operation(T lhs, T rhs, std::string op);
 
-    std::vector<int> get_sizes(std::vector<index> indices);
-    std::vector<int> get_strides(std::vector<int> sizes);
+    Tensor<T> tensor_elementwise_op(Tensor<T> other, std::string op);
+    Tensor<T> scalar_elementwise_op(T other, std::string op);
 
 public:
     Tensor(std::vector<int> sizes);
@@ -49,17 +55,17 @@ public:
 
     Tensor<T> operator()(std::vector<index> indices);
 
-    Tensor<T> operator+(T othen);
-    Tensor<T> operator+(Tensor<T> othen);
+    Tensor<T> operator+(T other);
+    Tensor<T> operator+(Tensor<T> other);
 
-    Tensor<T> operator-(T othen);
-    Tensor<T> operator-(Tensor<T> othen);
+    Tensor<T> operator-(T other);
+    Tensor<T> operator-(Tensor<T> other);
 
-    Tensor<T> operator*(T othen);
-    Tensor<T> operator*(Tensor<T> othen);
+    Tensor<T> operator*(T other);
+    Tensor<T> operator*(Tensor<T> other);
 
-    Tensor<T> operator/(T othen);
-    Tensor<T> operator/(Tensor<T> othen);
+    Tensor<T> operator/(T other);
+    Tensor<T> operator/(Tensor<T> other);
 
     Tensor<T> normal_(double mean = 0, double stddev = 1);
     Tensor<T> uniform_(double low = 0, double high = 1);
