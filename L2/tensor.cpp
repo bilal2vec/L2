@@ -7,6 +7,8 @@
 
 #include "tensor.h"
 
+namespace L2
+{
 template <class T>
 int Tensor<T>::get_physical_idx(std::vector<int> indices)
 {
@@ -450,3 +452,4 @@ void Tensor<T>::print()
 template class Tensor<int>;
 template class Tensor<float>;
 template class Tensor<double>;
+} // namespace L2

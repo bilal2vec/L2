@@ -7,6 +7,8 @@
 
 #include "index.h"
 
+namespace L2
+{
 template <class T>
 class Tensor
 {
@@ -75,3 +77,4 @@ public:
 
     void print();
 };
+} // namespace L2

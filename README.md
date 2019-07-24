@@ -4,7 +4,6 @@ A C++ deep learning library
 
 ## ToDo
 
--   namespace
 -   tensors
 -   error handling and checking
     -   try removing broadcastable_with
@@ -14,6 +13,7 @@ A C++ deep learning library
 ## Done
 
 -   sum_sizes => sizes_to_n_elements
+-   namespace
 
 ## Tensor
 
