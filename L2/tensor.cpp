@@ -163,26 +163,6 @@ std::tuple<std::vector<int>, std::vector<int>> Tensor<T>::broadcast_strides(std:
 }
 
 template <class T>
-bool Tensor<T>::broadcastable_with(std::vector<int> new_sizes)
-{
-    std::vector<int> current_sizes = size();
-    int size_diff = current_sizes.size() - new_sizes.size();
-
-    // expand new_sizes and current_sizes to match length of new_sizes
-    new_sizes = (size_diff > 0) ? expand_sizes(new_sizes, std::abs(size_diff)) : new_sizes;
-    current_sizes = (size_diff < 0) ? expand_sizes(current_sizes, std::abs(size_diff)) : current_sizes;
-
-    for (int i = current_sizes.size() - 1; i >= 0; --i)
-    {
-        if ((current_sizes[i] != 1) && (new_sizes[i] != 1) && (current_sizes[i] != new_sizes[i]))
-        {
-            return false;
-        }
-    }
-    return true;
-}
-
-template <class T>
 T Tensor<T>::operation(T lhs, T rhs, std::string op)
 {
     if (op == "+")

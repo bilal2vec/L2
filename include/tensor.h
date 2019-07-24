@@ -44,7 +44,6 @@ private:
     std::vector<int> broadcast_sizes(std::vector<int> sizes_a, std::vector<int> sizes_b);
 
     std::tuple<std::vector<int>, std::vector<int>> broadcast_strides(std::vector<int> lhs_sizes, std::vector<int> rhs_sizes, std::vector<int> new_sizes);
-    bool broadcastable_with(std::vector<int> new_sizes);
 
     T operation(T lhs, T rhs, std::string op);
 
