@@ -14,7 +14,7 @@ class Tensor
 {
 private:
     std::vector<T> data;
-    std::vector<int> sizes;
+    std::vector<int> shape;
     std::vector<int> strides;
 
     template <typename T2>
@@ -32,18 +32,18 @@ private:
 
     int get_physical_idx(std::vector<int> indices);
     int get_physical_idx(std::vector<int> indices, std::vector<int> strides);
-    int sizes_to_n_elements(std::vector<int> sizes);
-    bool valid_sizes(std::vector<int> new_sizes);
+    int shape_to_n_elements(std::vector<int> shape);
+    bool valid_shape(std::vector<int> shape, std::vector<int> new_shape);
 
-    std::vector<index> process_index(std::vector<index> indices);
+    std::vector<index> process_index(std::vector<index> indices, std::vector<int> shape);
 
-    std::vector<int> get_sizes(std::vector<index> indices);
-    std::vector<int> get_strides(std::vector<int> sizes);
+    std::vector<int> get_shape(std::vector<index> indices);
+    std::vector<int> get_strides(std::vector<int> shape);
 
-    std::vector<int> expand_sizes(std::vector<int> size, int size_diff);
-    std::vector<int> broadcast_sizes(std::vector<int> sizes_a, std::vector<int> sizes_b);
+    std::vector<int> expand_shape(std::vector<int> shape, int diff);
+    std::vector<int> broadcast_shape(std::vector<int> shape_a, std::vector<int> shape_b);
 
-    std::tuple<std::vector<int>, std::vector<int>> broadcast_strides(std::vector<int> lhs_sizes, std::vector<int> rhs_sizes, std::vector<int> new_sizes);
+    std::tuple<std::vector<int>, std::vector<int>> broadcast_strides(std::vector<int> lhs_shape, std::vector<int> rhs_shape, std::vector<int> new_shape);
 
     T operation(T lhs, T rhs, std::string op);
 
@@ -51,8 +51,8 @@ private:
     Tensor<T> scalar_elementwise_op(T other, std::string op);
 
 public:
-    Tensor(std::vector<int> sizes);
-    Tensor(std::vector<T> x, std::vector<int> sizes);
+    Tensor(std::vector<int> shape);
+    Tensor(std::vector<T> x, std::vector<int> shape);
 
     Tensor<T> operator()(std::vector<index> indices);
 
@@ -71,8 +71,8 @@ public:
     Tensor<T> normal_(double mean = 0, double stddev = 1);
     Tensor<T> uniform_(double low = 0, double high = 1);
 
-    void view(std::vector<int> new_sizes);
-    std::vector<int> size();
+    void view(std::vector<int> new_shape);
+    std::vector<int> get_shape();
 
     void print();
 };

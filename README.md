@@ -10,7 +10,9 @@ A C++ deep learning library
 
 ## Done
 
--   sum_sizes => sizes_to_n_elements
+-   use shape() more
+-   more static functions
+-   sum_sizes => shape_to_n_elements
 -   namespace
 -   try removing broadcastable_with
 -   raise error on when using normal\_ or uniform\_ bool **not making bool tensors anymore**
@@ -19,7 +21,7 @@ A C++ deep learning library
 
 -   move code into separate functions
 -   handle higher dimensional tensors
--   improve API
+-   improve API **done**
 
     -   allow not passing in one or more start or stops in index
     -   If indices aren't passed, all items in that dimension should be included
@@ -29,7 +31,7 @@ A C++ deep learning library
     -   generalize functions to work with an arbitary number of dimensions
     -   infer stride in constructor
 
--   indexing
+-   indexing **done**
 
     -   (row_begin, row_end] and (col_begin, col_end]
     -   How to return slices from an array instead of just single values?
@@ -38,7 +40,7 @@ A C++ deep learning library
 
     -   use chars for indices with ":" for all; cast all others to ints?
 
--   implementation details
+-   implementation details **done**
 
     -   store data, sizes, and strides in separate structs
     -   dimensions
@@ -78,9 +80,9 @@ A C++ deep learning library
 *   operability between tensors of different types
 *   changing dtypes
 *   return dtype
-*   return size
+*   return size **done**
 
-    -   use structs to store sizes and strides
+    -   use structs to store sizes and strides **won't do**
 
 *   store the data as a pointer and return a pointer whenever indexing
 *   also handle cloning tensors
