@@ -73,6 +73,7 @@ public:
 
     void view(std::vector<int> new_shape);
     std::vector<int> get_shape();
+    std::string type();
 
     void print();
 };

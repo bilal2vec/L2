@@ -7,6 +7,7 @@ A C++ deep learning library
 -   tensors
 -   error handling and checking
 -   change some code to use iterators over vectors instead of for loops
+-   handle errors when dividing ints
 
 ## Done
 
@@ -74,11 +75,11 @@ A C++ deep learning library
     -   same sizes and broadcasting
 
 *   \+ \- / \* (by scalars, tensors, etc) **done**
+*   pow(), sqrt(), exp(), log()
 *   mat dot
 *   concat
 
 *   operability between tensors of different types
-*   changing dtypes
 *   return dtype
 *   return size **done**
 

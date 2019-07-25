@@ -6,12 +6,13 @@
 int main()
 {
 
-    L2::Tensor<double> y = L2::Tensor<double>({2, 3, 3}).normal_(0, 1);
-    L2::Tensor<double> z = L2::Tensor<double>({1, 3}).normal_(0, 1);
+    L2::Tensor<int> y = L2::Tensor<int>({2, 3, 3}).normal_(10, 1);
+    L2::Tensor<int> z = L2::Tensor<int>({1, 3}).normal_(10, 1);
 
-    L2::Tensor<double> zz = y / z;
+    L2::Tensor<int> zz = y / z;
 
-    zz.print();
+    // zz.print();
+    std::cout << zz.type() << "\n";
 
     return 0;
 }

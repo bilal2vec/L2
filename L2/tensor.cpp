@@ -419,6 +419,25 @@ std::vector<int> Tensor<T>::get_shape()
 }
 
 template <class T>
+std::string Tensor<T>::type()
+{
+    std::string type_name = typeid(T).name();
+
+    if (type_name == "d")
+    {
+        return "double";
+    }
+    else if (type_name == "i")
+    {
+        return "int";
+    }
+    else
+    {
+        return type_name;
+    }
+}
+
+template <class T>
 void Tensor<T>::print()
 {
     std::cout << "data:\n";
