@@ -6,11 +6,11 @@ A C++ deep learning library
 
 -   tensors
 -   error handling and checking
--   change some code to use iterators over vectors instead of for loops
--   handle errors when dividing ints
 
 ## Done
 
+-   handle errors when dividing ints
+-   change some code to use iterators over vectors instead of for loops
 -   use shape() more
 -   more static functions
 -   sum_sizes => shape_to_n_elements
@@ -75,16 +75,24 @@ A C++ deep learning library
     -   same sizes and broadcasting
 
 *   \+ \- / \* (by scalars, tensors, etc) **done**
-*   pow(), sqrt(), exp(), log()
-*   mat dot
-*   concat
 
 *   operability between tensors of different types
-*   return dtype
+*   return dtype **done**
 *   return size **done**
 
     -   use structs to store sizes and strides **won't do**
 
+*   pow(), sqrt(), exp(), log(), log10(), abs(), cos(), sin(), tan() **done**
+
+-   .sum()
+-   .mean()
+-   max(), argmax(), min(), argmin(),
+
+-   mat dot
+
+-   change dtype
+
+*   concat
 *   store the data as a pointer and return a pointer whenever indexing
 *   also handle cloning tensors
 *   copying

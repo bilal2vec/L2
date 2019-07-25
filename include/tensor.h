@@ -46,9 +46,11 @@ private:
     std::tuple<std::vector<int>, std::vector<int>> broadcast_strides(std::vector<int> lhs_shape, std::vector<int> rhs_shape, std::vector<int> new_shape);
 
     T operation(T lhs, T rhs, std::string op);
+    T operation(T lhs, std::string op);
 
     Tensor<T> tensor_elementwise_op(Tensor<T> other, std::string op);
     Tensor<T> scalar_elementwise_op(T other, std::string op);
+    Tensor<T> tensor_op(std::string op);
 
 public:
     Tensor(std::vector<int> shape);
@@ -68,6 +70,18 @@ public:
     Tensor<T> operator/(T other);
     Tensor<T> operator/(Tensor<T> other);
 
+    Tensor<T> pow(T other);
+
+    Tensor<T> sqrt();
+    Tensor<T> exp();
+    Tensor<T> log();
+    Tensor<T> log10();
+
+    Tensor<T> abs();
+    Tensor<T> sin();
+    Tensor<T> cos();
+    Tensor<T> tan();
+
     Tensor<T> normal_(double mean = 0, double stddev = 1);
     Tensor<T> uniform_(double low = 0, double high = 1);
 
@@ -77,4 +91,4 @@ public:
 
     void print();
 };
-}
+} // namespace L2

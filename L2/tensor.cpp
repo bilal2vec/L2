@@ -1,6 +1,6 @@
 #include <iostream>
 #include <vector>
-#include <cmath>     // std::abs
+#include <cmath>     // std::abs, std::pow
 #include <algorithm> //std::max
 #include <tuple>     //std::tuple
 #include <string>
@@ -181,6 +181,47 @@ T Tensor<T>::operation(T lhs, T rhs, std::string op)
     {
         return lhs / rhs;
     }
+    else if (op == "pow")
+    {
+        return std::pow(lhs, rhs);
+    }
+}
+
+template <class T>
+T Tensor<T>::operation(T lhs, std::string op)
+{
+    if (op == "sqrt")
+    {
+        return std::sqrt(lhs);
+    }
+    else if (op == "exp")
+    {
+        return std::exp(lhs);
+    }
+    else if (op == "log")
+    {
+        return std::log(lhs);
+    }
+    else if (op == "log10")
+    {
+        return std::log10(lhs);
+    }
+    else if (op == "abs")
+    {
+        return std::abs(lhs);
+    }
+    else if (op == "sin")
+    {
+        return std::sin(lhs);
+    }
+    else if (op == "cos")
+    {
+        return std::cos(lhs);
+    }
+    else if (op == "tan")
+    {
+        return std::tan(lhs);
+    }
 }
 
 template <class T>
@@ -254,6 +295,19 @@ Tensor<T> Tensor<T>::scalar_elementwise_op(T other, std::string op)
     for (int i = 0; i < data.size(); ++i)
     {
         new_data.push_back(operation(data[i], other, op));
+    }
+
+    return Tensor<T>(new_data, get_shape());
+}
+
+template <class T>
+Tensor<T> Tensor<T>::tensor_op(std::string op)
+{
+    std::vector<T> new_data;
+
+    for (int i = 0; i < data.size(); ++i)
+    {
+        new_data.push_back(operation(data[i], op));
     }
 
     return Tensor<T>(new_data, get_shape());
@@ -360,6 +414,60 @@ template <class T>
 Tensor<T> Tensor<T>::operator/(Tensor<T> other)
 {
     return tensor_elementwise_op(other, "/");
+}
+
+template <class T>
+Tensor<T> Tensor<T>::pow(T other)
+{
+    return scalar_elementwise_op(other, "pow");
+}
+
+template <class T>
+Tensor<T> Tensor<T>::sqrt()
+{
+    return tensor_op("sqrt");
+}
+
+template <class T>
+Tensor<T> Tensor<T>::exp()
+{
+    return tensor_op("exp");
+}
+
+template <class T>
+Tensor<T> Tensor<T>::log()
+{
+    return tensor_op("log");
+}
+
+template <class T>
+Tensor<T> Tensor<T>::log10()
+{
+    return tensor_op("log10");
+}
+
+template <class T>
+Tensor<T> Tensor<T>::abs()
+{
+    return tensor_op("abs");
+}
+
+template <class T>
+Tensor<T> Tensor<T>::sin()
+{
+    return tensor_op("sin");
+}
+
+template <class T>
+Tensor<T> Tensor<T>::cos()
+{
+    return tensor_op("cos");
+}
+
+template <class T>
+Tensor<T> Tensor<T>::tan()
+{
+    return tensor_op("tan");
 }
 
 template <class T>
