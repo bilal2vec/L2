@@ -427,6 +427,10 @@ std::string Tensor<T>::type()
     {
         return "double";
     }
+    else if (type_name == "f")
+    {
+        return "float";
+    }
     else if (type_name == "i")
     {
         return "int";
@@ -446,9 +450,11 @@ void Tensor<T>::print()
     _print(shape);
     std::cout << "strides:\n";
     _print(strides);
+    std::cout << "dtype:\n\n"
+              << type() << "\n";
 }
 
 template class Tensor<int>;
 template class Tensor<float>;
 template class Tensor<double>;
-}
+} // namespace L2
