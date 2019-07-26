@@ -82,6 +82,9 @@ public:
     Tensor<T> cos();
     Tensor<T> tan();
 
+    Tensor<T> sum();
+    Tensor<T> mean();
+
     Tensor<T> normal_(double mean = 0, double stddev = 1);
     Tensor<T> uniform_(double low = 0, double high = 1);
 

@@ -84,8 +84,8 @@ A C++ deep learning library
 
 *   pow(), sqrt(), exp(), log(), log10(), abs(), cos(), sin(), tan() **done**
 
--   .sum()
--   .mean()
+-   .sum() **done**
+-   .mean() **done**
 -   max(), argmax(), min(), argmin(),
 
 -   mat dot

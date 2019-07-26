@@ -471,6 +471,28 @@ Tensor<T> Tensor<T>::tan()
 }
 
 template <class T>
+Tensor<T> Tensor<T>::sum()
+{
+    T new_data;
+
+    for (T el : data)
+    {
+        new_data += el;
+    }
+
+    return Tensor<T>({new_data}, {1});
+}
+
+template <class T>
+Tensor<T> Tensor<T>::mean()
+{
+    Tensor<T> tensor = sum();
+    tensor.data[0] /= shape_to_n_elements(get_shape());
+
+    return tensor;
+}
+
+template <class T>
 Tensor<T> Tensor<T>::normal_(double mean, double stddev)
 {
     std::random_device random_device{};
