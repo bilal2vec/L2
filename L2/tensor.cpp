@@ -79,6 +79,21 @@ std::vector<index> Tensor<T>::process_index(std::vector<index> indices, std::vec
 }
 
 template <class T>
+std::vector<index> Tensor<T>::process_dims(std::vector<index> indices, int dim, int current_dim, int i)
+{
+    if (dim == current_dim)
+    {
+        indices[current_dim] = {0, -1};
+    }
+    else
+    {
+        indices[current_dim] = {i, i + 1};
+    }
+
+    return indices;
+}
+
+template <class T>
 std::vector<int> Tensor<T>::get_shape(std::vector<index> indices)
 {
     std::vector<int> slice_shape;
@@ -314,6 +329,19 @@ Tensor<T> Tensor<T>::tensor_op(std::string op)
 }
 
 template <class T>
+T Tensor<T>::sum(Tensor<T> tensor)
+{
+    T new_data;
+
+    for (T el : tensor.data)
+    {
+        new_data += el;
+    }
+
+    return new_data;
+}
+
+template <class T>
 Tensor<T>::Tensor(std::vector<int> shape) : data(shape_to_n_elements(shape), 0), shape(shape), strides(get_strides(shape)) {}
 
 template <class T>
@@ -484,12 +512,140 @@ Tensor<T> Tensor<T>::sum()
 }
 
 template <class T>
+Tensor<T> Tensor<T>::sum(int dim)
+{
+    std::vector<T> new_data;
+
+    std::vector<int> current_shape = get_shape();
+    int length = static_cast<int>(current_shape.size());
+    dim = (dim == -1) ? current_shape.size() - 1 : dim;
+
+    std::vector<index> idxs;
+
+    for (int i = 0; i < length; ++i)
+    {
+        idxs.push_back({0, 0});
+    }
+
+    for (int i = 0; i < (dim == 0 ? 1 : current_shape[0]); ++i)
+    {
+
+        idxs = process_dims(idxs, dim, 0, i);
+
+        if (length > 1)
+        {
+            for (int j = 0; j < (dim == 1 ? 1 : current_shape[1]); ++j)
+            {
+                idxs = process_dims(idxs, dim, 1, j);
+
+                if (length > 2)
+                {
+                    for (int k = 0; k < (dim == 2 ? 1 : current_shape[2]); ++k)
+                    {
+                        idxs = process_dims(idxs, dim, 2, k);
+                        if (length > 3)
+                        {
+                            for (int m = 0; m < (dim == 3 ? 1 : current_shape[3]); ++m)
+                            {
+
+                                idxs = process_dims(idxs, dim, 3, m);
+                                new_data.push_back(sum((*this)(idxs)));
+                            }
+                        }
+                        else
+                        {
+                            new_data.push_back(sum((*this)(idxs)));
+                        }
+                    }
+                }
+                else
+                {
+                    new_data.push_back(sum((*this)(idxs)));
+                }
+            }
+        }
+        else
+        {
+            new_data.push_back(sum((*this)(idxs)));
+        }
+    }
+
+    current_shape.erase(current_shape.begin() + dim);
+
+    return Tensor<T>(new_data, current_shape);
+}
+
+template <class T>
 Tensor<T> Tensor<T>::mean()
 {
     Tensor<T> tensor = sum();
     tensor.data[0] /= shape_to_n_elements(get_shape());
 
     return tensor;
+}
+
+template <class T>
+Tensor<T> Tensor<T>::mean(int dim)
+{
+    std::vector<T> new_data;
+
+    std::vector<int> current_shape = get_shape();
+    int length = static_cast<int>(current_shape.size());
+    dim = (dim == -1) ? current_shape.size() - 1 : dim;
+
+    std::vector<index> idxs;
+
+    for (int i = 0; i < length; ++i)
+    {
+        idxs.push_back({0, 0});
+    }
+
+    for (int i = 0; i < (dim == 0 ? 1 : current_shape[0]); ++i)
+    {
+
+        idxs = process_dims(idxs, dim, 0, i);
+
+        if (length > 1)
+        {
+            for (int j = 0; j < (dim == 1 ? 1 : current_shape[1]); ++j)
+            {
+                idxs = process_dims(idxs, dim, 1, j);
+
+                if (length > 2)
+                {
+                    for (int k = 0; k < (dim == 2 ? 1 : current_shape[2]); ++k)
+                    {
+                        idxs = process_dims(idxs, dim, 2, k);
+                        if (length > 3)
+                        {
+                            for (int m = 0; m < (dim == 3 ? 1 : current_shape[3]); ++m)
+                            {
+
+                                idxs = process_dims(idxs, dim, 3, m);
+                                new_data.push_back(sum((*this)(idxs)) / current_shape[3]);
+                            }
+                        }
+                        else
+                        {
+                            new_data.push_back(sum((*this)(idxs)) / current_shape[2]);
+                        }
+                    }
+                }
+                else
+                {
+                    new_data.push_back(sum((*this)(idxs)) / current_shape[1]);
+                }
+            }
+        }
+        else
+        {
+            new_data.push_back(sum((*this)(idxs)) / current_shape[0]);
+        }
+    }
+
+    current_shape.erase(current_shape.begin() + dim);
+
+    return Tensor<T>(new_data, current_shape);
 }
 
 template <class T>

@@ -36,6 +36,7 @@ private:
     bool valid_shape(std::vector<int> shape, std::vector<int> new_shape);
 
     std::vector<index> process_index(std::vector<index> indices, std::vector<int> shape);
+    std::vector<index> process_dims(std::vector<index> indices, int dim, int current_dim, int i);
 
     std::vector<int> get_shape(std::vector<index> indices);
     std::vector<int> get_strides(std::vector<int> shape);
@@ -51,6 +52,8 @@ private:
     Tensor<T> tensor_elementwise_op(Tensor<T> other, std::string op);
     Tensor<T> scalar_elementwise_op(T other, std::string op);
     Tensor<T> tensor_op(std::string op);
+
+    T sum(Tensor<T> tensor);
 
 public:
     Tensor(std::vector<int> shape);
@@ -83,7 +86,10 @@ public:
     Tensor<T> tan();
 
     Tensor<T> sum();
+    Tensor<T> sum(int dim);
+
     Tensor<T> mean();
+    Tensor<T> mean(int dim);
 
     Tensor<T> normal_(double mean = 0, double stddev = 1);
     Tensor<T> uniform_(double low = 0, double high = 1);
@@ -94,4 +100,28 @@ public:
 
     void print();
 };
+
+template <class T>
+Tensor<T> sum(Tensor<T> tensor)
+{
+    return tensor.sum();
+}
+
+template <class T>
+Tensor<T> sum(Tensor<T> tensor, int dim)
+{
+    return tensor.sum(dim);
+}
+
+template <class T>
+Tensor<T> mean(Tensor<T> tensor)
+{
+    return tensor.mean();
+}
+
+template <class T>
+Tensor<T> mean(Tensor<T> tensor, int dim)
+{
+    return tensor.mean(dim);
+}
 } // namespace L2

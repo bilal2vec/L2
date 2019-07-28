@@ -6,11 +6,12 @@
 int main()
 {
 
-    L2::Tensor<double> y = L2::Tensor<double>({3, 3}).normal_(10, 1);
+    std::vector<double> x{1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 4.0};
+    L2::Tensor<double> y = L2::Tensor<double>(x, {2, 2, 2});
 
     y.print();
 
-    L2::Tensor<double> z = y.mean();
+    L2::Tensor<double> z = L2::mean(y, 0);
 
     z.print();
 
