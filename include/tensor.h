@@ -46,6 +46,8 @@ private:
 
     std::tuple<std::vector<int>, std::vector<int>> broadcast_strides(std::vector<int> lhs_shape, std::vector<int> rhs_shape, std::vector<int> new_shape);
 
+    std::vector<T> concat_tensors(std::vector<Tensor<T>> tensors, std::vector<index> idxs, std::vector<T> vector);
+
     T operation(T lhs, T rhs, std::string op);
     T operation(T lhs, std::string op);
 
@@ -105,7 +107,7 @@ public:
     Tensor<T> argmin();
     Tensor<T> argmin(int dim);
 
-    Tensor<T> cat(Tensor<T> other, int dim);
+    Tensor<T> cat(std::vector<Tensor<T>> tensors, int dim);
 
     Tensor<T> normal_(double mean = 0, double stddev = 1);
     Tensor<T> uniform_(double low = 0, double high = 1);
@@ -195,81 +197,6 @@ Tensor<T> argmin(Tensor<T> tensor, int dim)
 template <class T>
 Tensor<T> cat(std::vector<Tensor<T>> tensors, int dim)
 {
-    // check that all tensors should have the same dimensions except in the dimension dim and same number of dimensions
-    //
-
-    std::vector<T> new_data;
-    //get new shape
-    std::vector<int> new_shape = tensors[0].get_shape();
-
-    for (int i = 1; i < tensors.size(); ++i)
-    {
-        new_shape[dim] += tensors[i].get_shape()[dim];
-    }
-
-    int length = static_cast<int>(new_shape.size());
-    std::vector<index> idxs;
-
-    for (int i = 0; i < length; ++i)
-    {
-        idxs.push_back({0, 0});
-    }
-
-    for (int i = 0; i < (dim == 0 ? 1 : new_shape[0]); ++i)
-    {
-        if (dim == 0)
-        {
-
-            idxs[0] = {0, i + 1};
-            for (Tensor<T> tensor : tensors)
-            {
-                std::vector<T> z = tensor.get_data();
-
-                new_data.insert(new_data.end(), z.begin(), z.end());
-            }
-        }
-        else
-        {
-            idxs[0] = {i, i + 1};
-            for (int j = 0; j < (dim == 1 ? 1 : new_shape[1]); ++j)
-            {
-                if (dim == 1)
-                {
-                    idxs[1] = {0, -1};
-
-                    for (Tensor<T> tensor : tensors)
-                    {
-                        // get row
-                        std::vector<T> z = tensor(idxs).get_data();
-
-                        // insert at end of row
-                        new_data.insert(new_data.end(), z.begin(), z.end());
-                    }
-                }
-                else
-                {
-                }
-            }
-        }
-    }
-
-    return Tensor<T>(new_data, new_shape);
-
-    // go over new shape
-    //      get slice from
-
-    // insert elements into vector, expanding it
-
-    // if dim is dim
-    //      select row/col of each tensor {0, -1} on that dim
-    //      concat data and append
-
-    // concating axis 1
-    //
-
-    // cat all elements in dim of tensors
-
-    //dim 0 means to add the array after the current one
-    // dim1 means to add the first row of the array after the current one
+    return tensors[0].cat(tensors, dim);
 }
 } // namespace L2

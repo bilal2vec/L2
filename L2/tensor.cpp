@@ -178,6 +178,18 @@ std::tuple<std::vector<int>, std::vector<int>> Tensor<T>::broadcast_strides(std:
 }
 
 template <class T>
+std::vector<T> Tensor<T>::concat_tensors(std::vector<Tensor<T>> tensors, std::vector<index> idxs, std::vector<T> vector)
+{
+    for (Tensor<T> tensor : tensors)
+    {
+        std::vector<T> temp = tensor(idxs).get_data();
+
+        vector.insert(vector.end(), temp.begin(), temp.end());
+    }
+    return vector;
+}
+
+template <class T>
 T Tensor<T>::operation(T lhs, T rhs, std::string op)
 {
     if (op == "+")
@@ -687,84 +699,90 @@ Tensor<T> Tensor<T>::argmin(int dim)
 }
 
 template <class T>
-Tensor<T> Tensor<T>::cat(Tensor<T> other, int dim)
+Tensor<T> Tensor<T>::cat(std::vector<Tensor<T>> tensors, int dim)
 {
+    // kind of a static function
+
+    // check that all tensors should have the same dimensions except in the dimension dim and same number of dimensions
+
     std::vector<T> new_data;
 
-    std::vector<int> current_shape = get_shape();
-    int length = static_cast<int>(current_shape.size());
-    dim = (dim == -1) ? current_shape.size() - 1 : dim;
-
-    std::vector<index> idxs;
-
-    for (int i = 0; i < length; ++i)
+    std::vector<int> new_shape = tensors[0].get_shape();
+    for (int i = 1; i < tensors.size(); ++i)
     {
-        idxs.push_back({0, 0});
+        new_shape[dim] += tensors[i].get_shape()[dim];
     }
 
-    for (int i = 0; i < (dim == 0 ? 1 : current_shape[0]); ++i)
+    int length = static_cast<int>(new_shape.size());
+
+    std::vector<index> idxs;
+    for (int i = 0; i < length; ++i)
+    {
+        idxs.push_back({0, -1});
+    }
+
+    for (int i = 0; i < (dim == 0 ? 1 : new_shape[0]); ++i)
     {
 
         idxs = process_dims(idxs, dim, 0, i);
 
-        if (length > 1)
+        if (dim == 0)
         {
-            for (int j = 0; j < (dim == 1 ? 1 : current_shape[1]); ++j)
-            {
-                idxs = process_dims(idxs, dim, 1, j);
-
-                if (length > 2)
-                {
-                    for (int k = 0; k < (dim == 2 ? 1 : current_shape[2]); ++k)
-                    {
-                        idxs = process_dims(idxs, dim, 2, k);
-                        if (length > 3)
-                        {
-                            for (int m = 0; m < (dim == 3 ? 1 : current_shape[3]); ++m)
-                            {
-
-                                idxs = process_dims(idxs, dim, 3, m);
-
-                                std::vector<T> z = (*this)(idxs).data;
-                                std::vector<T> zz = other(idxs).data;
-
-                                new_data.insert(new_data.end(), z.begin(), z.end());
-                                new_data.insert(new_data.end(), zz.begin(), zz.end());
-                            }
-                        }
-                        else
-                        {
-                            std::vector<T> z = (*this)(idxs).data;
-                            std::vector<T> zz = other(idxs).data;
-
-                            new_data.insert(new_data.end(), z.begin(), z.end());
-                            new_data.insert(new_data.end(), zz.begin(), zz.end());
-                        }
-                    }
-                }
-                else
-                {
-                    std::vector<T> z = (*this)(idxs).data;
-                    std::vector<T> zz = other(idxs).data;
-
-                    new_data.insert(new_data.end(), z.begin(), z.end());
-                    new_data.insert(new_data.end(), zz.begin(), zz.end());
-                }
-            }
+            new_data = concat_tensors(tensors, idxs, new_data);
         }
         else
         {
-            std::vector<T> z = (*this)(idxs).data;
-            std::vector<T> zz = other(idxs).data;
+            for (int j = 0; j < (dim == 1 ? 1 : new_shape[1]); ++j)
+            {
+                idxs = process_dims(idxs, dim, 1, j);
 
-            new_data.insert(new_data.end(), z.begin(), z.end());
-            new_data.insert(new_data.end(), zz.begin(), zz.end());
+                if (dim == 1)
+                {
+                    new_data = concat_tensors(tensors, idxs, new_data);
+                }
+                else
+                {
+                    for (int k = 0; k < (dim == 2 ? 1 : new_shape[2]); ++k)
+                    {
+                        idxs = process_dims(idxs, dim, 2, k);
+
+                        if (dim == 2)
+                        {
+                            new_data = concat_tensors(tensors, idxs, new_data);
+                        }
+                        else
+                        {
+                            for (int m = 0; m < (dim == 3 ? 1 : new_shape[3]); ++m)
+                            {
+                                idxs = process_dims(idxs, dim, 3, m);
+
+                                new_data = concat_tensors(tensors, idxs, new_data);
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
-    current_shape.erase(current_shape.begin() + dim);
+    return Tensor<T>(new_data, new_shape);
 
-    return Tensor<T>(new_data, current_shape);
+    // go over new shape
+    //      get slice from
+
+    // insert elements into vector, expanding it
+
+    // if dim is dim
+    //      select row/col of each tensor {0, -1} on that dim
+    //      concat data and append
+
+    // concating axis 1
+    //
+
+    // cat all elements in dim of tensors
+
+    //dim 0 means to add the array after the current one
+    // dim1 means to add the first row of the array after the current one
 }
 
 template <class T>
