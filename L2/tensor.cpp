@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <cmath>     // std::abs, std::pow
-#include <algorithm> //std::max
+#include <algorithm> //std::max, std::max_element, std::min_element
 #include <tuple>     //std::tuple
 #include <string>
 
@@ -240,6 +240,48 @@ T Tensor<T>::operation(T lhs, std::string op)
 }
 
 template <class T>
+T Tensor<T>::sum(Tensor<T> tensor)
+{
+    T new_data;
+
+    for (T el : tensor.data)
+    {
+        new_data += el;
+    }
+
+    return new_data;
+}
+
+template <class T>
+T Tensor<T>::dimension_operation(Tensor<T> tensor, std::string op)
+{
+    if (op == "sum")
+    {
+        return sum(tensor);
+    }
+    else if (op == "mean")
+    {
+        return sum(tensor) / tensor.data.size();
+    }
+    else if (op == "max")
+    {
+        return *std::max_element(tensor.data.begin(), tensor.data.end());
+    }
+    else if (op == "min")
+    {
+        return *std::min_element(tensor.data.begin(), tensor.data.end());
+    }
+    else if (op == "argmax")
+    {
+        return std::distance(tensor.data.begin(), std::max_element(tensor.data.begin(), tensor.data.end()));
+    }
+    else if (op == "argmin")
+    {
+        return std::distance(tensor.data.begin(), std::min_element(tensor.data.begin(), tensor.data.end()));
+    }
+}
+
+template <class T>
 Tensor<T> Tensor<T>::tensor_elementwise_op(Tensor<T> other, std::string op)
 {
     // expand lhs and rhs sizes to have the same number of elements
@@ -329,16 +371,72 @@ Tensor<T> Tensor<T>::tensor_op(std::string op)
 }
 
 template <class T>
-T Tensor<T>::sum(Tensor<T> tensor)
+Tensor<T> Tensor<T>::dimension_op(int dim, std::string op)
 {
-    T new_data;
+    std::vector<T> new_data;
 
-    for (T el : tensor.data)
+    std::vector<int> current_shape = get_shape();
+    int length = static_cast<int>(current_shape.size());
+    dim = (dim == -1) ? current_shape.size() - 1 : dim;
+
+    std::vector<index> idxs;
+
+    for (int i = 0; i < length; ++i)
     {
-        new_data += el;
+        idxs.push_back({0, 0});
     }
 
-    return new_data;
+    for (int i = 0; i < (dim == 0 ? 1 : current_shape[0]); ++i)
+    {
+
+        idxs = process_dims(idxs, dim, 0, i);
+
+        if (length > 1)
+        {
+            for (int j = 0; j < (dim == 1 ? 1 : current_shape[1]); ++j)
+            {
+                idxs = process_dims(idxs, dim, 1, j);
+
+                if (length > 2)
+                {
+                    for (int k = 0; k < (dim == 2 ? 1 : current_shape[2]); ++k)
+                    {
+                        idxs = process_dims(idxs, dim, 2, k);
+                        if (length > 3)
+                        {
+                            for (int m = 0; m < (dim == 3 ? 1 : current_shape[3]); ++m)
+                            {
+
+                                idxs = process_dims(idxs, dim, 3, m);
+
+                                T op_result = dimension_operation((*this)(idxs), op);
+                                new_data.push_back(op_result);
+                            }
+                        }
+                        else
+                        {
+                            T op_result = dimension_operation((*this)(idxs), op);
+                            new_data.push_back(op_result);
+                        }
+                    }
+                }
+                else
+                {
+                    T op_result = dimension_operation((*this)(idxs), op);
+                    new_data.push_back(op_result);
+                }
+            }
+        }
+        else
+        {
+            T op_result = dimension_operation((*this)(idxs), op);
+            new_data.push_back(op_result);
+        }
+    }
+
+    current_shape.erase(current_shape.begin() + dim);
+
+    return Tensor<T>(new_data, current_shape);
 }
 
 template <class T>
@@ -514,65 +612,7 @@ Tensor<T> Tensor<T>::sum()
 template <class T>
 Tensor<T> Tensor<T>::sum(int dim)
 {
-    std::vector<T> new_data;
-
-    std::vector<int> current_shape = get_shape();
-    int length = static_cast<int>(current_shape.size());
-    dim = (dim == -1) ? current_shape.size() - 1 : dim;
-
-    std::vector<index> idxs;
-
-    for (int i = 0; i < length; ++i)
-    {
-        idxs.push_back({0, 0});
-    }
-
-    for (int i = 0; i < (dim == 0 ? 1 : current_shape[0]); ++i)
-    {
-
-        idxs = process_dims(idxs, dim, 0, i);
-
-        if (length > 1)
-        {
-            for (int j = 0; j < (dim == 1 ? 1 : current_shape[1]); ++j)
-            {
-                idxs = process_dims(idxs, dim, 1, j);
-
-                if (length > 2)
-                {
-                    for (int k = 0; k < (dim == 2 ? 1 : current_shape[2]); ++k)
-                    {
-                        idxs = process_dims(idxs, dim, 2, k);
-                        if (length > 3)
-                        {
-                            for (int m = 0; m < (dim == 3 ? 1 : current_shape[3]); ++m)
-                            {
-
-                                idxs = process_dims(idxs, dim, 3, m);
-                                new_data.push_back(sum((*this)(idxs)));
-                            }
-                        }
-                        else
-                        {
-                            new_data.push_back(sum((*this)(idxs)));
-                        }
-                    }
-                }
-                else
-                {
-                    new_data.push_back(sum((*this)(idxs)));
-                }
-            }
-        }
-        else
-        {
-            new_data.push_back(sum((*this)(idxs)));
-        }
-    }
-
-    current_shape.erase(current_shape.begin() + dim);
-
-    return Tensor<T>(new_data, current_shape);
+    return dimension_op(dim, "sum");
 }
 
 template <class T>
@@ -587,65 +627,63 @@ Tensor<T> Tensor<T>::mean()
 template <class T>
 Tensor<T> Tensor<T>::mean(int dim)
 {
-    std::vector<T> new_data;
+    return dimension_op(dim, "mean");
+}
 
-    std::vector<int> current_shape = get_shape();
-    int length = static_cast<int>(current_shape.size());
-    dim = (dim == -1) ? current_shape.size() - 1 : dim;
+template <class T>
+Tensor<T> Tensor<T>::max()
+{
+    T max = *std::max_element(data.begin(), data.end());
 
-    std::vector<index> idxs;
+    return Tensor<T>({max}, {1});
+}
 
-    for (int i = 0; i < length; ++i)
-    {
-        idxs.push_back({0, 0});
-    }
+template <class T>
+Tensor<T> Tensor<T>::max(int dim)
+{
+    return dimension_op(dim, "max");
+}
 
-    for (int i = 0; i < (dim == 0 ? 1 : current_shape[0]); ++i)
-    {
+template <class T>
+Tensor<T> Tensor<T>::min()
+{
+    T min = *std::min_element(data.begin(), data.end());
 
-        idxs = process_dims(idxs, dim, 0, i);
+    return Tensor<T>({min}, {1});
+}
 
-        if (length > 1)
-        {
-            for (int j = 0; j < (dim == 1 ? 1 : current_shape[1]); ++j)
-            {
-                idxs = process_dims(idxs, dim, 1, j);
+template <class T>
+Tensor<T> Tensor<T>::min(int dim)
+{
+    return dimension_op(dim, "min");
+}
 
-                if (length > 2)
-                {
-                    for (int k = 0; k < (dim == 2 ? 1 : current_shape[2]); ++k)
-                    {
-                        idxs = process_dims(idxs, dim, 2, k);
-                        if (length > 3)
-                        {
-                            for (int m = 0; m < (dim == 3 ? 1 : current_shape[3]); ++m)
-                            {
+template <class T>
+Tensor<T> Tensor<T>::argmax()
+{
+    T argmax = std::distance(data.begin(), std::max_element(data.begin(), data.end()));
 
-                                idxs = process_dims(idxs, dim, 3, m);
-                                new_data.push_back(sum((*this)(idxs)) / current_shape[3]);
-                            }
-                        }
-                        else
-                        {
-                            new_data.push_back(sum((*this)(idxs)) / current_shape[2]);
-                        }
-                    }
-                }
-                else
-                {
-                    new_data.push_back(sum((*this)(idxs)) / current_shape[1]);
-                }
-            }
-        }
-        else
-        {
-            new_data.push_back(sum((*this)(idxs)) / current_shape[0]);
-        }
-    }
+    return Tensor<T>({argmax}, {1});
+}
 
-    current_shape.erase(current_shape.begin() + dim);
+template <class T>
+Tensor<T> Tensor<T>::argmax(int dim)
+{
+    return dimension_op(dim, "argmax");
+}
 
-    return Tensor<T>(new_data, current_shape);
+template <class T>
+Tensor<T> Tensor<T>::argmin()
+{
+    T argmin = std::distance(data.begin(), std::min_element(data.begin(), data.end()));
+
+    return Tensor<T>({argmin}, {1});
+}
+
+template <class T>
+Tensor<T> Tensor<T>::argmin(int dim)
+{
+    return dimension_op(dim, "argmin");
 }
 
 template <class T>

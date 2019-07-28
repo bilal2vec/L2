@@ -11,7 +11,7 @@ int main()
 
     y.print();
 
-    L2::Tensor<double> z = L2::mean(y, 0);
+    L2::Tensor<double> z = y.argmax();
 
     z.print();
 

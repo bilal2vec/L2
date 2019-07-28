@@ -88,7 +88,7 @@ A C++ deep learning library
 -   .mean() **done**
 -   sum and mean over dims **done**
     -   -1 dim **done**
--   max(), argmax(), min(), argmin(),
+-   max(), argmax(), min(), argmin(), **done**
 
 -   mat dot
 

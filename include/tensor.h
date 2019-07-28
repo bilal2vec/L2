@@ -49,11 +49,13 @@ private:
     T operation(T lhs, T rhs, std::string op);
     T operation(T lhs, std::string op);
 
+    T sum(Tensor<T> tensor);
+    T dimension_operation(Tensor<T> tensor, std::string op);
+
     Tensor<T> tensor_elementwise_op(Tensor<T> other, std::string op);
     Tensor<T> scalar_elementwise_op(T other, std::string op);
     Tensor<T> tensor_op(std::string op);
-
-    T sum(Tensor<T> tensor);
+    Tensor<T> dimension_op(int dim, std::string op);
 
 public:
     Tensor(std::vector<int> shape);
@@ -91,6 +93,18 @@ public:
     Tensor<T> mean();
     Tensor<T> mean(int dim);
 
+    Tensor<T> max();
+    Tensor<T> max(int dim);
+
+    Tensor<T> min();
+    Tensor<T> min(int dim);
+
+    Tensor<T> argmax();
+    Tensor<T> argmax(int dim);
+
+    Tensor<T> argmin();
+    Tensor<T> argmin(int dim);
+
     Tensor<T> normal_(double mean = 0, double stddev = 1);
     Tensor<T> uniform_(double low = 0, double high = 1);
 
@@ -124,4 +138,53 @@ Tensor<T> mean(Tensor<T> tensor, int dim)
 {
     return tensor.mean(dim);
 }
+
+template <class T>
+Tensor<T> max(Tensor<T> tensor)
+{
+    return tensor.max();
+}
+
+template <class T>
+Tensor<T> max(Tensor<T> tensor, int dim)
+{
+    return tensor.max(dim);
+}
+
+template <class T>
+Tensor<T> min(Tensor<T> tensor)
+{
+    return tensor.min();
+}
+
+template <class T>
+Tensor<T> min(Tensor<T> tensor, int dim)
+{
+    return tensor.min(dim);
+}
+
+template <class T>
+Tensor<T> argmax(Tensor<T> tensor)
+{
+    return tensor.argmax();
+}
+
+template <class T>
+Tensor<T> argmax(Tensor<T> tensor, int dim)
+{
+    return tensor.argmax(dim);
+}
+
+template <class T>
+Tensor<T> argmin(Tensor<T> tensor)
+{
+    return tensor.argmin();
+}
+
+template <class T>
+Tensor<T> argmin(Tensor<T> tensor, int dim)
+{
+    return tensor.argmin(dim);
+}
+
 } // namespace L2
