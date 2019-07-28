@@ -96,8 +96,8 @@ A C++ deep learning library
 
 *   concat
 *   store the data as a pointer and return a pointer whenever indexing
-*   also handle cloning tensors
-*   copying
+*   also handle cloning tensors **done**
+*   copying **done**
 
 ## things to know
 

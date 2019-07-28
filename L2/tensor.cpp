@@ -687,6 +687,87 @@ Tensor<T> Tensor<T>::argmin(int dim)
 }
 
 template <class T>
+Tensor<T> Tensor<T>::cat(Tensor<T> other, int dim)
+{
+    std::vector<T> new_data;
+
+    std::vector<int> current_shape = get_shape();
+    int length = static_cast<int>(current_shape.size());
+    dim = (dim == -1) ? current_shape.size() - 1 : dim;
+
+    std::vector<index> idxs;
+
+    for (int i = 0; i < length; ++i)
+    {
+        idxs.push_back({0, 0});
+    }
+
+    for (int i = 0; i < (dim == 0 ? 1 : current_shape[0]); ++i)
+    {
+
+        idxs = process_dims(idxs, dim, 0, i);
+
+        if (length > 1)
+        {
+            for (int j = 0; j < (dim == 1 ? 1 : current_shape[1]); ++j)
+            {
+                idxs = process_dims(idxs, dim, 1, j);
+
+                if (length > 2)
+                {
+                    for (int k = 0; k < (dim == 2 ? 1 : current_shape[2]); ++k)
+                    {
+                        idxs = process_dims(idxs, dim, 2, k);
+                        if (length > 3)
+                        {
+                            for (int m = 0; m < (dim == 3 ? 1 : current_shape[3]); ++m)
+                            {
+
+                                idxs = process_dims(idxs, dim, 3, m);
+
+                                std::vector<T> z = (*this)(idxs).data;
+                                std::vector<T> zz = other(idxs).data;
+
+                                new_data.insert(new_data.end(), z.begin(), z.end());
+                                new_data.insert(new_data.end(), zz.begin(), zz.end());
+                            }
+                        }
+                        else
+                        {
+                            std::vector<T> z = (*this)(idxs).data;
+                            std::vector<T> zz = other(idxs).data;
+
+                            new_data.insert(new_data.end(), z.begin(), z.end());
+                            new_data.insert(new_data.end(), zz.begin(), zz.end());
+                        }
+                    }
+                }
+                else
+                {
+                    std::vector<T> z = (*this)(idxs).data;
+                    std::vector<T> zz = other(idxs).data;
+
+                    new_data.insert(new_data.end(), z.begin(), z.end());
+                    new_data.insert(new_data.end(), zz.begin(), zz.end());
+                }
+            }
+        }
+        else
+        {
+            std::vector<T> z = (*this)(idxs).data;
+            std::vector<T> zz = other(idxs).data;
+
+            new_data.insert(new_data.end(), z.begin(), z.end());
+            new_data.insert(new_data.end(), zz.begin(), zz.end());
+        }
+    }
+
+    current_shape.erase(current_shape.begin() + dim);
+
+    return Tensor<T>(new_data, current_shape);
+}
+
+template <class T>
 Tensor<T> Tensor<T>::normal_(double mean, double stddev)
 {
     std::random_device random_device{};
@@ -737,9 +818,21 @@ void Tensor<T>::view(std::vector<int> new_shape)
 }
 
 template <class T>
+Tensor<T> Tensor<T>::clone()
+{
+    return Tensor(data, shape);
+}
+
+template <class T>
 std::vector<int> Tensor<T>::get_shape()
 {
     return shape;
+}
+
+template <class T>
+std::vector<T> Tensor<T>::get_data()
+{
+    return data;
 }
 
 template <class T>
