@@ -13,7 +13,7 @@
 			"label": "build main.cpp",
 			"type": "shell",
 			"command": "g++",
-			"args": ["-g", "-o", "main.out", "main.cpp", "-Llib", "-lL2"],
+			"args": ["-g", "-Og", "-o", "main.out", "main.cpp", "-Llib", "-lL2"],
 			"group": {
 				"kind": "build",
 				"isDefault": true

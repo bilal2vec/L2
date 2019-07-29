@@ -50,6 +50,24 @@
 					}
 				]
 			},
+			"linux": {
+				"MIMode": "gdb",
+
+				"setupCommands": [
+					{
+						"text": "-enable-pretty-printing",
+						"description": "enable pretty printing",
+						"ignoreFailures": true
+					},
+
+					{
+						"text": "handle SIGPIPE nostop noprint pass",
+						"description": "ignore SIGPIPE",
+						"ignoreFailures": true
+					}
+				]
+			},
+
 			"pipeTransport": {
 				"pipeCwd": "",
 				"pipeProgram": "bash.exe", //"c:\\windows\\sysnative\\bash.exe",
