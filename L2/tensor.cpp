@@ -701,10 +701,6 @@ Tensor<T> Tensor<T>::argmin(int dim)
 template <class T>
 Tensor<T> Tensor<T>::cat(std::vector<Tensor<T>> tensors, int dim)
 {
-    // kind of a static function
-
-    // check that all tensors should have the same dimensions except in the dimension dim and same number of dimensions
-
     std::vector<T> new_data;
 
     std::vector<int> new_shape = tensors[0].get_shape();
@@ -766,23 +762,6 @@ Tensor<T> Tensor<T>::cat(std::vector<Tensor<T>> tensors, int dim)
     }
 
     return Tensor<T>(new_data, new_shape);
-
-    // go over new shape
-    //      get slice from
-
-    // insert elements into vector, expanding it
-
-    // if dim is dim
-    //      select row/col of each tensor {0, -1} on that dim
-    //      concat data and append
-
-    // concating axis 1
-    //
-
-    // cat all elements in dim of tensors
-
-    //dim 0 means to add the array after the current one
-    // dim1 means to add the first row of the array after the current one
 }
 
 template <class T>

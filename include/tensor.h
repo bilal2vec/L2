@@ -195,8 +195,9 @@ Tensor<T> argmin(Tensor<T> tensor, int dim)
 }
 
 template <class T>
-Tensor<T> cat(std::vector<Tensor<T>> tensors, int dim)
+Tensor<T> cat(std::initializer_list<Tensor<T>> tensors, int dim)
 {
-    return tensors[0].cat(tensors, dim);
+    std::vector<Tensor<T>> tensors_vector(tensors.begin(), tensors.end());
+    return tensors_vector[0].cat(tensors_vector, dim);
 }
 } // namespace L2

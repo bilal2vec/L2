@@ -94,7 +94,20 @@ A C++ deep learning library
 
 -   change dtype
 
-*   concat
+*   concat **done**
+
+    -   go over new shape
+    -   get slice from
+    -   insert elements into vector, expanding it
+
+    -   if dim is dim
+        -   select row/col of each tensor {0, -1} on that dim
+        -   concat data and append
+    -   concating axis 1
+    -   cat all elements in dim of tensors
+    -   dim 0 means to add the array after the current one
+    -   dim1 means to add the first row of the array after the current one
+
 *   store the data as a pointer and return a pointer whenever indexing
 *   also handle cloning tensors **done**
 *   copying **done**

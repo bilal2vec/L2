@@ -11,9 +11,7 @@ int main()
     L2::Tensor<double> xx = L2::Tensor<double>(x, {2, 2, 2});
     L2::Tensor<double> yy = L2::Tensor<double>(x, {2, 2, 2});
 
-    std::vector<L2::Tensor<double>> zz{xx, yy};
-
-    L2::Tensor<double> z = L2::cat(zz, 2);
+    L2::Tensor<double> z = L2::cat({xx, yy}, 2);
 
     z.print();
 
