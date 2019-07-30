@@ -59,6 +59,8 @@ private:
     Tensor<T> tensor_op(std::string op);
     Tensor<T> dimension_op(int dim, std::string op);
 
+    std::vector<T> matmul_(Tensor<T> lhs, Tensor<T> rhs, int dim);
+
 public:
     Tensor(std::vector<int> shape);
     Tensor(std::vector<T> x, std::vector<int> shape);
@@ -108,6 +110,8 @@ public:
     Tensor<T> argmin(int dim);
 
     Tensor<T> cat(std::vector<Tensor<T>> tensors, int dim);
+
+    Tensor<T> matmul(Tensor<T> rhs);
 
     Tensor<T> normal_(double mean = 0, double stddev = 1);
     Tensor<T> uniform_(double low = 0, double high = 1);
@@ -199,5 +203,11 @@ Tensor<T> cat(std::initializer_list<Tensor<T>> tensors, int dim)
 {
     std::vector<Tensor<T>> tensors_vector(tensors.begin(), tensors.end());
     return tensors_vector[0].cat(tensors_vector, dim);
+}
+
+template <class T>
+Tensor<T> matmul(Tensor<T> lhs, Tensor<T> rhs)
+{
+    return lhs.matmul(rhs);
 }
 } // namespace L2

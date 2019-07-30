@@ -452,6 +452,29 @@ Tensor<T> Tensor<T>::dimension_op(int dim, std::string op)
 }
 
 template <class T>
+std::vector<T> Tensor<T>::matmul_(Tensor<T> lhs, Tensor<T> rhs, int dim)
+{
+
+    lhs.view({1, lhs.get_shape()[0]});
+    rhs.view({rhs.get_shape()[0], 1});
+
+    std::vector<T> new_data;
+
+    // efficient matmul from https://github.com/fastai/course-v3/blob/master/nbs/dl2/01_matmul.ipynb
+    for (int i = 0; i < dim; ++i)
+    {
+        Tensor<T> a = lhs({{i, i + 1}, {0, -1}});
+        a.shape.push_back(1);
+
+        Tensor<T> c = (a * rhs).sum(0);
+
+        new_data.insert(new_data.end(), c.data.begin(), c.data.end());
+    }
+
+    return new_data;
+}
+
+template <class T>
 Tensor<T>::Tensor(std::vector<int> shape) : data(shape_to_n_elements(shape), 0), shape(shape), strides(get_strides(shape)) {}
 
 template <class T>
@@ -759,6 +782,55 @@ Tensor<T> Tensor<T>::cat(std::vector<Tensor<T>> tensors, int dim)
                 }
             }
         }
+    }
+
+    return Tensor<T>(new_data, new_shape);
+}
+
+template <class T>
+Tensor<T> Tensor<T>::matmul(Tensor<T> rhs)
+{
+    Tensor<T> lhs = (*this);
+
+    std::vector<T> new_data;
+    std::vector<int> new_shape = lhs.get_shape();
+    new_shape[new_shape.size() - 1] = rhs.get_shape()[new_shape.size() - 1];
+    int length = new_shape.size();
+
+    std::vector<int> batch_dims(new_shape.begin(), new_shape.end() - 2);
+
+    std::vector<index> idxs;
+    for (int i = 0; i < length; ++i)
+    {
+        idxs.push_back({0, -1});
+    }
+
+    if (length > 2)
+    {
+        for (int i = 0; i < batch_dims[0]; ++i)
+        {
+            idxs[0] = {i, i + 1};
+            if (length > 3)
+            {
+                for (int j = 0; j < batch_dims[1]; ++j)
+                {
+                    idxs[1] = {j, j + 1};
+
+                    std::vector<T> temp = matmul_(lhs(idxs), rhs(idxs), new_shape[new_shape.size() - 2]);
+                    new_data.insert(new_data.end(), temp.begin(), temp.end());
+                }
+            }
+            else
+            {
+                std::vector<T> temp = matmul_(lhs(idxs), rhs(idxs), new_shape[new_shape.size() - 2]);
+                new_data.insert(new_data.end(), temp.begin(), temp.end());
+            }
+        }
+    }
+    else
+    {
+        std::vector<T> temp = matmul_(lhs(idxs), rhs(idxs), new_shape[new_shape.size() - 2]);
+        new_data.insert(new_data.end(), temp.begin(), temp.end());
     }
 
     return Tensor<T>(new_data, new_shape);

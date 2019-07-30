@@ -90,7 +90,19 @@ A C++ deep learning library
     -   -1 dim **done**
 -   max(), argmax(), min(), argmin(), **done**
 
--   mat dot
+-   mat dot bmm
+
+    -   for bmm
+    -   make sure all dims are same except last two
+    -   iterate over all dimensions except the last two dimensions
+    -   for each of these array slice lhs and rhs to get dims of (a, b) and (b, c)
+    -   matmul the array slice and append to new_data
+
+-   in place operations on slice
+-   view that returns new tensor so chaining can work
+-   in slicing allow not passing all indices
+-   add an unsqueeze(dim) function
+-   transpose
 
 -   change dtype
 
