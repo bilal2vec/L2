@@ -101,7 +101,7 @@ A C++ deep learning library
 -   dot **wont do**
 
 -   in place operations on slice
--   in slicing allow not passing all indices
+-   in slicing allow not passing all indices **done**
 
 -   view that returns new tensor so chaining can work **done**
 -   add an unsqueeze(dim) function **done**

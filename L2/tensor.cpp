@@ -67,6 +67,13 @@ bool Tensor<T>::valid_shape(std::vector<int> shape, std::vector<int> new_shape)
 template <class T>
 std::vector<index> Tensor<T>::process_index(std::vector<index> indices, std::vector<int> shape)
 {
+
+    int diff = shape.size() - indices.size();
+    if (diff > 0)
+    {
+        indices.push_back({0, -1});
+    }
+
     for (int i = 0; i < indices.size(); ++i)
     {
         if (indices[i].stop == -1)
