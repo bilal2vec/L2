@@ -6,13 +6,10 @@
 int main()
 {
 
-    std::vector<double> a{1, 2, 3, 4, 5, 6, 7, 8};
+    std::vector<double> a{1, 2, 3, 4, 5, 6};
 
-    L2::Tensor<double> c = L2::Tensor<double>(a, {2, 2, 2});
-
-    L2::Tensor<double> e = c.transpose();
-
-    e.print();
+    L2::Tensor<double> b = L2::Tensor<double>(a, {2, 3});
+    L2::Tensor<double> c = L2::Tensor<double>(a, {2, 3});
 
     return 0;
 }

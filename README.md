@@ -90,13 +90,15 @@ A C++ deep learning library
     -   -1 dim **done**
 -   max(), argmax(), min(), argmin(), **done**
 
--   mat dot bmm
+-   mat bmm
 
     -   for bmm
     -   make sure all dims are same except last two
     -   iterate over all dimensions except the last two dimensions
     -   for each of these array slice lhs and rhs to get dims of (a, b) and (b, c)
     -   matmul the array slice and append to new_data
+
+-   dot **wont do**
 
 -   in place operations on slice
 -   in slicing allow not passing all indices
@@ -106,6 +108,8 @@ A C++ deep learning library
 -   transpose **done**
 
 -   change dtype
+-   operations between int, float and double tensors
+-   casting tensors to types
 
 *   concat **done**
 

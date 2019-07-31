@@ -793,7 +793,7 @@ Tensor<T> Tensor<T>::cat(std::vector<Tensor<T>> tensors, int dim)
 template <class T>
 Tensor<T> Tensor<T>::matmul(Tensor<T> rhs)
 {
-    Tensor<T> lhs = (*this);
+    Tensor<T> lhs = (*this).clone();
 
     std::vector<T> new_data;
     std::vector<int> new_shape = lhs.get_shape();
