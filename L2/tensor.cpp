@@ -455,11 +455,19 @@ template <class T>
 std::vector<T> Tensor<T>::matmul_(Tensor<T> lhs, Tensor<T> rhs, int dim)
 {
 
+<<<<<<< HEAD
     if (lhs.get_shape().size() == 1 && rhs.get_shape().size() == 1)
     {
         lhs = lhs.view({1, lhs.get_shape()[0]});
         rhs = rhs.view({rhs.get_shape()[0], 1});
     }
+=======
+    // if (lhs.get_shape().size() == 1 && rhs.get_shape().size() == 2)
+    // {
+    //     lhs.view({1, lhs.get_shape()[0]});
+    //     rhs.view({rhs.get_shape()[0], 1});
+    // }
+>>>>>>> temp
 
     std::vector<T> new_data;
 
@@ -802,6 +810,12 @@ Tensor<T> Tensor<T>::matmul(Tensor<T> rhs)
 
     std::vector<int> batch_dims(new_shape.begin(), new_shape.end() - 2);
 
+    std::vector<int> temp = lhs.get_shape();
+    std::vector<int> a_shape(temp.end() - 2, temp.end());
+
+    temp = rhs.get_shape();
+    std::vector<int> b_shape(temp.end() - 2, temp.end());
+
     std::vector<index> idxs;
     for (int i = 0; i < length; ++i)
     {
@@ -819,20 +833,20 @@ Tensor<T> Tensor<T>::matmul(Tensor<T> rhs)
                 {
                     idxs[1] = {j, j + 1};
 
-                    std::vector<T> temp = matmul_(lhs(idxs), rhs(idxs), new_shape[new_shape.size() - 2]);
+                    std::vector<T> temp = matmul_(lhs(idxs).view(a_shape), rhs(idxs).view(b_shape), new_shape[new_shape.size() - 2]);
                     new_data.insert(new_data.end(), temp.begin(), temp.end());
                 }
             }
             else
             {
-                std::vector<T> temp = matmul_(lhs(idxs), rhs(idxs), new_shape[new_shape.size() - 2]);
+                std::vector<T> temp = matmul_(lhs(idxs).view(a_shape), rhs(idxs).view(b_shape), new_shape[new_shape.size() - 2]);
                 new_data.insert(new_data.end(), temp.begin(), temp.end());
             }
         }
     }
     else
     {
-        std::vector<T> temp = matmul_(lhs(idxs), rhs(idxs), new_shape[new_shape.size() - 2]);
+        std::vector<T> temp = matmul_(lhs, rhs, new_shape[new_shape.size() - 2]);
         new_data.insert(new_data.end(), temp.begin(), temp.end());
     }
 
@@ -884,6 +898,11 @@ Tensor<T> Tensor<T>::view(std::vector<int> new_shape)
 {
     if (valid_shape(get_shape(), new_shape))
     {
+<<<<<<< HEAD
+=======
+        // shape = new_shape;
+        // strides = get_strides(shape);
+>>>>>>> temp
         return Tensor<T>(data, new_shape);
     }
 }
