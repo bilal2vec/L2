@@ -71,7 +71,10 @@ std::vector<index> Tensor<T>::process_index(std::vector<index> indices, std::vec
     int diff = shape.size() - indices.size();
     if (diff > 0)
     {
-        indices.push_back({0, -1});
+        for (int i = 0; i < diff; ++i)
+        {
+            indices.push_back({0, -1});
+        }
     }
 
     for (int i = 0; i < indices.size(); ++i)
@@ -461,13 +464,6 @@ Tensor<T> Tensor<T>::dimension_op(int dim, std::string op)
 template <class T>
 std::vector<T> Tensor<T>::matmul_(Tensor<T> lhs, Tensor<T> rhs, int dim)
 {
-
-    // if (lhs.get_shape().size() == 1 && rhs.get_shape().size() == 2)
-    // {
-    //     lhs.view({1, lhs.get_shape()[0]});
-    //     rhs.view({rhs.get_shape()[0], 1});
-    // }
-
     std::vector<T> new_data;
 
     // efficient matmul from https://github.com/fastai/course-v3/blob/master/nbs/dl2/01_matmul.ipynb

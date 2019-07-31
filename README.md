@@ -5,6 +5,9 @@ A C++ deep learning library
 ## ToDo
 
 -   tensors
+    -   store data as pointers
+    -   cat tensors wrong shape
+-   only print out part of long tensors
 -   error handling and checking
 
 ## Done
