@@ -455,19 +455,11 @@ template <class T>
 std::vector<T> Tensor<T>::matmul_(Tensor<T> lhs, Tensor<T> rhs, int dim)
 {
 
-<<<<<<< HEAD
-    if (lhs.get_shape().size() == 1 && rhs.get_shape().size() == 1)
-    {
-        lhs = lhs.view({1, lhs.get_shape()[0]});
-        rhs = rhs.view({rhs.get_shape()[0], 1});
-    }
-=======
     // if (lhs.get_shape().size() == 1 && rhs.get_shape().size() == 2)
     // {
     //     lhs.view({1, lhs.get_shape()[0]});
     //     rhs.view({rhs.get_shape()[0], 1});
     // }
->>>>>>> temp
 
     std::vector<T> new_data;
 
@@ -898,11 +890,8 @@ Tensor<T> Tensor<T>::view(std::vector<int> new_shape)
 {
     if (valid_shape(get_shape(), new_shape))
     {
-<<<<<<< HEAD
-=======
         // shape = new_shape;
         // strides = get_strides(shape);
->>>>>>> temp
         return Tensor<T>(data, new_shape);
     }
 }
