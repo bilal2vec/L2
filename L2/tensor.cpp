@@ -733,6 +733,8 @@ Tensor<T> Tensor<T>::cat(std::vector<Tensor<T>> tensors, int dim)
     std::vector<T> new_data;
 
     std::vector<int> new_shape = tensors[0].get_shape();
+    dim = (dim == -1) ? new_shape.size() - 1 : dim;
+
     for (int i = 1; i < tensors.size(); ++i)
     {
         new_shape[dim] += tensors[i].get_shape()[dim];

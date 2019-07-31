@@ -56,10 +56,29 @@ int main()
     // L2::Tensor<double> d = c.tan();
     // d.print();
 
-    L2::Tensor<double> c = L2::Tensor<double>(a, {2, 2, 2});
-    L2::Tensor<double> d = L2::sum(c);
+    // ok
+    // L2::Tensor<double> c = L2::Tensor<double>(a, {2, 2, 2});
+    // L2::Tensor<double> d = L2::sum(c);
+    // L2::Tensor<double> d = L2::sum(c, -1);
+    // L2::Tensor<double> d = L2::mean(c);
+    // L2::Tensor<double> d = L2::mean(c, 1);
+    // L2::Tensor<double> d = L2::max(c);
+    // L2::Tensor<double> d = L2::max(c, 1);
+    // L2::Tensor<double> d = L2::min(c);
+    // L2::Tensor<double> d = L2::min(c, 1);
+    // L2::Tensor<double> d = L2::argmax(c);
+    // L2::Tensor<double> d = L2::argmax(c, 1);
+    // L2::Tensor<double> d = L2::argmin(c);
+    // L2::Tensor<double> d = L2::argmin(c, 1);
+    // d.print();
 
-    d.print();
+    //
+    L2::Tensor<double> c = L2::Tensor<double>(a, {2, 2, 2});
+    L2::Tensor<double> d = L2::Tensor<double>(b, {2, 2, 2});
+    // L2::Tensor<double> e = L2::cat({c, d}, 0);
+    // L2::Tensor<double> e = L2::cat({c, d}, 1);
+    L2::Tensor<double> e = L2::cat({c, d}, 2);
+    e.print();
 
     return 0;
 }
