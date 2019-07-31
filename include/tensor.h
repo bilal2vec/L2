@@ -116,7 +116,7 @@ public:
     Tensor<T> normal_(double mean = 0, double stddev = 1);
     Tensor<T> uniform_(double low = 0, double high = 1);
 
-    void view(std::vector<int> new_shape);
+    Tensor<T> view(std::vector<int> new_shape);
     Tensor<T> clone();
     std::vector<int> get_shape();
     std::vector<T> get_data();
