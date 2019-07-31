@@ -100,16 +100,16 @@ A C++ deep learning library
 
 -   dot **wont do**
 
--   in place operations on slice
+-   in place operations on slice **wont do**
 -   in slicing allow not passing all indices **done**
 
 -   view that returns new tensor so chaining can work **done**
 -   add an unsqueeze(dim) function **done**
 -   transpose **done**
 
--   change dtype
--   operations between int, float and double tensors
--   casting tensors to types
+-   change dtype **wont do, only double tensors**
+    -   operations between int, float and double tensors
+    -   casting tensors to types
 
 *   concat **done**
 

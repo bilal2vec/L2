@@ -1029,7 +1029,5 @@ void Tensor<T>::print()
               << type() << "\n";
 }
 
-template class Tensor<int>;
-template class Tensor<float>;
 template class Tensor<double>;
 } // namespace L2
