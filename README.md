@@ -99,9 +99,10 @@ A C++ deep learning library
     -   matmul the array slice and append to new_data
 
 -   in place operations on slice
--   view that returns new tensor so chaining can work
 -   in slicing allow not passing all indices
--   add an unsqueeze(dim) function
+
+-   view that returns new tensor so chaining can work **done**
+-   add an unsqueeze(dim) function **done**
 -   transpose
 
 -   change dtype

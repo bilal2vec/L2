@@ -897,6 +897,21 @@ Tensor<T> Tensor<T>::view(std::vector<int> new_shape)
 }
 
 template <class T>
+Tensor<T> Tensor<T>::unsqueeze(int dim)
+{
+    std::vector<int> new_shape = get_shape();
+
+    if (dim == -1)
+    {
+        dim = new_shape.size();
+    }
+
+    new_shape.insert(new_shape.begin() + dim, 1);
+
+    return Tensor<T>(data, new_shape);
+}
+
+template <class T>
 Tensor<T> Tensor<T>::clone()
 {
     return Tensor(data, shape);

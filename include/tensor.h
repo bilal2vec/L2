@@ -117,7 +117,10 @@ public:
     Tensor<T> uniform_(double low = 0, double high = 1);
 
     Tensor<T> view(std::vector<int> new_shape);
+    Tensor<T> unsqueeze(int dim);
+
     Tensor<T> clone();
+
     std::vector<int> get_shape();
     std::vector<T> get_data();
 
