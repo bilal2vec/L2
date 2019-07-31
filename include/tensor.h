@@ -118,6 +118,7 @@ public:
 
     Tensor<T> view(std::vector<int> new_shape);
     Tensor<T> unsqueeze(int dim);
+    Tensor<T> transpose();
 
     Tensor<T> clone();
 

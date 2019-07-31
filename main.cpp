@@ -6,17 +6,13 @@
 int main()
 {
 
-    std::vector<double> x{1, 2, 3, 4, 5, 6, 7, 8};
-    // std::vector<double> y{3, 4, 5, 6, 7, 8, 9, 10};
+    std::vector<double> a{1, 2, 3, 4, 5, 6, 7, 8};
 
-    L2::Tensor<double> xx = L2::Tensor<double>(x, {2, 2, 2});
-    // L2::Tensor<double> yy = L2::Tensor<double>(y, {2, 2, 2});
+    L2::Tensor<double> c = L2::Tensor<double>(a, {2, 2, 2});
 
-    // L2::Tensor<double> z = L2::matmul(xx, yy);
+    L2::Tensor<double> e = c.transpose();
 
-    L2::Tensor<double> z = xx.unsqueeze(-1);
-
-    z.print();
+    e.print();
 
     return 0;
 }

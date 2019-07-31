@@ -103,7 +103,7 @@ A C++ deep learning library
 
 -   view that returns new tensor so chaining can work **done**
 -   add an unsqueeze(dim) function **done**
--   transpose
+-   transpose **done**
 
 -   change dtype
 

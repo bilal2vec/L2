@@ -912,6 +912,63 @@ Tensor<T> Tensor<T>::unsqueeze(int dim)
 }
 
 template <class T>
+Tensor<T> Tensor<T>::transpose()
+{
+    // make new tensor with swapped shapes and strides
+    Tensor<T> tensor = (*this).clone();
+
+    std::vector<int> current_shape = tensor.get_shape();
+    std::vector<int> current_strides = tensor.strides;
+
+    std::vector<int> transposed_shape(current_shape.rbegin(), current_shape.rend());
+    std::vector<int> transposed_strides(current_strides.rbegin(), current_strides.rend());
+
+    tensor.shape = transposed_shape;
+    tensor.strides = transposed_strides;
+
+    // go over new tensor to get elements in transposed order
+    std::vector<T> new_data;
+    int length = transposed_shape.size();
+
+    for (int i = 0; i < transposed_shape[0]; ++i)
+    {
+        if (length > 1)
+        {
+            for (int j = 0; j < transposed_shape[1]; ++j)
+            {
+                if (length > 2)
+                {
+                    for (int k = 0; k < transposed_shape[2]; ++k)
+                    {
+                        if (length > 3)
+                        {
+                            for (int m = 0; m < transposed_shape[3]; ++m)
+                            {
+                                new_data.push_back(tensor.data[tensor.get_physical_idx({i, j, k, m})]);
+                            }
+                        }
+                        else
+                        {
+                            new_data.push_back(tensor.data[tensor.get_physical_idx({i, j, k})]);
+                        }
+                    }
+                }
+                else
+                {
+                    new_data.push_back(tensor.data[tensor.get_physical_idx({i, j})]);
+                }
+            }
+        }
+        else
+        {
+            new_data.push_back(tensor.data[tensor.get_physical_idx({i})]);
+        }
+    }
+
+    return Tensor<T>(new_data, transposed_shape);
+}
+
+template <class T>
 Tensor<T> Tensor<T>::clone()
 {
     return Tensor(data, shape);
