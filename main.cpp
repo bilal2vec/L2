@@ -72,13 +72,35 @@ int main()
     // L2::Tensor<double> d = L2::argmin(c, 1);
     // d.print();
 
-    //
-    L2::Tensor<double> c = L2::Tensor<double>(a, {2, 2, 2});
-    L2::Tensor<double> d = L2::Tensor<double>(b, {2, 2, 2});
+    // ok
+    // L2::Tensor<double> c = L2::Tensor<double>(a, {2, 2, 2});
+    // L2::Tensor<double> d = L2::Tensor<double>(b, {2, 2, 2});
     // L2::Tensor<double> e = L2::cat({c, d}, 0);
     // L2::Tensor<double> e = L2::cat({c, d}, 1);
-    L2::Tensor<double> e = L2::cat({c, d}, 2);
-    e.print();
+    // L2::Tensor<double> e = L2::cat({c, d}, -1);
+    // e.print();
+
+    // ok
+    // L2::Tensor<double> c = L2::Tensor<double>(a, {4, 2});
+    // L2::Tensor<double> d = L2::Tensor<double>(b, {2, 4});
+    // L2::Tensor<double> e = L2::matmul(c, d);
+    // L2::Tensor<double> c = L2::Tensor<double>(a, {2, 4, 1});
+    // L2::Tensor<double> d = L2::Tensor<double>(b, {2, 1, 4});
+    // L2::Tensor<double> e = L2::matmul(c, d);
+    // L2::Tensor<double> c = L2::Tensor<double>(a, {2, 2, 2});
+    // L2::Tensor<double> d = L2::Tensor<double>(b, {2, 2, 2});
+    // L2::Tensor<double> e = L2::matmul(c, d);
+    // e.print();
+
+    // ok
+    // L2::Tensor<double> c = L2::Tensor<double>({4, 4}).normal_(5, 0.1);
+    // L2::Tensor<double> c = L2::Tensor<double>({4, 4}).uniform_(5, 0.1);
+    // c.print();
+
+    //
+    L2::Tensor<double> c = L2::Tensor<double>(a, {4, 2});
+    L2::Tensor<double> d = c.view({-1});
+    d.print();
 
     return 0;
 }

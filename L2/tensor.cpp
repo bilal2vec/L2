@@ -893,6 +893,11 @@ Tensor<T> Tensor<T>::uniform_(double low, double high)
 template <class T>
 Tensor<T> Tensor<T>::view(std::vector<int> new_shape)
 {
+    if (new_shape.size() == 1 && new_shape[0] == -1)
+    {
+        new_shape[0] = shape_to_n_elements(get_shape());
+    }
+
     if (valid_shape(get_shape(), new_shape))
     {
         // shape = new_shape;
