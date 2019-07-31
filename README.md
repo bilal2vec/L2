@@ -6,12 +6,12 @@ A C++ deep learning library
 
 -   tensors
     -   store data as pointers
-    -   cat tensors wrong shape
 -   only print out part of long tensors
 -   error handling and checking
 
 ## Done
 
+-   cat tensors wrong shape
 -   handle errors when dividing ints
 -   change some code to use iterators over vectors instead of for loops
 -   use shape() more

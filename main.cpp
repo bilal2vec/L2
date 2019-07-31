@@ -97,10 +97,29 @@ int main()
     // L2::Tensor<double> c = L2::Tensor<double>({4, 4}).uniform_(5, 0.1);
     // c.print();
 
-    //
-    L2::Tensor<double> c = L2::Tensor<double>(a, {4, 2});
-    L2::Tensor<double> d = c.view({-1});
-    d.print();
+    // ok
+    // L2::Tensor<double> c = L2::Tensor<double>(a, {4, 2});
+    // L2::Tensor<double> d = c.view({-1});
+    // L2::Tensor<double> d = c.view({2, 2, 2});
+    // d.print();
+
+    // ok
+    // L2::Tensor<double> c = L2::Tensor<double>(a, {4, 2});
+    // L2::Tensor<double> d = c.unsqueeze(0);
+    // L2::Tensor<double> d = c.unsqueeze(1);
+    // L2::Tensor<double> d = c.unsqueeze(-1);
+    // L2::Tensor<double> d = c.unsqueeze(2);
+    // d.print();
+
+    // ok
+    // L2::Tensor<double> c = L2::Tensor<double>(a, {4, 2});
+    // L2::Tensor<double> d = c.transpose();
+    // d.print();
+
+    // ok
+    // L2::Tensor<double> c = L2::Tensor<double>(a, {4, 2});
+    // L2::Tensor<double> d = c.clone();
+    // d.print();
 
     return 0;
 }
