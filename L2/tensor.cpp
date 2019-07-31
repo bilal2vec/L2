@@ -455,8 +455,11 @@ template <class T>
 std::vector<T> Tensor<T>::matmul_(Tensor<T> lhs, Tensor<T> rhs, int dim)
 {
 
-    lhs.view({1, lhs.get_shape()[0]});
-    rhs.view({rhs.get_shape()[0], 1});
+    if (lhs.get_shape().size() == 1 && rhs.get_shape().size() == 1)
+    {
+        lhs = lhs.view({1, lhs.get_shape()[0]});
+        rhs = rhs.view({rhs.get_shape()[0], 1});
+    }
 
     std::vector<T> new_data;
 
@@ -877,12 +880,11 @@ Tensor<T> Tensor<T>::uniform_(double low, double high)
 }
 
 template <class T>
-void Tensor<T>::view(std::vector<int> new_shape)
+Tensor<T> Tensor<T>::view(std::vector<int> new_shape)
 {
     if (valid_shape(get_shape(), new_shape))
     {
-        shape = new_shape;
-        strides = get_strides(shape);
+        return Tensor<T>(data, new_shape);
     }
 }
 
