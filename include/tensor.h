@@ -22,9 +22,14 @@ private:
     {
         std::cout << "\n";
 
-        for (T2 i : x)
+        for (int i = 0; i < (x.size() > 10 ? 10 : x.size()); ++i)
         {
-            std::cout << i << ", ";
+            std::cout << x[i] << ", ";
+        }
+
+        if (x.size() > 10)
+        {
+            std::cout << " ...";
         }
 
         std::cout << "\n\n";

@@ -6,6 +6,7 @@
 #include <string>
 
 #include "tensor.h"
+#include "exception.h"
 
 namespace L2
 {
@@ -60,7 +61,7 @@ bool Tensor<T>::valid_shape(std::vector<int> shape, std::vector<int> new_shape)
     }
     else
     {
-        return false;
+        throw InvalidShapeException();
     }
 }
 
@@ -222,6 +223,10 @@ T Tensor<T>::operation(T lhs, T rhs, std::string op)
     {
         return std::pow(lhs, rhs);
     }
+    else
+    {
+        throw InvalidOperationException();
+    }
 }
 
 template <class T>
@@ -258,6 +263,10 @@ T Tensor<T>::operation(T lhs, std::string op)
     else if (op == "tan")
     {
         return std::tan(lhs);
+    }
+    else
+    {
+        throw InvalidOperationException();
     }
 }
 
@@ -301,6 +310,10 @@ T Tensor<T>::dimension_operation(Tensor<T> tensor, std::string op)
     {
         return std::distance(tensor.data.begin(), std::min_element(tensor.data.begin(), tensor.data.end()));
     }
+    else
+    {
+        throw InvalidOperationException();
+    }
 }
 
 template <class T>
@@ -324,6 +337,12 @@ Tensor<T> Tensor<T>::tensor_elementwise_op(Tensor<T> other, std::string op)
     std::vector<T> new_data;
 
     int length = static_cast<int>(new_shape.size());
+
+    if (length > 4)
+    {
+        throw TooManyDimenstionsException();
+    }
+
     for (int i = 0; i < new_shape[0]; ++i)
     {
         if (length > 1)
@@ -398,11 +417,15 @@ Tensor<T> Tensor<T>::dimension_op(int dim, std::string op)
     std::vector<T> new_data;
 
     std::vector<int> current_shape = get_shape();
-    int length = static_cast<int>(current_shape.size());
     dim = (dim == -1) ? current_shape.size() - 1 : dim;
 
-    std::vector<index> idxs;
+    int length = static_cast<int>(current_shape.size());
+    if (length > 4)
+    {
+        throw TooManyDimenstionsException();
+    }
 
+    std::vector<index> idxs;
     for (int i = 0; i < length; ++i)
     {
         idxs.push_back({0, 0});
@@ -496,6 +519,10 @@ Tensor<T> Tensor<T>::operator()(std::vector<index> indices)
     std::vector<int> slice_shape = get_shape(indices);
 
     int length = static_cast<int>(get_shape().size());
+    if (length > 4)
+    {
+        throw TooManyDimenstionsException();
+    }
 
     // quick hardcoded solution for up to 4 dimensions
     for (int i = indices[0].start; i < indices[0].stop; ++i)
@@ -741,6 +768,10 @@ Tensor<T> Tensor<T>::cat(std::vector<Tensor<T>> tensors, int dim)
     }
 
     int length = static_cast<int>(new_shape.size());
+    if (length > 4)
+    {
+        throw TooManyDimenstionsException();
+    }
 
     std::vector<index> idxs;
     for (int i = 0; i < length; ++i)
@@ -750,7 +781,6 @@ Tensor<T> Tensor<T>::cat(std::vector<Tensor<T>> tensors, int dim)
 
     for (int i = 0; i < (dim == 0 ? 1 : new_shape[0]); ++i)
     {
-
         idxs = process_dims(idxs, dim, 0, i);
 
         if (dim == 0)
@@ -803,7 +833,12 @@ Tensor<T> Tensor<T>::matmul(Tensor<T> rhs)
     std::vector<T> new_data;
     std::vector<int> new_shape = lhs.get_shape();
     new_shape[new_shape.size() - 1] = rhs.get_shape()[new_shape.size() - 1];
+
     int length = new_shape.size();
+    if (length > 4)
+    {
+        throw TooManyDimenstionsException();
+    }
 
     std::vector<int> batch_dims(new_shape.begin(), new_shape.end() - 2);
 
@@ -900,8 +935,6 @@ Tensor<T> Tensor<T>::view(std::vector<int> new_shape)
 
     if (valid_shape(get_shape(), new_shape))
     {
-        // shape = new_shape;
-        // strides = get_strides(shape);
         return Tensor<T>(data, new_shape);
     }
 }
@@ -939,6 +972,10 @@ Tensor<T> Tensor<T>::transpose()
     // go over new tensor to get elements in transposed order
     std::vector<T> new_data;
     int length = transposed_shape.size();
+    if (length > 4)
+    {
+        throw TooManyDimenstionsException();
+    }
 
     for (int i = 0; i < transposed_shape[0]; ++i)
     {
@@ -1015,7 +1052,7 @@ std::string Tensor<T>::type()
     }
     else
     {
-        return type_name;
+        throw ForbiddenTypeException();
     }
 }
 

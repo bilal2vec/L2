@@ -1,13 +1,26 @@
 #include <iostream>
 #include <vector>
+#include <exception>
 
 #include "include/L2.h"
 
 int main()
 {
+    try
+    {
+        L2::Tensor<double> a = L2::Tensor<double>({28, 28}).normal_(0, 1);
 
-    std::vector<double> a{1, 2, 3, 4, 5, 6, 7, 8};
-    std::vector<double> b{1, 2, 3, 4, 5, 6, 7, 8};
+        L2::Tensor<double> b = a.view({784});
+
+        b.print();
+    }
+    catch (std::exception &e)
+    {
+        std::cerr << e.what() << "\n";
+    }
+
+    // std::vector<double> a{1, 2, 3, 4, 5, 6, 7, 8};
+    // std::vector<double> b{1, 2, 3, 4, 5, 6, 7, 8};
 
     //ok
     // L2::Tensor<double> c = L2::Tensor<double>({2, 2});
