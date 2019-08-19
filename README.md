@@ -5,7 +5,7 @@ A C++ deep learning library
 ## ToDo
 
 -   tensors
-    -   store data as pointers
+    -   store data as pointers **later**
 
 ## Done
 
