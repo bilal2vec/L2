@@ -8,9 +8,9 @@ template <class T>
 class Parameter
 {
 public:
-    L2::Tensor<T> tensor;
-    L2::Tensor<T> grad;
+    Tensor<T> tensor;
+    Tensor<T> grad;
 
-    Parameter(L2::Tensor<T> t);
+    Parameter(Tensor<T> t);
 };
 } // namespace L2
