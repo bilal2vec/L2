@@ -2,10 +2,79 @@
 
 A C++ deep learning library
 
+## ideas
+
+-   autodiff shouldn't rely on how Tensor is implemented
+
 ## ToDo
 
+-   Parameter class **dobe**
+
+    -   tensor
+    -   grad
+
+-   Layer class
+
+    -   linear
+    -   conv
+    -   rnn
+    -   activations
+
+        -   sigmoid
+        -   relu
+        -   dropout
+
+    -   parameters
+    -   forward()
+    -   backward()
+
+-   nn class
+
+    -   forward()
+    -   backwards()
+
+    -   serialization
+
+-   loss class
+
+    -   forward()
+    -   backwards()
+
+-   optimizer class
+    -   call()
+-   train class
+
+    -   takes
+        -   nn
+        -   loss
+        -   optimizer
+            -   learning rate
+        -   dataset
+        -   dataloader
+
+-   dataset class
+
+    -   for now simple 2 class classification using 2 gaussian clusters
+    -   stores data and iterate
+
+-   dataloader class
+
+    -   takes
+        -   dataset
+        -   batch size
+        -   shuffle
+
 -   tensors
+
     -   store data as pointers **later**
+    -   copy semantics
+
+-   make it more like xtensor **later**
+    -   https://medium.com/@wolfv/the-julia-challenge-in-c-21272d36c002
+    -   https://medium.com/@johan.mabille/how-we-wrote-xtensor-1-n-n-dimensional-containers-f79f9f4966a7
+    -   https://medium.com/@johan.mabille/how-we-wrote-xtensor-2-n-access-operators-57e8e3852263
+    -   https://medium.com/@johan.mabille/how-we-wrote-xtensor-3-n-the-constructors-65a177260638
+    -   https://medium.com/@johan.mabille/how-we-wrote-xtensor-4-n-value-semantics-6baa6856d313
 
 ## Done
 

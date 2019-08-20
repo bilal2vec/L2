@@ -9,10 +9,11 @@ int main()
     try
     {
         L2::Tensor<double> a = L2::Tensor<double>({28, 28}).normal_(0, 1);
+        L2::Parameter<double> b = L2::Parameter<double>(a);
 
-        L2::Tensor<double> b = a.view({784});
+        b.grad = b.grad + 1;
 
-        b.print();
+        a.print();
     }
     catch (std::exception &e)
     {
