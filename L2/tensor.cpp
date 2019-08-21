@@ -504,6 +504,9 @@ std::vector<T> Tensor<T>::matmul_(Tensor<T> lhs, Tensor<T> rhs, int dim)
 }
 
 template <class T>
+Tensor<T>::Tensor() : data({0}), shape({1}), strides({1}) {}
+
+template <class T>
 Tensor<T>::Tensor(std::vector<int> shape) : data(shape_to_n_elements(shape), 0), shape(shape), strides(get_strides(shape)) {}
 
 template <class T>

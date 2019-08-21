@@ -67,6 +67,7 @@ private:
     std::vector<T> matmul_(Tensor<T> lhs, Tensor<T> rhs, int dim);
 
 public:
+    Tensor();
     Tensor(std::vector<int> shape);
     Tensor(std::vector<T> x, std::vector<int> shape);
 
