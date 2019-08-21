@@ -578,6 +578,18 @@ Tensor<T> Tensor<T>::operator+(Tensor<T> other)
 }
 
 template <class T>
+void Tensor<T>::operator+=(T other)
+{
+    (*this) = scalar_elementwise_op(other, "+");
+}
+
+template <class T>
+void Tensor<T>::operator+=(Tensor<T> other)
+{
+    (*this) = tensor_elementwise_op(other, "+");
+}
+
+template <class T>
 Tensor<T> Tensor<T>::operator-(T other)
 {
     return scalar_elementwise_op(other, "-");
@@ -587,6 +599,18 @@ template <class T>
 Tensor<T> Tensor<T>::operator-(Tensor<T> other)
 {
     return tensor_elementwise_op(other, "-");
+}
+
+template <class T>
+void Tensor<T>::operator-=(T other)
+{
+    (*this) = scalar_elementwise_op(other, "-");
+}
+
+template <class T>
+void Tensor<T>::operator-=(Tensor<T> other)
+{
+    (*this) = tensor_elementwise_op(other, "-");
 }
 
 template <class T>
@@ -602,6 +626,18 @@ Tensor<T> Tensor<T>::operator*(Tensor<T> other)
 }
 
 template <class T>
+void Tensor<T>::operator*=(T other)
+{
+    (*this) = scalar_elementwise_op(other, "*");
+}
+
+template <class T>
+void Tensor<T>::operator*=(Tensor<T> other)
+{
+    (*this) = tensor_elementwise_op(other, "*");
+}
+
+template <class T>
 Tensor<T> Tensor<T>::operator/(T other)
 {
     return scalar_elementwise_op(other, "/");
@@ -614,9 +650,27 @@ Tensor<T> Tensor<T>::operator/(Tensor<T> other)
 }
 
 template <class T>
+void Tensor<T>::operator/=(T other)
+{
+    (*this) = scalar_elementwise_op(other, "/");
+}
+
+template <class T>
+void Tensor<T>::operator/=(Tensor<T> other)
+{
+    (*this) = tensor_elementwise_op(other, "/");
+}
+
+template <class T>
 Tensor<T> Tensor<T>::pow(T other)
 {
     return scalar_elementwise_op(other, "pow");
+}
+
+template <class T>
+void Tensor<T>::pow_(T other)
+{
+    (*this) = scalar_elementwise_op(other, "pow");
 }
 
 template <class T>
@@ -626,9 +680,21 @@ Tensor<T> Tensor<T>::sqrt()
 }
 
 template <class T>
+void Tensor<T>::sqrt_()
+{
+    (*this) = tensor_op("sqrt");
+}
+
+template <class T>
 Tensor<T> Tensor<T>::exp()
 {
     return tensor_op("exp");
+}
+
+template <class T>
+void Tensor<T>::exp_()
+{
+    (*this) = tensor_op("exp");
 }
 
 template <class T>
@@ -638,9 +704,21 @@ Tensor<T> Tensor<T>::log()
 }
 
 template <class T>
+void Tensor<T>::log_()
+{
+    (*this) = tensor_op("log");
+}
+
+template <class T>
 Tensor<T> Tensor<T>::log10()
 {
     return tensor_op("log10");
+}
+
+template <class T>
+void Tensor<T>::log10_()
+{
+    (*this) = tensor_op("log10");
 }
 
 template <class T>
@@ -650,9 +728,21 @@ Tensor<T> Tensor<T>::abs()
 }
 
 template <class T>
+void Tensor<T>::abs_()
+{
+    (*this) = tensor_op("abs");
+}
+
+template <class T>
 Tensor<T> Tensor<T>::sin()
 {
     return tensor_op("sin");
+}
+
+template <class T>
+void Tensor<T>::sin_()
+{
+    (*this) = tensor_op("sin");
 }
 
 template <class T>
@@ -662,9 +752,21 @@ Tensor<T> Tensor<T>::cos()
 }
 
 template <class T>
+void Tensor<T>::cos_()
+{
+    (*this) = tensor_op("cos");
+}
+
+template <class T>
 Tensor<T> Tensor<T>::tan()
 {
     return tensor_op("tan");
+}
+
+template <class T>
+void Tensor<T>::tan_()
+{
+    (*this) = tensor_op("tan");
 }
 
 template <class T>
@@ -687,6 +789,18 @@ Tensor<T> Tensor<T>::sum(int dim)
 }
 
 template <class T>
+void Tensor<T>::sum_()
+{
+    (*this) = sum();
+}
+
+template <class T>
+void Tensor<T>::sum_(int dim)
+{
+    (*this) = sum(dim);
+}
+
+template <class T>
 Tensor<T> Tensor<T>::mean()
 {
     Tensor<T> tensor = sum();
@@ -699,6 +813,18 @@ template <class T>
 Tensor<T> Tensor<T>::mean(int dim)
 {
     return dimension_op(dim, "mean");
+}
+
+template <class T>
+void Tensor<T>::mean_()
+{
+    (*this) = mean();
+}
+
+template <class T>
+void Tensor<T>::mean_(int dim)
+{
+    (*this) = mean(dim);
 }
 
 template <class T>
@@ -716,6 +842,18 @@ Tensor<T> Tensor<T>::max(int dim)
 }
 
 template <class T>
+void Tensor<T>::max_()
+{
+    (*this) = max();
+}
+
+template <class T>
+void Tensor<T>::max_(int dim)
+{
+    (*this) = max(dim);
+}
+
+template <class T>
 Tensor<T> Tensor<T>::min()
 {
     T min = *std::min_element(data.begin(), data.end());
@@ -727,6 +865,18 @@ template <class T>
 Tensor<T> Tensor<T>::min(int dim)
 {
     return dimension_op(dim, "min");
+}
+
+template <class T>
+void Tensor<T>::min_()
+{
+    (*this) = min();
+}
+
+template <class T>
+void Tensor<T>::min_(int dim)
+{
+    (*this) = min(dim);
 }
 
 template <class T>
@@ -744,6 +894,18 @@ Tensor<T> Tensor<T>::argmax(int dim)
 }
 
 template <class T>
+void Tensor<T>::argmax_()
+{
+    (*this) = argmax();
+}
+
+template <class T>
+void Tensor<T>::argmax_(int dim)
+{
+    (*this) = argmax(dim);
+}
+
+template <class T>
 Tensor<T> Tensor<T>::argmin()
 {
     T argmin = std::distance(data.begin(), std::min_element(data.begin(), data.end()));
@@ -755,6 +917,18 @@ template <class T>
 Tensor<T> Tensor<T>::argmin(int dim)
 {
     return dimension_op(dim, "argmin");
+}
+
+template <class T>
+void Tensor<T>::argmin_()
+{
+    (*this) = argmin();
+}
+
+template <class T>
+void Tensor<T>::argmin_(int dim)
+{
+    (*this) = argmin(dim);
 }
 
 template <class T>
@@ -889,7 +1063,13 @@ Tensor<T> Tensor<T>::matmul(Tensor<T> rhs)
 }
 
 template <class T>
-Tensor<T> Tensor<T>::normal_(double mean, double stddev)
+void Tensor<T>::matmul_(Tensor<T> rhs)
+{
+    (*this) = matmul(rhs);
+}
+
+template <class T>
+Tensor<T> Tensor<T>::normal(double mean, double stddev)
 {
     std::random_device random_device{};
     std::mt19937 pseudorandom_generator{random_device()};
@@ -909,7 +1089,13 @@ Tensor<T> Tensor<T>::normal_(double mean, double stddev)
 }
 
 template <class T>
-Tensor<T> Tensor<T>::uniform_(double low, double high)
+void Tensor<T>::normal_(double mean, double stddev)
+{
+    (*this) = normal(mean, stddev);
+}
+
+template <class T>
+Tensor<T> Tensor<T>::uniform(double low, double high)
 {
     std::random_device random_device{};
     std::mt19937 pseudorandom_generator{random_device()};
@@ -929,6 +1115,12 @@ Tensor<T> Tensor<T>::uniform_(double low, double high)
 }
 
 template <class T>
+void Tensor<T>::uniform_(double low, double high)
+{
+    (*this) = uniform(low, high);
+}
+
+template <class T>
 Tensor<T> Tensor<T>::view(std::vector<int> new_shape)
 {
     if (new_shape.size() == 1 && new_shape[0] == -1)
@@ -940,6 +1132,12 @@ Tensor<T> Tensor<T>::view(std::vector<int> new_shape)
     {
         return Tensor<T>(data, new_shape);
     }
+}
+
+template <class T>
+void Tensor<T>::view_(std::vector<int> new_shape)
+{
+    (*this) = view(new_shape);
 }
 
 template <class T>
@@ -955,6 +1153,12 @@ Tensor<T> Tensor<T>::unsqueeze(int dim)
     new_shape.insert(new_shape.begin() + dim, 1);
 
     return Tensor<T>(data, new_shape);
+}
+
+template <class T>
+void Tensor<T>::unsqueeze_(int dim)
+{
+    (*this) = unsqueeze(dim);
 }
 
 template <class T>
@@ -1016,6 +1220,12 @@ Tensor<T> Tensor<T>::transpose()
     }
 
     return Tensor<T>(new_data, transposed_shape);
+}
+
+template <class T>
+void Tensor<T>::transpose_()
+{
+    (*this) = transpose();
 }
 
 template <class T>

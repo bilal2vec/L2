@@ -76,55 +76,110 @@ public:
     Tensor<T> operator+(T other);
     Tensor<T> operator+(Tensor<T> other);
 
+    void operator+=(T other);
+    void operator+=(Tensor<T> other);
+
     Tensor<T> operator-(T other);
     Tensor<T> operator-(Tensor<T> other);
+
+    void operator-=(T other);
+    void operator-=(Tensor<T> other);
 
     Tensor<T> operator*(T other);
     Tensor<T> operator*(Tensor<T> other);
 
+    void operator*=(T other);
+    void operator*=(Tensor<T> other);
+
     Tensor<T> operator/(T other);
     Tensor<T> operator/(Tensor<T> other);
 
+    void operator/=(T other);
+    void operator/=(Tensor<T> other);
+
     Tensor<T> pow(T other);
+    void pow_(T other);
 
     Tensor<T> sqrt();
+    void sqrt_();
+
     Tensor<T> exp();
+    void exp_();
+
     Tensor<T> log();
+    void log_();
+
     Tensor<T> log10();
+    void log10_();
 
     Tensor<T> abs();
+    void abs_();
+
     Tensor<T> sin();
+    void sin_();
+
     Tensor<T> cos();
+    void cos_();
+
     Tensor<T> tan();
+    void tan_();
 
     Tensor<T> sum();
     Tensor<T> sum(int dim);
 
+    void sum_();
+    void sum_(int dim);
+
     Tensor<T> mean();
     Tensor<T> mean(int dim);
+
+    void mean_();
+    void mean_(int dim);
 
     Tensor<T> max();
     Tensor<T> max(int dim);
 
+    void max_();
+    void max_(int dim);
+
     Tensor<T> min();
     Tensor<T> min(int dim);
+
+    void min_();
+    void min_(int dim);
 
     Tensor<T> argmax();
     Tensor<T> argmax(int dim);
 
+    void argmax_();
+    void argmax_(int dim);
+
     Tensor<T> argmin();
     Tensor<T> argmin(int dim);
 
+    void argmin_();
+    void argmin_(int dim);
+
+    // won't make an inplace version since this is only supposed to be called by L2::cat
     Tensor<T> cat(std::vector<Tensor<T>> tensors, int dim);
 
     Tensor<T> matmul(Tensor<T> rhs);
+    void matmul_(Tensor<T> rhs);
 
-    Tensor<T> normal_(double mean = 0, double stddev = 1);
-    Tensor<T> uniform_(double low = 0, double high = 1);
+    Tensor<T> normal(double mean = 0, double stddev = 1);
+    void normal_(double mean = 0, double stddev = 1);
+
+    Tensor<T> uniform(double low = 0, double high = 1);
+    void uniform_(double low = 0, double high = 1);
 
     Tensor<T> view(std::vector<int> new_shape);
+    void view_(std::vector<int> new_shape);
+
     Tensor<T> unsqueeze(int dim);
+    void unsqueeze_(int dim);
+
     Tensor<T> transpose();
+    void transpose_();
 
     Tensor<T> clone();
 
