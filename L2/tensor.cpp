@@ -1069,6 +1069,25 @@ void Tensor<T>::matmul_(Tensor<T> rhs)
 }
 
 template <class T>
+Tensor<T> Tensor<T>::zeros()
+{
+    std::vector<T> zeros_tensor;
+
+    for (int i = 0; i < data.size(); ++i)
+    {
+        zeros_tensor.push_back(0);
+    }
+
+    return Tensor<T>(zeros_tensor, get_shape());
+}
+
+template <class T>
+void Tensor<T>::zeros_()
+{
+    (*this) = zeros();
+}
+
+template <class T>
 Tensor<T> Tensor<T>::normal(double mean, double stddev)
 {
     std::random_device random_device{};

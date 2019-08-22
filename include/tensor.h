@@ -166,6 +166,9 @@ public:
     Tensor<T> matmul(Tensor<T> rhs);
     void matmul_(Tensor<T> rhs);
 
+    Tensor<T> zeros();
+    void zeros_();
+
     Tensor<T> normal(double mean = 0, double stddev = 1);
     void normal_(double mean = 0, double stddev = 1);
 
