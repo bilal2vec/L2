@@ -8,12 +8,23 @@ int main()
 {
     try
     {
-        L2::Tensor<double> a = L2::Tensor<double>({28, 28}).normal_(0, 1);
-        L2::Parameter<double> b = L2::Parameter<double>(a);
+        L2::Tensor<double> x = L2::Tensor<double>({1, 3}).normal(0, 1);
 
-        b.grad = b.grad + 1;
+        L2::nn::Sequential<double> sequential = L2::nn::Sequential<double>({
+            L2::nn::Linear<double>(3, 4),
+            L2::nn::Linear<double>(4, 2),
+        });
 
-        a.print();
+        L2::Tensor<double> y = sequential.forward(x);
+
+        y.print();
+
+        // L2::nn::Linear<double>
+        //     layer = L2::nn::Linear<double>(3, 2);
+        // L2::Tensor<double> y = layer.forward(x);
+        // L2::Tensor<double> z = L2::Tensor<double>({1, 2}).normal(0, 1);
+        // L2::Tensor<double> zz = layer.backward(z);
+        // zz.print();
     }
     catch (std::exception &e)
     {

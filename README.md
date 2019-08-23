@@ -8,14 +8,23 @@ A C++ deep learning library
 
 ## ToDo
 
--   Parameter class **dobe**
+-   check numerical correctness **ongoing**
+-   shape checks on layers.forward() and backward()
+-   better error handling
+-   make Tensor::cat a static method?
+
+-   error when matmul shapes of 3 and 3, 6
+
+*   Parameter class **done**
 
     -   tensor
     -   grad
 
--   Layer class
+*   init class **done**
 
-    -   linear
+*   Layer class
+
+    -   linear **done**
     -   conv
     -   rnn
     -   activations
@@ -24,25 +33,25 @@ A C++ deep learning library
         -   relu
         -   dropout
 
-    -   parameters
-    -   forward()
-    -   backward()
+    -   parameters **done**
+    -   forward() **done**
+    -   backward() **done**
 
--   nn class
-
-    -   forward()
-    -   backwards()
-
-    -   serialization
-
--   loss class
+*   nn class
 
     -   forward()
     -   backwards()
 
--   optimizer class
+    -   serialization?
+
+*   loss class
+
+    -   forward()
+    -   backwards()
+
+*   optimizer class
     -   call()
--   train class
+*   train class
 
     -   takes
         -   nn
@@ -52,24 +61,24 @@ A C++ deep learning library
         -   dataset
         -   dataloader
 
--   dataset class
+*   dataset class
 
     -   for now simple 2 class classification using 2 gaussian clusters
     -   stores data and iterate
 
--   dataloader class
+*   dataloader class
 
     -   takes
         -   dataset
         -   batch size
         -   shuffle
 
--   tensors
+*   tensors
 
     -   store data as pointers **later**
     -   copy semantics
 
--   make it more like xtensor **later**
+*   make it more like xtensor **later**
     -   https://medium.com/@wolfv/the-julia-challenge-in-c-21272d36c002
     -   https://medium.com/@johan.mabille/how-we-wrote-xtensor-1-n-n-dimensional-containers-f79f9f4966a7
     -   https://medium.com/@johan.mabille/how-we-wrote-xtensor-2-n-access-operators-57e8e3852263
@@ -89,6 +98,10 @@ A C++ deep learning library
 -   namespace
 -   try removing broadcastable_with
 -   raise error on when using normal\_ or uniform\_ bool **not making bool tensors anymore**
+-   default constructor for tensor;
+-   inplace operations on tensors **done**
+    -   append inplace ops with "\_" to distinguish them
+-   create initializers
 
 ## Tensor
 
