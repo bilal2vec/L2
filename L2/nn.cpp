@@ -22,14 +22,14 @@ Linear<T>::Linear(int c_in, int c_out)
 template <class T>
 Tensor<T> Linear<T>::forward(Tensor<T> tensor)
 {
-    Layer<T>::cached_input = tensor;
+    Layer<T>::cached = tensor;
     return L2::matmul(tensor, weights.tensor) + bias.tensor;
 }
 
 template <class T>
 Tensor<T> Linear<T>::backward(Tensor<T> derivative)
 {
-    weights.grad += L2::matmul(Layer<T>::cached_input.transpose(), derivative);
+    weights.grad += L2::matmul(Layer<T>::cached.transpose(), derivative);
     bias.grad += L2::sum(derivative, 0);
 
     return L2::matmul(derivative, weights.tensor.transpose());

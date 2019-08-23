@@ -12,7 +12,7 @@ template <class T>
 class Layer
 {
 protected:
-    Tensor<T> cached_input;
+    Tensor<T> cached;
 
 public:
     std::vector<Parameter<T>> parameters;
