@@ -20,19 +20,5 @@ void Layer<T>::update()
     1 + 1;
 }
 
-// Override in all derived classes
-template <class T>
-Tensor<T> Layer<T>::forward(Tensor<T> tensor)
-{
-    return tensor;
-}
-
-// Override in all derived classes
-template <class T>
-Tensor<T> Layer<T>::backward(Tensor<T> derivative)
-{
-    return derivative;
-}
-
 template class Layer<double>;
 } // namespace L2

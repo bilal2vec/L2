@@ -20,9 +20,16 @@ public:
     Parameter<T> build_param(Tensor<T> tensor);
     void update(); // IMPLEMENT after optimizer
 
-    // Override in all derived classes
-    Tensor<T> forward(Tensor<T> tensor);
-    // Override in all derived classes
-    Tensor<T> backward(Tensor<T> derivative);
+    // override in all derived classes
+    virtual Tensor<T> forward(Tensor<T> tensor)
+    {
+        return tensor;
+    }
+
+    // override in all derived classes
+    virtual Tensor<T> backward(Tensor<T> derivative)
+    {
+        return derivative;
+    }
 };
 } // namespace L2

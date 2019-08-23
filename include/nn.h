@@ -26,10 +26,10 @@ template <class T>
 class Sequential : public Layer<T>
 {
 private:
-    std::vector<Layer<T>> layers;
+    std::vector<Layer<T> *> layers;
 
 public:
-    Sequential(std::vector<Layer<T>> layers);
+    Sequential(std::vector<Layer<T> *> layers);
 
     Tensor<T> forward(Tensor<T> tensor);
     Tensor<T> backward(Tensor<T> derivative);

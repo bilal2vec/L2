@@ -36,19 +36,13 @@ Tensor<T> Linear<T>::backward(Tensor<T> derivative)
 }
 
 template <class T>
-Sequential<T>::Sequential(std::vector<Layer<T>> input)
+Sequential<T>::Sequential(std::vector<Layer<T> *> input)
 {
     layers = input;
 
-    // object slicing means that only the layer part of Linear gets saved
-    // need to use polymorphism
-    // virtual base class
-    // for that, it means that we need to convert the vector of layers to vectors of pointers in the constructor to save it in layers and dereference the pointers to get the params
-
-    // then in forward, go over each pointer, dereference it, polymorphism makes sure that the forward method we call is on linear even though in the for loop it is defined as a Layer (https://stackoverflow.com/questions/2391679/why-do-we-need-virtual-functions-in-c)
-    for (Layer<T> layer : layers)
+    for (Layer<T> *layer : layers)
     {
-        std::vector<Parameter<T>> params = layer.parameters;
+        std::vector<Parameter<T>> params = layer->parameters;
         Layer<T>::parameters.insert(Layer<T>::parameters.end(), params.begin(), params.end());
     }
 }
@@ -56,10 +50,9 @@ Sequential<T>::Sequential(std::vector<Layer<T>> input)
 template <class T>
 Tensor<T> Sequential<T>::forward(Tensor<T> tensor)
 {
-    for (Layer<T> &layer : layers)
+    for (Layer<T> *layer : layers)
     {
-        Linear<T> layer2 = static_cast<Linear<T> &>(layer);
-        tensor = layer2.forward(tensor);
+        tensor = layer->forward(tensor);
     }
 
     return tensor;
@@ -68,6 +61,13 @@ Tensor<T> Sequential<T>::forward(Tensor<T> tensor)
 template <class T>
 Tensor<T> Sequential<T>::backward(Tensor<T> derivative)
 {
+    std::vector<Layer<T> *> reverse_layers(layers.rbegin(), layers.rend());
+
+    for (Layer<T> *layer : reverse_layers)
+    {
+        derivative = layer->backward(derivative);
+    }
+
     return derivative;
 }
 

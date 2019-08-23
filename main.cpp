@@ -11,11 +11,15 @@ int main()
         L2::Tensor<double> x = L2::Tensor<double>({1, 3}).normal(0, 1);
 
         L2::nn::Sequential<double> sequential = L2::nn::Sequential<double>({
-            L2::nn::Linear<double>(3, 4),
-            L2::nn::Linear<double>(4, 2),
+            new L2::nn::Linear<double>(3, 4),
+            new L2::nn::Linear<double>(4, 2),
         });
 
         L2::Tensor<double> y = sequential.forward(x);
+
+        L2::Tensor<double> z = L2::Tensor<double>({1, 2}).normal(0, 1);
+
+        L2::Tensor<double> zz = sequential.backward(z);
 
         y.print();
 

@@ -24,6 +24,14 @@ A C++ deep learning library
 
 *   Layer class
 
+    -   Sequential **done**
+
+        -   object slicing means that only the layer part of Linear gets saved
+        -   need to use polymorphism
+        -   virtual base class
+        -   for that, it means that we need to convert the vector of layers to vectors of pointers in the constructor to save it in layers and dereference the pointers to get the params
+        -   then in forward, go over each pointer, dereference it, polymorphism makes sure that the forward method we call is on linear even though in the for loop it is defined as a Layer (https://stackoverflow.com/questions/2391679/why-do-we-need-virtual-functions-in-c)
+
     -   linear **done**
     -   conv
     -   rnn
