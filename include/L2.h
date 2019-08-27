@@ -5,5 +5,6 @@
 #include "initialization.h"
 #include "layer.h"
 #include "nn.h"
+#include "loss.h"
 
 #include "math.h"

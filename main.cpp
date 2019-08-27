@@ -9,27 +9,24 @@ int main()
     try
     {
         L2::Tensor<double> x = L2::Tensor<double>({1, 3}).normal(0, 1);
+        L2::Tensor<double> y = L2::Tensor<double>({1, 2}).normal(0, 1);
+
+        L2::nn::loss::MSE<double> criterion = L2::nn::loss::MSE<double>();
 
         L2::nn::Sequential<double> sequential = L2::nn::Sequential<double>({
-            new L2::nn::Linear<double>(3, 4),
-            new L2::nn::Linear<double>(4, 2),
-            new L2::nn::Sigmoid<double>()
+            new L2::nn::Linear<double>(3, 4), //
+            new L2::nn::Linear<double>(4, 2), //
+            new L2::nn::Sigmoid<double>()     //
         });
 
-        L2::Tensor<double> y = sequential.forward(x);
+        L2::Tensor<double> y_hat = sequential.forward(x);
 
-        L2::Tensor<double> z = L2::Tensor<double>({1, 2}).normal(0, 1);
+        L2::Tensor<double> loss = criterion.forward(y_hat, y);
+        L2::Tensor<double> derivative = criterion.backward();
 
-        L2::Tensor<double> zz = sequential.backward(z);
+        L2::Tensor<double> zz = sequential.backward(derivative);
 
-        y.print();
-
-        // L2::nn::Linear<double>
-        //     layer = L2::nn::Linear<double>(3, 2);
-        // L2::Tensor<double> y = layer.forward(x);
-        // L2::Tensor<double> z = L2::Tensor<double>({1, 2}).normal(0, 1);
-        // L2::Tensor<double> zz = layer.backward(z);
-        // zz.print();
+        zz.print();
     }
     catch (std::exception &e)
     {
