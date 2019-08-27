@@ -13,6 +13,7 @@ int main()
         L2::nn::Sequential<double> sequential = L2::nn::Sequential<double>({
             new L2::nn::Linear<double>(3, 4),
             new L2::nn::Linear<double>(4, 2),
+            new L2::nn::Sigmoid<double>()
         });
 
         L2::Tensor<double> y = sequential.forward(x);

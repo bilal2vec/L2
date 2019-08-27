@@ -2,6 +2,7 @@
 #include <algorithm>
 
 #include "nn.h"
+#include "math.h"
 #include "initialization.h"
 
 namespace L2::nn
@@ -33,6 +34,23 @@ Tensor<T> Linear<T>::backward(Tensor<T> derivative)
     bias.grad += L2::sum(derivative, 0);
 
     return L2::matmul(derivative, weights.tensor.transpose());
+}
+
+template <class T>
+Sigmoid<T>::Sigmoid() {}
+
+template <class T>
+Tensor<T> Sigmoid<T>::forward(Tensor<T> tensor)
+{
+    L2::Tensor<T> S = L2::pow(L2::exp(tensor * -1.0) + 1, -1.0);
+    Layer<T>::cached = S;
+    return S;
+}
+
+template <class T>
+Tensor<T> Sigmoid<T>::backward(Tensor<T> derivative)
+{
+    return derivative * Layer<T>::cached * ((Layer<T>::cached - 1) * -1.0);
 }
 
 template <class T>
@@ -72,5 +90,7 @@ Tensor<T> Sequential<T>::backward(Tensor<T> derivative)
 }
 
 template class Linear<double>;
+template class Sigmoid<double>;
+
 template class Sequential<double>;
 } // namespace L2::nn

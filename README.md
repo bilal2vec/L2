@@ -12,6 +12,7 @@ A C++ deep learning library
 -   shape checks on layers.forward() and backward()
 -   better error handling
 -   make Tensor::cat a static method?
+-   cant do <double> <op> <Tensor>
 
 -   error when matmul shapes of 3 and 3, 6
 
@@ -37,25 +38,25 @@ A C++ deep learning library
     -   rnn
     -   activations
 
-        -   sigmoid
+        -   sigmoid **done**
         -   relu
         -   dropout
 
     -   parameters **done**
     -   forward() **done**
     -   backward() **done**
-
-*   nn class
-
-    -   forward()
-    -   backwards()
-
-    -   serialization?
+    -   destructor _important_
 
 *   loss class
 
-    -   forward()
-    -   backwards()
+    -   all loss classes are derived from the Loss class
+    -   no forward() or backward()
+    -   instead, operator() which returns a tuple; loss and derivative
+
+    -   mse
+    -   crossentropy
+    -   bce
+    -   bce with logits
 
 *   optimizer class
     -   call()

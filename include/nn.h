@@ -23,6 +23,16 @@ public:
 };
 
 template <class T>
+class Sigmoid : public Layer<T>
+{
+public:
+    Sigmoid();
+
+    Tensor<T> forward(Tensor<T> tensor);
+    Tensor<T> backward(Tensor<T> derivative);
+};
+
+template <class T>
 class Sequential : public Layer<T>
 {
 private:
