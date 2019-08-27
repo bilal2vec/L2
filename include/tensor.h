@@ -188,6 +188,7 @@ public:
 
     std::vector<int> get_shape();
     std::vector<T> get_data();
+    int length();
 
     std::string type();
 

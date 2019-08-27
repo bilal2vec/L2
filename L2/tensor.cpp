@@ -1266,6 +1266,12 @@ std::vector<T> Tensor<T>::get_data()
 }
 
 template <class T>
+int Tensor<T>::length()
+{
+    return data.size();
+}
+
+template <class T>
 std::string Tensor<T>::type()
 {
     std::string type_name = typeid(T).name();
