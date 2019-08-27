@@ -40,6 +40,7 @@ private:
 
 public:
     Sequential(std::vector<Layer<T> *> layers);
+    ~Sequential();
 
     Tensor<T> forward(Tensor<T> tensor);
     Tensor<T> backward(Tensor<T> derivative);

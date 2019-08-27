@@ -45,7 +45,7 @@ A C++ deep learning library
     -   parameters **done**
     -   forward() **done**
     -   backward() **done**
-    -   destructor _important_
+    -   destructor **done**
 
 *   loss class
 
@@ -111,6 +111,7 @@ A C++ deep learning library
 -   inplace operations on tensors **done**
     -   append inplace ops with "\_" to distinguish them
 -   create initializers
+-   check sigmoid implementation to make sure it's sigmoiding each el seperately **it is**
 
 ## Tensor
 

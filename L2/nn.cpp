@@ -66,6 +66,15 @@ Sequential<T>::Sequential(std::vector<Layer<T> *> input)
 }
 
 template <class T>
+Sequential<T>::~Sequential()
+{
+    for (auto layer : layers)
+    {
+        delete layer;
+    }
+}
+
+template <class T>
 Tensor<T> Sequential<T>::forward(Tensor<T> tensor)
 {
     for (Layer<T> *layer : layers)
