@@ -33,6 +33,9 @@ Tensor<T> Linear<T>::backward(Tensor<T> derivative)
     weights.grad += L2::matmul(Layer<T>::cached.transpose(), derivative);
     bias.grad += L2::sum(derivative, 0);
 
+    // update Layer::parameters with current state of the parameters
+    Layer<T>::parameters = {weights, bias};
+
     return L2::matmul(derivative, weights.tensor.transpose());
 }
 
@@ -93,6 +96,15 @@ Tensor<T> Sequential<T>::backward(Tensor<T> derivative)
     for (Layer<T> *layer : reverse_layers)
     {
         derivative = layer->backward(derivative);
+    }
+
+    Layer<T>::parameters.clear();
+
+    // copy over the parameters of each layer to Sequential's parameters
+    for (Layer<T> *layer : layers)
+    {
+        std::vector<Parameter<T>> params = layer->parameters;
+        Layer<T>::parameters.insert(Layer<T>::parameters.end(), params.begin(), params.end());
     }
 
     return derivative;
