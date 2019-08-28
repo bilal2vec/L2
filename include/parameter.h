@@ -13,5 +13,7 @@ public:
 
     Parameter();
     Parameter(Tensor<T> t);
+
+    void reset();
 };
 } // namespace L2
