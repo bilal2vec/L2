@@ -5,6 +5,7 @@
 
 #include "tensor.h"
 #include "parameter.h"
+#include "optimizer.h"
 
 namespace L2
 {
@@ -18,7 +19,7 @@ public:
     std::vector<Parameter<T>> parameters;
 
     Parameter<T> build_param(Tensor<T> tensor);
-    void update(); // IMPLEMENT after optimizer
+    void update(L2::nn::optimizer::Optimizer<T> *optimizer);
 
     // override in all derived classes
     virtual Tensor<T> forward(Tensor<T> tensor)

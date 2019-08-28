@@ -2,6 +2,7 @@
 
 #include "tensor.h"
 #include "parameter.h"
+#include "optimizer.h"
 
 namespace L2
 {
@@ -15,9 +16,12 @@ Parameter<T> Layer<T>::build_param(Tensor<T> tensor)
 }
 
 template <class T>
-void Layer<T>::update()
+void Layer<T>::update(L2::nn::optimizer::Optimizer<T> *optimizer)
 {
-    1 + 1;
+    for (int i = 0; i < parameters.size(); ++i)
+    {
+        parameters[i] = optimizer->update(parameters[i]);
+    }
 }
 
 template class Layer<double>;

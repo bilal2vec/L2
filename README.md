@@ -13,6 +13,8 @@ A C++ deep learning library
 -   better error handling
 -   make Tensor::cat a static method?
 -   cant do <double> <op> <Tensor>
+-   check if reset() works
+-   refactor code to use namespaced keywords
 
 -   error when matmul shapes of 3 and 3, 6
 
@@ -32,8 +34,17 @@ A C++ deep learning library
         -   virtual base class
         -   for that, it means that we need to convert the vector of layers to vectors of pointers in the constructor to save it in layers and dereference the pointers to get the params
         -   then in forward, go over each pointer, dereference it, polymorphism makes sure that the forward method we call is on linear even though in the for loop it is defined as a Layer (https://stackoverflow.com/questions/2391679/why-do-we-need-virtual-functions-in-c)
+        -   backward()
+            -   sequential's parameters are initialized by copying over the the parameters from it's layers. this becomes a problem when it's layer's parameter's gradients change but don't change Sequential's own parameter's gradients
+            -   so to fix, go over layers, copying over all the parameters to overwrite sequential's parameters
+
 
     -   linear **done**
+
+        -   backward()
+            -   changes to weight.grad and bias.grad don't change the grads of the elements in the parameters vector which is what gets used in sequential
+            -   manually copied over weights and bias to Linear's parameters to fix
+
     -   conv
     -   rnn
     -   activations
@@ -47,20 +58,22 @@ A C++ deep learning library
     -   backward() **done**
     -   destructor **done**
 
-*   loss class
+-   loss class
 
     -   all loss classes are derived from the Loss class
     -   no forward() or backward()
     -   instead, operator() which returns a tuple; loss and derivative
 
-    -   mse
+    -   mse **done**
     -   crossentropy
     -   bce
     -   bce with logits
 
-*   optimizer class
+-   optimizer class
+
     -   call()
-*   train class
+
+-   train class
 
     -   takes
         -   nn
@@ -70,24 +83,24 @@ A C++ deep learning library
         -   dataset
         -   dataloader
 
-*   dataset class
+-   dataset class
 
     -   for now simple 2 class classification using 2 gaussian clusters
     -   stores data and iterate
 
-*   dataloader class
+-   dataloader class
 
     -   takes
         -   dataset
         -   batch size
         -   shuffle
 
-*   tensors
+-   tensors
 
     -   store data as pointers **later**
     -   copy semantics
 
-*   make it more like xtensor **later**
+-   make it more like xtensor **later**
     -   https://medium.com/@wolfv/the-julia-challenge-in-c-21272d36c002
     -   https://medium.com/@johan.mabille/how-we-wrote-xtensor-1-n-n-dimensional-containers-f79f9f4966a7
     -   https://medium.com/@johan.mabille/how-we-wrote-xtensor-2-n-access-operators-57e8e3852263

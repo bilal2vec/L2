@@ -26,6 +26,10 @@ int main()
 
         L2::Tensor<double> zz = sequential.backward(derivative);
 
+        L2::nn::optimizer::SGD<double> *optimizer = new L2::nn::optimizer::SGD<double>(0.1);
+
+        sequential.update(optimizer);
+
         zz.print();
     }
     catch (std::exception &e)
