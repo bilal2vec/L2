@@ -5,6 +5,7 @@
 
 #include "layer.h"
 #include "parameter.h"
+#include "optimizer.h"
 
 namespace L2::nn
 {
@@ -20,6 +21,8 @@ public:
 
     Tensor<T> forward(Tensor<T> tensor);
     Tensor<T> backward(Tensor<T> derivative);
+    
+    void update(L2::nn::optimizer::Optimizer<T> *optimizer);
 };
 
 template <class T>
@@ -30,10 +33,12 @@ public:
 
     Tensor<T> forward(Tensor<T> tensor);
     Tensor<T> backward(Tensor<T> derivative);
+
+    void update(L2::nn::optimizer::Optimizer<T> *optimizer);
 };
 
 template <class T>
-class Sequential : public Layer<T>
+class Sequential
 {
 private:
     std::vector<Layer<T> *> layers;
@@ -44,6 +49,8 @@ public:
 
     Tensor<T> forward(Tensor<T> tensor);
     Tensor<T> backward(Tensor<T> derivative);
+
+    void update(L2::nn::optimizer::Optimizer<T> *optimizer);
 };
 
 } // namespace L2::nn

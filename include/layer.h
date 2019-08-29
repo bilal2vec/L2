@@ -19,7 +19,15 @@ public:
     std::vector<Parameter<T>> parameters;
 
     Parameter<T> build_param(Tensor<T> tensor);
-    void update(L2::nn::optimizer::Optimizer<T> *optimizer);
+
+    // override in all derived classes
+    virtual void update(L2::nn::optimizer::Optimizer<T> *optimizer)
+    {
+        for (int i = 0; i < parameters.size(); ++i)
+        {
+            parameters[i] = optimizer->update(parameters[i]);
+        }
+    }
 
     // override in all derived classes
     virtual Tensor<T> forward(Tensor<T> tensor)

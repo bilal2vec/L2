@@ -8,10 +8,11 @@ int main()
 {
     try
     {
-        L2::Tensor<double> x = L2::Tensor<double>({1, 3}).normal(0, 1);
-        L2::Tensor<double> y = L2::Tensor<double>({1, 2}).normal(0, 1);
+        L2::Tensor<double> x = L2::Tensor<double>({10, 3}).normal(0, 1);
+        L2::Tensor<double> y = L2::Tensor<double>({10, 2}).normal(0, 1);
 
         L2::nn::loss::MSE<double> criterion = L2::nn::loss::MSE<double>();
+        L2::nn::optimizer::SGD<double> *optimizer = new L2::nn::optimizer::SGD<double>(1.0);
 
         L2::nn::Sequential<double> sequential = L2::nn::Sequential<double>({
             new L2::nn::Linear<double>(3, 4), //
@@ -26,11 +27,31 @@ int main()
 
         L2::Tensor<double> zz = sequential.backward(derivative);
 
-        L2::nn::optimizer::SGD<double> *optimizer = new L2::nn::optimizer::SGD<double>(0.1);
+        loss.print();
 
         sequential.update(optimizer);
 
-        zz.print();
+        y_hat = sequential.forward(x);
+
+        loss = criterion.forward(y_hat, y);
+        derivative = criterion.backward();
+
+        zz = sequential.backward(derivative);
+
+        loss.print();
+
+        sequential.update(optimizer);
+
+        y_hat = sequential.forward(x);
+
+        loss = criterion.forward(y_hat, y);
+        derivative = criterion.backward();
+
+        zz = sequential.backward(derivative);
+
+        loss.print();
+
+        sequential.update(optimizer);
     }
     catch (std::exception &e)
     {

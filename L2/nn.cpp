@@ -4,6 +4,7 @@
 #include "nn.h"
 #include "math.h"
 #include "initialization.h"
+#include "optimizer.h"
 
 namespace L2::nn
 {
@@ -40,6 +41,16 @@ Tensor<T> Linear<T>::backward(Tensor<T> derivative)
 }
 
 template <class T>
+void Linear<T>::update(L2::nn::optimizer::Optimizer<T> *optimizer)
+{
+    Layer<T>::update(optimizer);
+
+    // update weights and bias with current state of Layer::parameters
+    weights = Layer<T>::parameters[0];
+    bias = Layer<T>::parameters[1];
+}
+
+template <class T>
 Sigmoid<T>::Sigmoid() {}
 
 template <class T>
@@ -57,15 +68,12 @@ Tensor<T> Sigmoid<T>::backward(Tensor<T> derivative)
 }
 
 template <class T>
+void Sigmoid<T>::update(L2::nn::optimizer::Optimizer<T> *optimizer) {}
+
+template <class T>
 Sequential<T>::Sequential(std::vector<Layer<T> *> input)
 {
     layers = input;
-
-    for (Layer<T> *layer : layers)
-    {
-        std::vector<Parameter<T>> params = layer->parameters;
-        Layer<T>::parameters.insert(Layer<T>::parameters.end(), params.begin(), params.end());
-    }
 }
 
 template <class T>
@@ -98,16 +106,16 @@ Tensor<T> Sequential<T>::backward(Tensor<T> derivative)
         derivative = layer->backward(derivative);
     }
 
-    Layer<T>::parameters.clear();
+    return derivative;
+}
 
-    // copy over the parameters of each layer to Sequential's parameters
+template <class T>
+void Sequential<T>::update(L2::nn::optimizer::Optimizer<T> *optimizer)
+{
     for (Layer<T> *layer : layers)
     {
-        std::vector<Parameter<T>> params = layer->parameters;
-        Layer<T>::parameters.insert(Layer<T>::parameters.end(), params.begin(), params.end());
+        layer->update(optimizer);
     }
-
-    return derivative;
 }
 
 template class Linear<double>;

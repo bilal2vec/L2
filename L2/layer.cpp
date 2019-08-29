@@ -15,14 +15,5 @@ Parameter<T> Layer<T>::build_param(Tensor<T> tensor)
     return param;
 }
 
-template <class T>
-void Layer<T>::update(L2::nn::optimizer::Optimizer<T> *optimizer)
-{
-    for (int i = 0; i < parameters.size(); ++i)
-    {
-        parameters[i] = optimizer->update(parameters[i]);
-    }
-}
-
 template class Layer<double>;
 } // namespace L2

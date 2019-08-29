@@ -58,6 +58,31 @@ A C++ deep learning library
     -   backward() **done**
     -   destructor **done**
 
+    -   problem: **fixed**
+    -   sync changes to Sequential's parameters to each of it's layer's parameters
+    -   in backprop, layer params are copied to sequential
+    -   sequential params are updated
+    -   layer params are now out of date
+    -   on the next forward and backprop, layer params haven't been changed, they're identical since init
+
+    -   Fixes
+
+        -   1: **better and works**
+        -   change sequential to not store it's own params
+        -   remove extra code in backward()
+        -   add a custom update() for it where it just calls update on all it's layers
+        -   this means: no param syncing required
+
+        -   problem
+
+            -   in linear::backward(), weights and bias are never modified and are copied to layer::paramters on each backward() to save the gradient
+
+            -   fix **works**
+            -   make layer::update virtual and create a update() method for each derived class that calls layer::update then copies layer::parameters to weights and bias
+
+        -   2:
+        -   create custom update() that copies over new params to each of it's layers
+
 -   loss class
 
     -   all loss classes are derived from the Loss class
