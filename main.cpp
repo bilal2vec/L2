@@ -26,27 +26,9 @@ int main()
 
         trainer.fit(x, y, 10, 10);
 
-        std::cout << "hllo";
+        L2::Tensor<double> y_hat = trainer.predict(x);
 
-        // L2::nn::loss::MSE<double> criterion = L2::nn::loss::MSE<double>();
-        // L2::nn::optimizer::SGD<double> *optimizer = new L2::nn::optimizer::SGD<double>(0.1);
-
-        // L2::nn::Sequential<double> sequential = L2::nn::Sequential<double>({
-        //     new L2::nn::Linear<double>(10, 1) //
-        // });
-
-        // L2::Tensor<double> y_hat = sequential.forward(x);
-
-        // L2::Tensor<double> loss = criterion.forward(y_hat, y);
-        // L2::Tensor<double> derivative = criterion.backward();
-
-        // L2::Tensor<double> zz = sequential.backward(derivative);
-
-        // loss.print();
-
-        // sequential.update(optimizer);
-
-        // std::cout << "hello";
+        y_hat.print();
     }
     catch (std::exception &e)
     {

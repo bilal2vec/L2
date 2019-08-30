@@ -107,6 +107,7 @@ A C++ deep learning library
             -   learning rate
         -   dataset
         -   dataloader
+        -   predict _todo_
 
     -   drops last batch if batch_size % length != 0
 
