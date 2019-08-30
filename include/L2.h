@@ -7,5 +7,6 @@
 #include "nn.h"
 #include "loss.h"
 #include "optimizer.h"
+#include "trainer.h"
 
 #include "math.h"

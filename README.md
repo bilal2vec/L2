@@ -13,8 +13,8 @@ A C++ deep learning library
 -   better error handling
 -   make Tensor::cat a static method?
 -   cant do <double> <op> <Tensor>
--   check if reset() works
 -   refactor code to use namespaced keywords
+-   backward() in sequential shouldn't return anything
 
 -   error when matmul shapes of 3 and 3, 6
 
@@ -25,7 +25,7 @@ A C++ deep learning library
 
 *   init class **done**
 
-*   Layer class
+*   Layer class **done**
 
     -   Sequential **done**
 
@@ -37,7 +37,6 @@ A C++ deep learning library
         -   backward()
             -   sequential's parameters are initialized by copying over the the parameters from it's layers. this becomes a problem when it's layer's parameter's gradients change but don't change Sequential's own parameter's gradients
             -   so to fix, go over layers, copying over all the parameters to overwrite sequential's parameters
-
 
     -   linear **done**
 
@@ -83,7 +82,7 @@ A C++ deep learning library
         -   2:
         -   create custom update() that copies over new params to each of it's layers
 
--   loss class
+-   loss class **done**
 
     -   all loss classes are derived from the Loss class
     -   no forward() or backward()
@@ -94,13 +93,14 @@ A C++ deep learning library
     -   bce
     -   bce with logits
 
--   optimizer class
+-   optimizer class **done**
 
     -   call()
 
 -   train class
 
     -   takes
+
         -   nn
         -   loss
         -   optimizer
@@ -108,19 +108,21 @@ A C++ deep learning library
         -   dataset
         -   dataloader
 
--   dataset class
+    -   drops last batch if batch_size % length != 0
+
+-   dataset class _optional_
 
     -   for now simple 2 class classification using 2 gaussian clusters
     -   stores data and iterate
 
--   dataloader class
+-   dataloader class _optional_
 
     -   takes
         -   dataset
         -   batch size
         -   shuffle
 
--   tensors
+-   tensors _optional_
 
     -   store data as pointers **later**
     -   copy semantics
@@ -150,6 +152,7 @@ A C++ deep learning library
     -   append inplace ops with "\_" to distinguish them
 -   create initializers
 -   check sigmoid implementation to make sure it's sigmoiding each el seperately **it is**
+-   check if reset() works **does**
 
 ## Tensor
 
