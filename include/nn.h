@@ -3,8 +3,9 @@
 #include <iostream>
 #include <vector>
 
-#include "layer.h"
+#include "tensor.h"
 #include "parameter.h"
+#include "layer.h"
 #include "optimizer.h"
 
 namespace L2::nn
@@ -21,7 +22,7 @@ public:
 
     Tensor<T> forward(Tensor<T> tensor);
     Tensor<T> backward(Tensor<T> derivative);
-    
+
     void update(L2::nn::optimizer::Optimizer<T> *optimizer);
 };
 

@@ -1,6 +1,8 @@
+#include <iostream>
 #include <vector>
 #include <algorithm>
 
+#include "tensor.h"
 #include "nn.h"
 #include "math.h"
 #include "initialization.h"
