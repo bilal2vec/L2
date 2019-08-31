@@ -5,12 +5,10 @@
 ## ToDo
 
 -   check numerical correctness **ongoing**
--   shape checks on layers.forward() and backward()
--   better error handling
--   make Tensor::cat a static method?
--   cant do <double> <op> <Tensor>
--   refactor code to use namespaced keywords
--   backward() in sequential shouldn't return anything
+-   shape checks on layers.forward() and backward() _v2_
+-   better error handling _v2_
+-   make Tensor::cat a static method? _v2_
+-   cant do <double> <op> <Tensor> _v2_
 -   documentation
 
 ## Library notes
@@ -151,6 +149,8 @@
 -   create initializers
 -   check sigmoid implementation to make sure it's sigmoiding each el seperately **it is**
 -   check if reset() works **does**
+-   refactor code to use namespaced keywords **wont do**
+-   backward() in sequential shouldn't return anything **wont do**
 
 ## Tensor
 
