@@ -1,3 +1,21 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [ideas](#ideas)
+- [ToDo](#todo)
+- [Library notes](#library-notes)
+- [Done](#done)
+- [Tensor](#tensor)
+- [things to know](#things-to-know)
+- [Structure](#structure)
+- [Debugger](#debugger)
+- [Running](#running)
+  - [manually](#manually)
+  - [cmake](#cmake)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 ## ideas
 
 -   autodiff shouldn't rely on how Tensor is implemented
