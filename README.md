@@ -3,7 +3,7 @@
 </h1>
 
 <h4 align='center'>
-    A linear algebra and deep learning library in C++, using only the standard library
+    A tensor, linear algebra, and deep learning library in C++, using only the standard library
 </h4>
 
 <p align='center'>
@@ -88,6 +88,8 @@ L2::Tensor<double> y_hat = trainer.predict(x);
 y_hat.print();
 ```
 
+# design choices
+
 # Installation
 
 -   main.cpp
@@ -95,27 +97,32 @@ y_hat.print();
 
 # Documentation
 
-## Tensor
+-   public methods
+-   example per heading
 
-## Parameter
+#### [L2::Tensor\<double>({3, 3})](./include/tensor.h#L13)
 
-## nn
+#### [L2::Parameter\<double>(tensor)](./include/parameter.h#L8)
 
-### Linear
+#### nn
 
-### Sigmoid
+[L2::\<double>()](./include/)
 
-### Sequential
+##### [L2::nn::Linear\<double>(c_in=32, c_out=64)](./include/nn.h#L14)
 
-## Loss
+##### Sigmoid
 
-### MSE
+##### Sequential
 
-## Optimizer
+#### Loss
 
-### SGD
+##### MSE
 
-## Trainer
+#### Optimizer
+
+##### SGD
+
+#### Trainer
 
 # Contributing
 
