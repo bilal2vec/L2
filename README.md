@@ -41,20 +41,31 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
+-   [What is L2?](#what-is-l2)
 -   [Quick start](#quick-start)
--   [Installation](#installation)
+-   [Design choices](#design-choices)
 -   [Documentation](#documentation)
-    -   [Tensor](#tensor)
-    -   [Parameter](#parameter)
+    -   [L2](#l2)
+    -   [L2::Tensor\<double>({3, 3})](#l2tensor%5Cdouble3-3)
+        -   [Create a tensor](#create-a-tensor)
+        -   [Numpy style array slicing](#numpy-style-array-slicing)
+        -   [Change dimensions of a Tensor](#change-dimensions-of-a-tensor)
+        -   [Get information about a Tensor](#get-information-about-a-tensor)
+        -   [Operations on tensors (with broadcasting!)](#operations-on-tensors-with-broadcasting)
+        -   [Initialize a tensor](#initialize-a-tensor)
+        -   [Linear algebra functions](#linear-algebra-functions)
+    -   [L2::Parameter\<double>(tensor)](#l2parameter%5Cdoubletensor)
     -   [nn](#nn)
-        -   [Linear](#linear)
-        -   [Sigmoid](#sigmoid)
-        -   [Sequential](#sequential)
+        -   [Layer<T>](#layert)
+        -   [Creating your own layers](#creating-your-own-layers)
+        -   [L2::nn::Linear\<double>(c_in=32, c_out=64)](#l2nnlinear%5Cdoublec_in32-c_out64)
+        -   [L2::nn::Sigmoid\<double>()](#l2nnsigmoid%5Cdouble)
+        -   [L2::nn::Sequential\<double>(layers)](#l2nnsequential%5Cdoublelayers)
     -   [Loss](#loss)
-        -   [MSE](#mse)
+        -   [L2::nn::loss::MSE\<double>()](#l2nnlossmse%5Cdouble)
     -   [Optimizer](#optimizer)
-        -   [SGD](#sgd)
-    -   [Trainer](#trainer)
+        -   [L2::nn::optimizer::SGD\<double>(lr=0.1)](#l2nnoptimizersgd%5Cdoublelr01)
+    -   [L2::nn::trainer::Trainer\<double>(model, criterion, optimizer)](#l2nntrainertrainer%5Cdoublemodel-criterion-optimizer)
 -   [Contributing](#contributing)
 -   [Authors](#authors)
 -   [License](#license)
@@ -94,17 +105,11 @@ L2::Tensor<double> y_hat = trainer.predict(x);
 y_hat.print();
 ```
 
-# design choices
+# Design choices
 
-# Installation
-
--   main.cpp
--   as library
+L2 only supports a cpu backend at the moment since I'm not familiar enough with c++ to start working with CUDA and cudnn. Version 1 of the library primarily uses pass-by-value to reduce complexity at the result of reduced efficiency. Version 2 of the library will focus on making the `Tensor` class more efficient. Currently, only the `Linear` and `Sigmoid` layers, the `MSE` loss, and the `SGD` optimizer have been implemented, but V2 will add more layers and modules.
 
 # Documentation
-
--   public methods
--   example per heading
 
 #### L2
 
