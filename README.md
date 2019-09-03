@@ -64,6 +64,8 @@
 
 # Quick start
 
+// explain what L2 does
+
 ```cpp
 L2::Tensor<double> x = L2::Tensor<double>({100, 10}).normal(0, 1);
 
@@ -100,7 +102,143 @@ y_hat.print();
 -   public methods
 -   example per heading
 
+#### L2
+
 #### [L2::Tensor\<double>({3, 3})](./include/tensor.h#L13)
+
+##### Create a tensor
+
+```cpp
+// Create a tensor of zeros with a shape of 3x3
+L2::Tensor<double> x = L2::Tensor<double>({3, 3});
+
+// Create a tensor from a vector with a shape of 3x3
+std::vector<double> vector{1, 2, 3, 4, 5, 6, 7, 8, 9};
+x = L2::Tensor<double>(vector, {3, 3});
+```
+
+##### Numpy style array slicing
+
+```cpp
+// Get the first row from Tensor x
+L2::Tensor<double> y = x({{0, 1}}); // slices (0, 1] and (0, -1]
+
+// Get the first column from Tensor x
+L2::Tensor<double> y = x({{0, -1}, (0, 1)}); // slices (0, -1] and (0, 1]
+
+// Get the first two columns and first two rows from Tensor x
+L2::Tensor<double> z = x({{0, 2}, {0, 2}}); // slices (0, 2] and (0, 2]
+```
+
+##### Change dimensions of a Tensor
+
+```cpp
+// Change the shape of a tensor (Strided arrays let you change the user-visible shape without changing the order of the data elements)
+L2::Tensor<double> y = x.view({9}); // shape: (9)
+
+// Reshape to -1
+L2::Tensor<double> y = x.view({-1}); // shape: (9)
+
+// Add a dimension to a Tensor
+// shape: (3, 3)
+L2::Tensor<double> y = x.unsqueeze(0); // shape: (1, 3, 3)
+
+// Transpose a Tensor
+// shape: (4, 3)
+L2::Tensor<double> y = x.transpose(); // shape: (3, 4)
+```
+
+##### Get information about a Tensor
+
+```cpp
+// Print info about the Tensor to std::cout
+>>> x.print();
+data:
+
+0, 0, 0, 0, 0, 0, 0, 0, 0,
+
+size:
+
+3, 3,
+
+strides:
+
+3, 1,
+
+dtype:
+
+double
+>>>
+
+// Get the shape
+std::vector<int> shape = x.get_shape(); // [3, 3]
+
+// Get the data
+std::vector<double> data = x.get_data(); // [1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+// Get the number of elements in the Tensor
+int length = x.length(); // 9
+
+// Get the type of the Tensor
+std::string type = x.type(); // double
+```
+
+##### Operations on tensors (with broadcasting!)
+
+```cpp
+// Concatenate Tensors
+L2::Tensor<double> x = L2::Tensor<double>({3, 3}).zeros();
+L2::Tensor<double> y = L2::Tensor<double>({4, 3}).zeros();
+
+L2::Tensor<double> z = L2::cat({x, y}, 0); // shape: (7, 3)
+
+// Add values to all elements in a Tensor
+L2::Tensor<double> y = x + 1;
+
+// Inplace operations
+x += 2.0;
+
+// exp(), log(), sqrt()
+L2::Tensor<double> y = x.log();
+
+// inplace version
+x.log_();
+
+// Add a tensor to a tensor
+L2::Tensor<double> x = L2::Tensor<double>({3, 3}).normal(0, 1);
+L2::Tensor<double> y = L2::Tensor<double>({3}).normal(0, 1);
+
+L2::Tensor<double> z = x + y; // y is added to each column of x
+
+// Sum up all values in a Tensor
+L2::Tensor<double> y = x.sum(); // y has a shape of 1
+
+// Sum up all values along a dimension
+L2::Tensor<double> y = x.sum(0); // y has a shape of 3
+```
+
+##### Initialize a tensor
+
+```cpp
+// fill with zeros
+L2::Tensor<double> x = L2::Tensor<double>({3, 3}).zeros();
+
+// fill from a normal distribution with a specified mean and stddev
+L2::Tensor<double> x = L2::Tensor<double>({3, 3}).normal(0, 1); // mean of 0, stddev of 1
+
+// fill from a uniform distribution with specified limits
+L2::Tensor<double> x = L2::Tensor<double>({3, 3}).uniform(-1, 1); // lower bound of -1, upper bound of 1
+```
+
+##### Linear algebra functions
+
+```cpp
+// matrix multiplication
+L2::Tensor<double> x = L2::Tensor<double>({2, 4}).zeros();
+L2::Tensor<double> y = L2::Tensor<double>({4, 5}).zeros();
+
+L2::Tensor<double> z = L2::matmul({x, y}); // shape: (2, 5)
+```
 
 #### [L2::Parameter\<double>(tensor)](./include/parameter.h#L8)
 
@@ -110,19 +248,19 @@ y_hat.print();
 
 ##### [L2::nn::Linear\<double>(c_in=32, c_out=64)](./include/nn.h#L14)
 
-##### Sigmoid
+##### [L2::nn::Sigmoid\<double>()](./include/nn.h#L30)
 
-##### Sequential
+##### [L2::nn::Sequential\<double>(layers)](./include/nn.h#L42)
 
 #### Loss
 
-##### MSE
+##### [L2::nn::loss::MSE\<double>()](./include/loss.h#L11)
 
 #### Optimizer
 
-##### SGD
+##### [L2::nn::optimizer::SGD\<double>(lr=0.1)](./include/optimizer.h#L42)
 
-#### Trainer
+#### [L2::nn::trainer::Trainer\<double>(model, criterion, optimizer)](./include/trainer.h#L13)
 
 # Contributing
 
