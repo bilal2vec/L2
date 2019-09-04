@@ -66,6 +66,17 @@ private:
 
     std::vector<T> matmul_(Tensor<T> lhs, Tensor<T> rhs, int dim);
 
+    std::vector<int> expand_sizes(std::vector<int> size, int size_diff);
+    std::vector<int> broadcast_sizes(std::vector<int> sizes_a, std::vector<int> sizes_b);
+
+    std::tuple<std::vector<int>, std::vector<int>> broadcast_strides(std::vector<int> lhs_sizes, std::vector<int> rhs_sizes, std::vector<int> new_sizes);
+    bool broadcastable_with(std::vector<int> new_sizes);
+
+    T operation(T lhs, T rhs, std::string op);
+
+    Tensor<T> tensor_elementwise_op(Tensor<T> other, std::string op);
+    Tensor<T> scalar_elementwise_op(T other, std::string op);
+
 public:
     Tensor();
     Tensor(std::vector<int> shape);

@@ -1309,3 +1309,4 @@ void Tensor<T>::print()
 
 template class Tensor<double>;
 } // namespace L2
+
