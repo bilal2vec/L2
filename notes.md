@@ -1,18 +1,17 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-
-- [ideas](#ideas)
-- [ToDo](#todo)
-- [Library notes](#library-notes)
-- [Done](#done)
-- [Tensor](#tensor)
-- [things to know](#things-to-know)
-- [Structure](#structure)
-- [Debugger](#debugger)
-- [Running](#running)
-  - [manually](#manually)
-  - [cmake](#cmake)
+-   [ideas](#ideas)
+-   [ToDo](#todo)
+-   [Library notes](#library-notes)
+-   [Done](#done)
+-   [Tensor](#tensor)
+-   [things to know](#things-to-know)
+-   [Structure](#structure)
+-   [Debugger](#debugger)
+-   [Running](#running)
+    -   [manually](#manually)
+    -   [cmake](#cmake)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -27,7 +26,6 @@
 -   better error handling _v2_
 -   make Tensor::cat a static method? _v2_
 -   cant do <double> <op> <Tensor> _v2_
--   documentation
 -   argmax and min distance from beginning of axis
 -   allow view -1 on an axis
 
@@ -171,6 +169,7 @@
 -   check if reset() works **does**
 -   refactor code to use namespaced keywords **wont do**
 -   backward() in sequential shouldn't return anything **wont do**
+-   documentation **done**
 
 ## Tensor
 
