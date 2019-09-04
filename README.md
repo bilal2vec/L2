@@ -404,6 +404,7 @@ Other deep learning libraries from scratch include:
 -   https://github.com/joelgrus/joelnet
 -   https://github.com/QuantStack/xtensor
 -   https://github.com/ThinkingTransistor/Sigma
+-   https://github.com/mratsim/Arraymancer
 
 This README is based on:
 
