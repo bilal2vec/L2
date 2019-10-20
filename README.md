@@ -3,7 +3,7 @@
 </h1>
 
 <h4 align='center'>
-    A tensor, linear algebra, and deep learning library in C++, using only the standard library
+    A multidimensional array and deep learning library implemented from scratch in C++
 </h4>
 
 <p align='center'>
