@@ -29,7 +29,8 @@
     <a href='#documentation'>Documentation</a> •
     <a href='#contributing'>Contributing</a> •
     <a href='#authors'>Authors</a> •
-    <a href='#license'>License</a>
+    <a href='#license'>License</a> •
+    <a href='#acknowledgements'>Acknowledgements</a>
 </p>
 
 <div>
@@ -405,6 +406,8 @@ Other deep learning libraries from scratch include:
 -   https://github.com/QuantStack/xtensor
 -   https://github.com/ThinkingTransistor/Sigma
 -   https://github.com/mratsim/Arraymancer
+-   https://github.com/siekmanj/sieknet
+-   https://github.com/siekmanj/sieknet_2.0
 
 This README is based on:
 
