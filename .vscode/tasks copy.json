@@ -6,21 +6,23 @@
         {
             "label": "build main.cpp",
             "type": "shell",
-            "command": "clang++",
+            "command": "g++",
             "args": [
-                "-std=c++17",
-                "-stdlib=libc++",
-                "main.cpp",
+                "-g",
+                "-Og",
                 "-o",
                 "main.out",
-                "--debug",
+                "main.cpp",
                 "-Llib",
-                "-lL2"      
+                "-lL2"
             ],
             "group": {
                 "kind": "build",
                 "isDefault": true
-            }
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
         },
         {
             "label": "run cmake",
@@ -29,7 +31,10 @@
             "group": {
                 "kind": "build",
                 "isDefault": true
-            }
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
         },
         {
             "label": "build L2",
@@ -38,7 +43,10 @@
             "group": {
                 "kind": "build",
                 "isDefault": true
-            }
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
         },
         {
             "label": "clean up files",
@@ -47,7 +55,8 @@
             "group": {
                 "kind": "build",
                 "isDefault": true
-            }
+            },
+            "problemMatcher": []
         }
     ]
 }
