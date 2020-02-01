@@ -3,7 +3,7 @@
 </h1>
 
 <h4 align='center'>
-    A multidimensional array and deep learning library implemented from scratch in C++
+    A n-dimensional array and deep learning library implemented from scratch in C++
 </h4>
 
 <p align='center'>
