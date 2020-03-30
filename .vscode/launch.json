@@ -1,12 +1,14 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-      {
-        "name": "Launch",
-        "type": "lldb",
-        "request": "launch",
-        "program": "${workspaceFolder}/helloworld.out",
-      }
-      
-    ]
-}  
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "Debug",
+			"program": "${workspaceRoot}/target/debug/l2",
+			"args": [],
+			"cwd": "${workspaceRoot}",
+			"sourceLanguages": ["rust"]
+		}
+	]
+}

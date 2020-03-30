@@ -1,53 +1,24 @@
 {
-    // See https://go.microsoft.com/fwlink/?LinkId=733558
-    // for the documentation about the tasks.json format
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "build main.cpp",
-            "type": "shell",
-            "command": "clang++",
-            "args": [
-                "-std=c++17",
-                "-stdlib=libc++",
-                "main.cpp",
-                "-o",
-                "main.out",
-                "--debug",
-                "-Llib",
-                "-lL2"      
-            ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
-        },
-        {
-            "label": "run cmake",
-            "type": "shell",
-            "command": "rm -rf build && mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=../ ",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
-        },
-        {
-            "label": "build L2",
-            "type": "shell",
-            "command": "cd build && make && make install",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
-        },
-        {
-            "label": "clean up files",
-            "type": "shell",
-            "command": "rm -rf build && rm lib/libL2.a && rm main.out",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
-        }
-    ]
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Cargo: Build",
+			"type": "shell",
+			"command": "cargo",
+			"args": ["build"],
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"label": "Cargo: Run",
+			"type": "shell",
+			"command": "cargo",
+			"args": ["run"],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		}
+	]
 }
