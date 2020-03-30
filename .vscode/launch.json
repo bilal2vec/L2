@@ -5,7 +5,7 @@
 			"type": "lldb",
 			"request": "launch",
 			"name": "Debug",
-			"program": "${workspaceRoot}/target/debug/l2",
+			"program": "${workspaceRoot}/target/debug/main",
 			"args": [],
 			"cwd": "${workspaceRoot}",
 			"sourceLanguages": ["rust"]

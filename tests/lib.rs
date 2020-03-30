@@ -1,13 +1,10 @@
 use l2::module_abc::module_a::*;
 
-fn main() {
+#[test]
+fn _a_works_integration() {
     let first = A {
         a_1: String::from("Hello"),
         a_2: 1,
         a_3: 2,
     };
-
-    let out = first.calculate_a();
-
-    println!("{}", out);
 }
