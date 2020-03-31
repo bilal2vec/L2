@@ -19,6 +19,16 @@
 				"kind": "build",
 				"isDefault": true
 			}
+		},
+		{
+			"label": "Cargo: Test",
+			"type": "shell",
+			"command": "cargo",
+			"args": ["test"],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
 		}
 	]
 }

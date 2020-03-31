@@ -1,13 +1,7 @@
-use l2::module_abc::module_a::*;
+use l2::tensor::*;
 
 fn main() {
-    let first = A {
-        a_1: String::from("Hello"),
-        a_2: 1,
-        a_3: 2,
-    };
+    let _tensor = Tensor::zeros(1024 * 1024);
 
-    let out = first.calculate_a();
-
-    println!("{}", out);
+    println!("Hello, world");
 }
