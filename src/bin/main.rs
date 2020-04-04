@@ -1,7 +1,11 @@
 use l2::tensor::*;
 
 fn main() {
-    let _tensor = Tensor::zeros(1024 * 1024);
+    let t = Tensor::zeros(&[2, 2]);
 
-    println!("Hello, world");
+    let x = t[&[0]];
+
+    println!("{}", x);
+
+    println!("hello {:?}", t);
 }

@@ -29,6 +29,16 @@
 				"kind": "build",
 				"isDefault": true
 			}
+		},
+		{
+			"label": "Cargo: Benchmark",
+			"type": "shell",
+			"command": "cargo",
+			"args": ["bench"],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
 		}
 	]
 }
