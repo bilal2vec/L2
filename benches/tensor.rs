@@ -11,7 +11,7 @@ mod tests {
     #[bench]
     fn bench_allocate_tensor_zeros(b: &mut Bencher) {
         b.iter(|| {
-            let _t = Tensor::zeros(&vec![16, 16]);
+            let _t = Tensor::zeros(&vec![256, 256]);
         });
     }
 }
