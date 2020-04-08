@@ -15,8 +15,14 @@
 
 -   change col-major to row-major
 -   impl iterator
--   separate the view and data parts of tensor to not have to copy everything
+-   separate the view and data parts of tensor to not have to copy everything?
     -   use pointers?
+    -   cant use (mut) reference because you need to initialize data somehow, it must belong to the tensor that created it
+    -   tensor must be able to mutate data to do in-place operations
+    -   option to do in-place or copy
+        -   autograd needs copy
+        -   but some ops like `x[:10] = 0` should be able to be done inplace
+    -   so don't need to separate data and tensor, but keep in mind for future if you want to do more (or multiple) inplace ops
 
 ### Done
 
@@ -43,3 +49,8 @@
     -   `y = x[1:2, 3:4]`
         -   this can be a copy or a view
         -   should be able to do either easily
+    -   how ndarray does it https://stackoverflow.com/questions/50400966/is-there-a-rust-ndarray-equivalent-for-numpy-arithmetic-on-a-slice
+-   numpy notes
+    -   http://scipy-lectures.org/advanced/advanced_numpy/#indexing-scheme-strides
+    -   https://ipython-books.github.io/45-understanding-the-internals-of-numpy-to-avoid-unnecessary-array-copying/
+-   ndarray heap (https://users.rust-lang.org/t/ndarray-stack-and-heap-memory-and-overhead/25254)
