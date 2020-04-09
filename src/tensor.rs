@@ -15,6 +15,19 @@ mod tests {
     fn allocate_tensor_zeros() {
         let _t = Tensor::zeros(&[2, 4]);
     }
+
+    #[test]
+    fn slice_tensor_1d() {
+        let t = Tensor {
+            data: vec![1.0, 2.0, 3.0, 4.0],
+            shape: vec![4],
+            strides: vec![1],
+        };
+
+        let x = t.slice(&[[0, 2]]);
+
+        assert!((x.data == vec![1.0, 2.0]) && (x.shape == vec![2]) && (x.strides == vec![1]))
+    }
 }
 
 #[derive(Debug)]
@@ -46,12 +59,14 @@ impl Tensor {
         strides
     }
 
-    pub fn zeros(shape: &[usize]) -> Self {
-        Tensor {
-            data: vec![0.0; Tensor::calc_tensor_len_from_shape(shape)],
-            shape: shape.to_vec(),
-            strides: Tensor::calc_strides_from_shape(shape),
+    fn calc_shape_from_slice(slice: &[[usize; 2]]) -> Vec<usize> {
+        let mut slice_shape = Vec::new();
+
+        for idx in slice {
+            slice_shape.push(idx[1] - idx[0]);
         }
+
+        slice_shape
     }
 
     fn get_physical_idx(&self, logical_indices: &[usize]) -> usize {
@@ -62,5 +77,39 @@ impl Tensor {
         }
 
         physical_idx
+    }
+
+    fn one_dimension_slice(&self, logical_indices: &[[usize; 2]]) -> Vec<f32> {
+        let mut new_data = Vec::new();
+
+        for i in logical_indices[0][0]..logical_indices[0][1] {
+            new_data.push(self.data[self.get_physical_idx(&[i])]);
+        }
+
+        new_data
+    }
+
+    pub fn zeros(shape: &[usize]) -> Self {
+        Tensor {
+            data: vec![0.0; Tensor::calc_tensor_len_from_shape(shape)],
+            shape: shape.to_vec(),
+            strides: Tensor::calc_strides_from_shape(shape),
+        }
+    }
+
+    pub fn slice(&self, logical_indices: &[[usize; 2]]) -> Tensor {
+        let new_data = match logical_indices.len() {
+            1 => self.one_dimension_slice(logical_indices),
+            _ => panic!("Invalid slice"),
+        };
+
+        // converting to a slice b/c can't move `new_shape` to tensor and pass a reference to it to `Tensor::calc_strides_from_shape()`
+        let new_shape: &[usize] = &Tensor::calc_shape_from_slice(logical_indices)[..];
+
+        Tensor {
+            data: new_data,
+            shape: new_shape.to_vec(),
+            strides: Tensor::calc_strides_from_shape(&new_shape),
+        }
     }
 }

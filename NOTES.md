@@ -15,18 +15,24 @@
 
 -   change col-major to row-major
 -   impl iterator
+-   pre-allocate size of new vectors
+-   add checks for slicing and tensor creation
+-   right now, `calc_shape_from_slice` will slice a tensor of shape `[2, 2, 2]` to `[1, 1, 1]` if slicing it on `[[0, 1], [0, 1], [0, 1]]`
+
+### Done
+
+-   use vectors to store data
 -   separate the view and data parts of tensor to not have to copy everything?
     -   use pointers?
     -   cant use (mut) reference because you need to initialize data somehow, it must belong to the tensor that created it
     -   tensor must be able to mutate data to do in-place operations
     -   option to do in-place or copy
         -   autograd needs copy
+            -   https://discuss.pytorch.org/t/how-in-place-operation-affect-autograd/31173
         -   but some ops like `x[:10] = 0` should be able to be done inplace
     -   so don't need to separate data and tensor, but keep in mind for future if you want to do more (or multiple) inplace ops
-
-### Done
-
--   use vectors to store data
+    -   make two, `slice` and `slice_mut`
+    -   just make copies immutable to make it simple
 
 ### Notes
 
@@ -38,7 +44,7 @@
 -   naive approach slows down with size
 -   it looks like numpy will make a copy when slicing
 -   dont' use `[start:stop]` syntax for rust, use `.slice(!vec[start:stop])`
--   you should be able to do:
+-   you should be able to do: **will make copies to make it simple**
     -   `x[1:2, 3:4] = y`
         -   this has to be inplace
             -   return a tensor containing a vector of mut references to values in original tensor?
