@@ -18,7 +18,7 @@ mod tests {
     fn bench_slice_1d_tensor_small(b: &mut Bencher) {
         let t = Tensor::zeros(&[512 * 512]);
         b.iter(|| {
-            let x = t.slice(&[[0, 128]]);
+            let _x = t.slice(&[[0, 128]]);
         })
     }
 
@@ -26,7 +26,7 @@ mod tests {
     fn bench_slice_1d_tensor_large(b: &mut Bencher) {
         let t = Tensor::zeros(&[512 * 512]);
         b.iter(|| {
-            let x = t.slice(&[[0, 512]]);
+            let _x = t.slice(&[[0, 512]]);
         })
     }
 
@@ -34,7 +34,7 @@ mod tests {
     fn bench_slice_1d_tensor_xl(b: &mut Bencher) {
         let t = Tensor::zeros(&[1024 * 1024]);
         b.iter(|| {
-            let x = t.slice(&[[0, 512 * 512]]);
+            let _x = t.slice(&[[0, 512 * 512]]);
         })
     }
 }
