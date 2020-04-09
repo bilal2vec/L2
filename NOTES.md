@@ -60,3 +60,9 @@
     -   http://scipy-lectures.org/advanced/advanced_numpy/#indexing-scheme-strides
     -   https://ipython-books.github.io/45-understanding-the-internals-of-numpy-to-avoid-unnecessary-array-copying/
 -   ndarray heap (https://users.rust-lang.org/t/ndarray-stack-and-heap-memory-and-overhead/25254)
+
+## Resources
+
+-   https://dev.to/erikinapeartree/rust-for-machine-learning-simd-blas-and-lapack-4dcg
+-   https://docs.rs/rayon/1.3.0/rayon/
+-   https://www.google.com/search?q=rust+ndarray+simd&oq=rust+ndarray+simd&aqs=chrome..69i57.3773j0j7&sourceid=chrome&ie=UTF-8
