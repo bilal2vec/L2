@@ -1,6 +1,7 @@
 # Notes
 
 -   no ints or primitive types in generic parameters
+    -   there is an rfc, but it was opened in 2017
 -   https://www.lpalmieri.com/
 
 ## Tensor

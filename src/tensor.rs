@@ -28,6 +28,61 @@ mod tests {
 
         assert!((x.data == vec![1.0, 2.0]) && (x.shape == vec![2]) && (x.strides == vec![1]))
     }
+    #[test]
+    fn slice_tensor_2d_element() {
+        let t = Tensor {
+            data: vec![1.0, 2.0, 3.0, 4.0],
+            shape: vec![2, 2],
+            strides: vec![2, 1],
+        };
+
+        let x = t.slice(&[[0, 1], [0, 1]]);
+
+        assert!((x.data == vec![1.0]) && (x.shape == vec![1, 1]) && (x.strides == vec![1, 1]))
+    }
+
+    #[test]
+    fn slice_tensor_2d_row() {
+        let t = Tensor {
+            data: vec![1.0, 2.0, 3.0, 4.0],
+            shape: vec![2, 2],
+            strides: vec![2, 1],
+        };
+
+        let x = t.slice(&[[0, 1], [0, 2]]);
+
+        assert!((x.data == vec![1.0, 2.0]) && (x.shape == vec![1, 2]) && (x.strides == vec![2, 1]))
+    }
+
+    #[test]
+    fn slice_tensor_2d_col() {
+        let t = Tensor {
+            data: vec![1.0, 2.0, 3.0, 4.0],
+            shape: vec![2, 2],
+            strides: vec![2, 1],
+        };
+
+        let x = t.slice(&[[0, 2], [0, 1]]);
+
+        assert!((x.data == vec![1.0, 3.0]) && (x.shape == vec![2, 1]) && (x.strides == vec![1, 1]))
+    }
+
+    #[test]
+    fn slice_tensor_2d_all() {
+        let t = Tensor {
+            data: vec![1.0, 2.0, 3.0, 4.0],
+            shape: vec![2, 2],
+            strides: vec![2, 1],
+        };
+
+        let x = t.slice(&[[0, 2], [0, 2]]);
+
+        assert!(
+            (x.data == vec![1.0, 2.0, 3.0, 4.0])
+                && (x.shape == vec![2, 2])
+                && (x.strides == vec![2, 1])
+        )
+    }
 }
 
 #[derive(Debug)]
@@ -89,6 +144,18 @@ impl Tensor {
         new_data
     }
 
+    fn two_dimension_slice(&self, logical_indices: &[[usize; 2]]) -> Vec<f32> {
+        let mut new_data = Vec::new();
+
+        for i in logical_indices[0][0]..logical_indices[0][1] {
+            for j in logical_indices[1][0]..logical_indices[1][1] {
+                new_data.push(self.data[self.get_physical_idx(&[i, j])]);
+            }
+        }
+
+        new_data
+    }
+
     pub fn zeros(shape: &[usize]) -> Self {
         Tensor {
             data: vec![0.0; Tensor::calc_tensor_len_from_shape(shape)],
@@ -100,6 +167,7 @@ impl Tensor {
     pub fn slice(&self, logical_indices: &[[usize; 2]]) -> Tensor {
         let new_data = match logical_indices.len() {
             1 => self.one_dimension_slice(logical_indices),
+            2 => self.two_dimension_slice(logical_indices),
             _ => panic!("Invalid slice"),
         };
 
