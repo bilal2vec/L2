@@ -62,6 +62,10 @@
 
 ### Notes
 
+-   L2 is competitive with numpy for small tensors
+-   L2 copies slices since thats whats needed for autograd
+    -   by default, numpy returns a view
+
 ## Resources
 
 -   https://dev.to/erikinapeartree/rust-for-machine-learning-simd-blas-and-lapack-4dcg
