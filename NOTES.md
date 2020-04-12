@@ -18,7 +18,6 @@
 -   impl iterator
 -   pre-allocate size of new vectors
 -   add checks for slicing and tensor creation
--   right now, `calc_shape_from_slice` will slice a tensor of shape `[2, 2, 2]` to `[1, 1, 1]` if slicing it on `[[0, 1], [0, 1], [0, 1]]`
 
 ### Done
 
@@ -34,9 +33,8 @@
     -   so don't need to separate data and tensor, but keep in mind for future if you want to do more (or multiple) inplace ops
     -   make two, `slice` and `slice_mut`
     -   just make copies immutable to make it simple
-
-### Notes
-
+-   right now, `calc_shape_from_slice` will slice a tensor of shape `[2, 2, 2]` to `[1, 1, 1]` if slicing it on `[[0, 1], [0, 1], [0, 1]]`
+    -   this means that strides for 3+ d tensors can be wrong
 -   vector's overhead shouldn't be much
 -   maybe set vec to not allocate extra memory
 -   vec is contigous in memory
@@ -61,6 +59,8 @@
     -   http://scipy-lectures.org/advanced/advanced_numpy/#indexing-scheme-strides
     -   https://ipython-books.github.io/45-understanding-the-internals-of-numpy-to-avoid-unnecessary-array-copying/
 -   ndarray heap (https://users.rust-lang.org/t/ndarray-stack-and-heap-memory-and-overhead/25254)
+
+### Notes
 
 ## Resources
 

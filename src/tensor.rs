@@ -38,7 +38,7 @@ mod tests {
 
         let x = t.slice(&[[0, 1], [0, 1]]);
 
-        assert!((x.data == vec![1.0]) && (x.shape == vec![1, 1]) && (x.strides == vec![1, 1]))
+        assert!((x.data == vec![1.0]) && (x.shape == vec![1]) && (x.strides == vec![1]))
     }
 
     #[test]
@@ -51,7 +51,7 @@ mod tests {
 
         let x = t.slice(&[[0, 1], [0, 2]]);
 
-        assert!((x.data == vec![1.0, 2.0]) && (x.shape == vec![1, 2]) && (x.strides == vec![2, 1]))
+        assert!((x.data == vec![1.0, 2.0]) && (x.shape == vec![2]) && (x.strides == vec![1]))
     }
 
     #[test]
@@ -64,7 +64,7 @@ mod tests {
 
         let x = t.slice(&[[0, 2], [0, 1]]);
 
-        assert!((x.data == vec![1.0, 3.0]) && (x.shape == vec![2, 1]) && (x.strides == vec![1, 1]))
+        assert!((x.data == vec![1.0, 3.0]) && (x.shape == vec![2]) && (x.strides == vec![1]))
     }
 
     #[test]
@@ -79,6 +79,96 @@ mod tests {
 
         assert!(
             (x.data == vec![1.0, 2.0, 3.0, 4.0])
+                && (x.shape == vec![2, 2])
+                && (x.strides == vec![2, 1])
+        )
+    }
+
+    #[test]
+    fn slice_tensor_3d_element() {
+        let t = Tensor {
+            data: vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],
+            shape: vec![2, 2, 2],
+            strides: vec![4, 2, 1],
+        };
+
+        let x = t.slice(&[[0, 1], [0, 1], [0, 1]]);
+
+        assert!((x.data == vec![1.0]) && (x.shape == vec![1]) && (x.strides == vec![1]))
+    }
+
+    #[test]
+    fn slice_tensor_3d_row() {
+        let t = Tensor {
+            data: vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],
+            shape: vec![2, 2, 2],
+            strides: vec![4, 2, 1],
+        };
+
+        let x = t.slice(&[[0, 1], [0, 1], [0, 2]]);
+
+        assert!((x.data == vec![1.0, 2.0]) && (x.shape == vec![2]) && (x.strides == vec![1]))
+    }
+
+    #[test]
+    fn slice_tensor_3d_col() {
+        let t = Tensor {
+            data: vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],
+            shape: vec![2, 2, 2],
+            strides: vec![4, 2, 1],
+        };
+
+        let x = t.slice(&[[0, 1], [0, 2], [0, 1]]);
+
+        assert!((x.data == vec![1.0, 3.0]) && (x.shape == vec![2]) && (x.strides == vec![1]))
+    }
+
+    #[test]
+    fn slice_tensor_3d_chunk_1() {
+        let t = Tensor {
+            data: vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],
+            shape: vec![2, 2, 2],
+            strides: vec![4, 2, 1],
+        };
+
+        let x = t.slice(&[[0, 1], [0, 2], [0, 2]]);
+
+        assert!(
+            (x.data == vec![1.0, 2.0, 3.0, 4.0])
+                && (x.shape == vec![2, 2])
+                && (x.strides == vec![2, 1])
+        )
+    }
+
+    #[test]
+    fn slice_tensor_3d_chunk_2() {
+        let t = Tensor {
+            data: vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],
+            shape: vec![2, 2, 2],
+            strides: vec![4, 2, 1],
+        };
+
+        let x = t.slice(&[[0, 2], [0, 2], [0, 1]]);
+
+        assert!(
+            (x.data == vec![1.0, 3.0, 5.0, 7.0])
+                && (x.shape == vec![2, 2])
+                && (x.strides == vec![2, 1])
+        )
+    }
+
+    #[test]
+    fn slice_tensor_3d_chunk_4() {
+        let t = Tensor {
+            data: vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],
+            shape: vec![2, 2, 2],
+            strides: vec![4, 2, 1],
+        };
+
+        let x = t.slice(&[[0, 2], [0, 1], [0, 2]]);
+
+        assert!(
+            (x.data == vec![1.0, 2.0, 5.0, 6.0])
                 && (x.shape == vec![2, 2])
                 && (x.strides == vec![2, 1])
         )
@@ -118,7 +208,13 @@ impl Tensor {
         let mut slice_shape = Vec::new();
 
         for idx in slice {
-            slice_shape.push(idx[1] - idx[0]);
+            if idx[1] - idx[0] > 1 {
+                slice_shape.push(idx[1] - idx[0]);
+            }
+        }
+
+        if slice_shape.len() == 0 {
+            slice_shape.push(1);
         }
 
         slice_shape
@@ -156,6 +252,20 @@ impl Tensor {
         new_data
     }
 
+    fn three_dimension_slice(&self, logical_indices: &[[usize; 2]]) -> Vec<f32> {
+        let mut new_data = Vec::new();
+
+        for i in logical_indices[0][0]..logical_indices[0][1] {
+            for j in logical_indices[1][0]..logical_indices[1][1] {
+                for k in logical_indices[2][0]..logical_indices[2][1] {
+                    new_data.push(self.data[self.get_physical_idx(&[i, j, k])]);
+                }
+            }
+        }
+
+        new_data
+    }
+
     pub fn zeros(shape: &[usize]) -> Self {
         Tensor {
             data: vec![0.0; Tensor::calc_tensor_len_from_shape(shape)],
@@ -168,6 +278,7 @@ impl Tensor {
         let new_data = match logical_indices.len() {
             1 => self.one_dimension_slice(logical_indices),
             2 => self.two_dimension_slice(logical_indices),
+            3 => self.three_dimension_slice(logical_indices),
             _ => panic!("Invalid slice"),
         };
 
