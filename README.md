@@ -409,6 +409,8 @@ Other deep learning libraries from scratch include:
 -   https://github.com/mratsim/Arraymancer
 -   https://github.com/siekmanj/sieknet
 -   https://github.com/siekmanj/sieknet_2.0
+-   https://github.com/Daniel-Liu-c0deb0t/Java-Machine-Learning
+-   https://github.com/karpathy/micrograd
 
 This README is based on:
 
