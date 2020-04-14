@@ -65,6 +65,7 @@
 -   L2 is competitive with numpy for small tensors
 -   L2 copies slices since thats whats needed for autograd
     -   by default, numpy returns a view
+-   takes about 6s to slice all elements from a 64x64x64x64 tensor
 
 ## Resources
 

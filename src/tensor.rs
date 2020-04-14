@@ -17,6 +17,23 @@ mod tests {
     }
 
     #[test]
+    #[should_panic(expected = "Shape cannot be empty")]
+    fn try_allocate_tensor_no_shape() {
+        let _t = Tensor::zeros(&[]);
+    }
+
+    #[test]
+    #[should_panic(expected = "We only support Tensors for up to 4 dimensions")]
+    fn try_allocate_tensor_too_many_dims() {
+        let _t = Tensor::zeros(&[2, 2, 2, 2, 2]);
+    }
+    #[test]
+    #[should_panic(expected = "Cannot create a Tensor with a shape of zero for a dimension")]
+    fn try_allocate_tensor_zero_shape() {
+        let _t = Tensor::zeros(&[2, 0, 2]);
+    }
+
+    #[test]
     fn slice_tensor_1d_element() {
         let t = Tensor {
             data: vec![1.0, 2.0, 3.0, 4.0],
@@ -244,6 +261,19 @@ pub struct Tensor {
 }
 
 impl Tensor {
+    fn validate_shape(shape: &[usize]) {
+        match shape.iter().min() {
+            None => panic!("Shape cannot be empty"),
+            Some(min_value) => {
+                if shape.len() > 4 {
+                    panic!("We only support Tensors for up to 4 dimensions")
+                } else if min_value == &0 {
+                    panic!("Cannot create a Tensor with a shape of zero for a dimension")
+                }
+            }
+        }
+    }
+
     fn calc_tensor_len_from_shape(shape: &[usize]) -> usize {
         let mut length = 1;
         for i in shape {
@@ -344,6 +374,8 @@ impl Tensor {
     }
 
     pub fn zeros(shape: &[usize]) -> Self {
+        Tensor::validate_shape(shape);
+
         Tensor {
             data: vec![0.0; Tensor::calc_tensor_len_from_shape(shape)],
             shape: shape.to_vec(),
