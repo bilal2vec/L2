@@ -99,3 +99,7 @@
 ### Rust
 
 -   https://nora.codes/post/what-is-rusts-unsafe/
+
+### SIMD
+
+-   https://opensourceweekly.org/issues/7/
