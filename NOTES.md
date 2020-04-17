@@ -72,3 +72,30 @@
 -   https://dev.to/erikinapeartree/rust-for-machine-learning-simd-blas-and-lapack-4dcg
 -   https://docs.rs/rayon/1.3.0/rayon/
 -   https://www.google.com/search?q=rust+ndarray+simd&oq=rust+ndarray+simd&aqs=chrome..69i57.3773j0j7&sourceid=chrome&ie=UTF-8
+
+### backprop
+
+-   https://datascience.stackexchange.com/questions/20139/gradients-for-bias-terms-in-backpropagation
+-   https://cs231n.github.io/optimization-2/
+-   https://cs231n.github.io/neural-networks-case-study/#grad
+-   https://stackoverflow.com/questions/38082835/backpropagation-in-gradient-descent-for-neural-networks-vs-linear-regression
+-   https://medium.com/@karpathy/yes-you-should-understand-backprop-e2f06eab496b
+-   https://stackoverflow.com/questions/38082835/backpropagation-in-gradient-descent-for-neural-networks-vs-linear-regression
+-   https://github.com/bkkaggle/L2/tree/master#acknowledgements
+
+### Autodiff
+
+-   https://github.com/karpathy/micrograd
+-   https://rufflewind.com/2016-12-30/reverse-mode-automatic-differentiation
+    -   https://github.com/ibab/rust-ad
+    -   https://github.com/Rufflewind/revad/blob/eb3978b3ccdfa8189f3ff59d1ecee71f51c33fd7/revad.py
+    -   https://github.com/srirambandi/ai
+-   https://discuss.pytorch.org/t/is-pytorch-autograd-tape-based/13992/3
+-   https://www.reddit.com/r/MachineLearning/comments/8ep130/d_how_does_autograd_work/
+-   https://github.com/mattjj/autodidact
+-   https://github.com/karpathy/recurrentjs
+-   https://github.com/karpathy/randomfun
+
+### Rust
+
+-   https://nora.codes/post/what-is-rusts-unsafe/
