@@ -71,6 +71,7 @@
 -   L2 copies slices since thats whats needed for autograd
     -   by default, numpy returns a view
 -   takes about 6s to slice all elements from a 64x64x64x64 tensor
+-   speed of slicing/allocating cannot be optimized. Numpy takes about 2x the time that l2 does because l2 will always copy a slice. Numpy's native slices are views, but copies are needed for autograd.
 
 ## Resources
 
