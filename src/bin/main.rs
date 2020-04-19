@@ -12,5 +12,7 @@ fn main() {
     // println!("{:?}", t);
     // println!("{:?}", x);
 
-    let t = Tensor::zeros(&[0, 0]);
+    let t = Tensor::zeros(&[2, 2]);
+
+    let _x = t.slice(&[[0, 1], [0, 1]]);
 }

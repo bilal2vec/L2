@@ -14,7 +14,8 @@
 
 ### Todo
 
--   add checks for slicing and tensor creation
+-   panic!("Invalid slice")
+-   should panicing be done in main?
 
 ### Done
 
@@ -57,6 +58,7 @@
     -   https://ipython-books.github.io/45-understanding-the-internals-of-numpy-to-avoid-unnecessary-array-copying/
 -   ndarray heap (https://users.rust-lang.org/t/ndarray-stack-and-heap-memory-and-overhead/25254)
 -   pre-allocate size of new vectors
+-   add checks for slicing and tensor creation
 
 ### wont do
 
@@ -75,6 +77,7 @@
 -   https://dev.to/erikinapeartree/rust-for-machine-learning-simd-blas-and-lapack-4dcg
 -   https://docs.rs/rayon/1.3.0/rayon/
 -   https://www.google.com/search?q=rust+ndarray+simd&oq=rust+ndarray+simd&aqs=chrome..69i57.3773j0j7&sourceid=chrome&ie=UTF-8
+-   https://stackoverflow.com/questions/39477684/should-i-avoid-unwrap-in-production-application/39478185#39478185
 
 ### backprop
 

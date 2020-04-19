@@ -36,6 +36,34 @@ mod tests {
     }
 
     #[test]
+    #[should_panic(expected = "Invalid slice for Tensor")]
+    fn try_slice_tensor_empty_slice() {
+        let t = Tensor::zeros(&[2, 2]);
+        let _x = t.slice(&[]);
+    }
+
+    #[test]
+    #[should_panic(expected = "Invalid slice for Tensor")]
+    fn try_slice_tensor_too_large_slice() {
+        let t = Tensor::zeros(&[2, 2]);
+        let _x = t.slice(&[[0, 1], [0, 1], [0, 1]]);
+    }
+
+    #[test]
+    #[should_panic(expected = "Invalid slice for Tensor")]
+    fn try_slice_tensor_start_greater_than_stop() {
+        let t = Tensor::zeros(&[2, 2]);
+        let _x = t.slice(&[[0, 1], [1, 0]]);
+    }
+
+    #[test]
+    #[should_panic(expected = "Invalid slice for Tensor")]
+    fn try_slice_tensor_stop_greater_than_shape() {
+        let t = Tensor::zeros(&[2, 2]);
+        let _x = t.slice(&[[0, 1], [0, 3]]);
+    }
+
+    #[test]
     fn slice_tensor_1d_element() {
         let t = Tensor {
             data: vec![1.0, 2.0, 3.0, 4.0],
@@ -392,7 +420,30 @@ impl Tensor {
         }
     }
 
+    fn validate_logical_indices<'a>(
+        &self,
+        logical_indices: &'a [[usize; 2]],
+    ) -> Result<&'a [[usize; 2]], TensorError> {
+        if logical_indices.len() != self.shape.len() {
+            Err(TensorError::SliceError())
+        } else {
+            for i in 0..logical_indices.len() {
+                if logical_indices[i][0] >= logical_indices[i][1]
+                    || logical_indices[i][1] > self.shape[i]
+                {
+                    return Err(TensorError::SliceError());
+                }
+            }
+            Ok(logical_indices)
+        }
+    }
+
     pub fn slice(&self, logical_indices: &[[usize; 2]]) -> Tensor {
+        let logical_indices = match self.validate_logical_indices(logical_indices) {
+            Ok(idxs) => idxs,
+            Err(e) => panic!("{}", e),
+        };
+
         // converting to a slice b/c can't move `new_shape` to tensor and pass a reference to it to `Tensor::calc_strides_from_shape()`
         let new_shape: &[usize] = &Tensor::calc_shape_from_slice(logical_indices)[..];
         let slice_len = Tensor::calc_tensor_len_from_shape(&new_shape);
@@ -402,7 +453,7 @@ impl Tensor {
             2 => self.two_dimension_slice(logical_indices, slice_len),
             3 => self.three_dimension_slice(logical_indices, slice_len),
             4 => self.four_dimension_slice(logical_indices, slice_len),
-            _ => panic!("Invalid slice"),
+            _ => panic!("{}", TensorError::SliceError()),
         };
 
         Tensor {

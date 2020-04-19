@@ -6,6 +6,8 @@ pub enum TensorError {
     EmptyShapeError(),
     TooManyDimensionsError(),
     ZeroShapeError(),
+
+    SliceError(),
 }
 
 impl fmt::Display for TensorError {
@@ -20,6 +22,7 @@ impl fmt::Display for TensorError {
                 f,
                 "Cannot create a Tensor with a shape of zero for a dimension"
             ),
+            TensorError::SliceError() => write!(f, "Invalid slice for Tensor"),
         }
     }
 }
