@@ -14,7 +14,6 @@
 
 ### Todo
 
--   pre-allocate size of new vectors
 -   add checks for slicing and tensor creation
 
 ### Done
@@ -57,6 +56,7 @@
     -   http://scipy-lectures.org/advanced/advanced_numpy/#indexing-scheme-strides
     -   https://ipython-books.github.io/45-understanding-the-internals-of-numpy-to-avoid-unnecessary-array-copying/
 -   ndarray heap (https://users.rust-lang.org/t/ndarray-stack-and-heap-memory-and-overhead/25254)
+-   pre-allocate size of new vectors
 
 ### wont do
 

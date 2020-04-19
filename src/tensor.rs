@@ -23,7 +23,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "We only support Tensors for up to 4 dimensions")]
+    #[should_panic(expected = "We currently only support Tensors with up to 4 dimensions")]
     fn try_allocate_tensor_too_many_dims() {
         let _t = Tensor::zeros(&[2, 2, 2, 2, 2]);
     }
@@ -261,15 +261,19 @@ pub struct Tensor {
 }
 
 impl Tensor {
-    fn validate_shape(shape: &[usize]) {
-        match shape.iter().min() {
-            None => panic!("Shape cannot be empty"),
-            Some(min_value) => {
-                if shape.len() > 4 {
-                    panic!("We only support Tensors for up to 4 dimensions")
-                } else if min_value == &0 {
-                    panic!("Cannot create a Tensor with a shape of zero for a dimension")
-                }
+    fn validate_shape(shape: &[usize]) -> Result<&[usize], &str> {
+        if shape.len() == 0 {
+            Err("Shape cannot be empty")
+        } else if shape.len() > 4 {
+            Err("We currently only support Tensors with up to 4 dimensions")
+        } else {
+            match shape.iter().min() {
+                //shape is a usize, so the compiler won't let us have a negative shape for a dimension
+                Some(min) => match min {
+                    min if min > &0 => Ok(shape),
+                    _ => Err("Cannot create a Tensor with a shape of zero for a dimension"),
+                },
+                None => Err("Shape cannot be empty"),
             }
         }
     }
@@ -375,12 +379,15 @@ impl Tensor {
     }
 
     pub fn zeros(shape: &[usize]) -> Self {
-        Tensor::validate_shape(shape);
+        let shape = Tensor::validate_shape(shape);
 
-        Tensor {
-            data: vec![0.0; Tensor::calc_tensor_len_from_shape(shape)],
-            shape: shape.to_vec(),
-            strides: Tensor::calc_strides_from_shape(shape),
+        match shape {
+            Ok(s) => Tensor {
+                data: vec![0.0; Tensor::calc_tensor_len_from_shape(s)],
+                shape: s.to_vec(),
+                strides: Tensor::calc_strides_from_shape(s),
+            },
+            Err(e) => panic!("{}", e),
         }
     }
 
