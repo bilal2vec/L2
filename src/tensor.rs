@@ -1,3 +1,5 @@
+use crate::errors::TensorError;
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -252,7 +254,6 @@ mod tests {
         )
     }
 }
-
 #[derive(Debug)]
 pub struct Tensor {
     pub data: Vec<f32>,
@@ -261,19 +262,19 @@ pub struct Tensor {
 }
 
 impl Tensor {
-    fn validate_shape(shape: &[usize]) -> Result<&[usize], &str> {
+    fn validate_shape(shape: &[usize]) -> Result<&[usize], TensorError> {
         if shape.len() == 0 {
-            Err("Shape cannot be empty")
+            Err(TensorError::EmptyShapeError())
         } else if shape.len() > 4 {
-            Err("We currently only support Tensors with up to 4 dimensions")
+            Err(TensorError::TooManyDimensionsError())
         } else {
             match shape.iter().min() {
                 //shape is a usize, so the compiler won't let us have a negative shape for a dimension
                 Some(min) => match min {
                     min if min > &0 => Ok(shape),
-                    _ => Err("Cannot create a Tensor with a shape of zero for a dimension"),
+                    _ => Err(TensorError::ZeroShapeError()),
                 },
-                None => Err("Shape cannot be empty"),
+                None => Err(TensorError::EmptyShapeError()),
             }
         }
     }
