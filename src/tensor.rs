@@ -284,7 +284,7 @@ impl Tensor {
     }
 
     fn calc_strides_from_shape(shape: &[usize]) -> Vec<usize> {
-        let mut strides = Vec::new();
+        let mut strides = Vec::with_capacity(shape.len());
 
         let mut current_stride = 1;
         for i in shape.iter().rev() {
@@ -296,6 +296,7 @@ impl Tensor {
     }
 
     fn calc_shape_from_slice(slice: &[[usize; 2]]) -> Vec<usize> {
+        // can't preallocate vec length because we don't know its length at compile time
         let mut slice_shape = Vec::new();
 
         for idx in slice {
@@ -321,8 +322,8 @@ impl Tensor {
         physical_idx
     }
 
-    fn one_dimension_slice(&self, logical_indices: &[[usize; 2]]) -> Vec<f32> {
-        let mut new_data = Vec::new();
+    fn one_dimension_slice(&self, logical_indices: &[[usize; 2]], slice_len: usize) -> Vec<f32> {
+        let mut new_data = Vec::with_capacity(slice_len);
 
         for i in logical_indices[0][0]..logical_indices[0][1] {
             new_data.push(self.data[self.get_physical_idx(&[i])]);
@@ -331,8 +332,8 @@ impl Tensor {
         new_data
     }
 
-    fn two_dimension_slice(&self, logical_indices: &[[usize; 2]]) -> Vec<f32> {
-        let mut new_data = Vec::new();
+    fn two_dimension_slice(&self, logical_indices: &[[usize; 2]], slice_len: usize) -> Vec<f32> {
+        let mut new_data = Vec::with_capacity(slice_len);
 
         for i in logical_indices[0][0]..logical_indices[0][1] {
             for j in logical_indices[1][0]..logical_indices[1][1] {
@@ -343,8 +344,8 @@ impl Tensor {
         new_data
     }
 
-    fn three_dimension_slice(&self, logical_indices: &[[usize; 2]]) -> Vec<f32> {
-        let mut new_data = Vec::new();
+    fn three_dimension_slice(&self, logical_indices: &[[usize; 2]], slice_len: usize) -> Vec<f32> {
+        let mut new_data = Vec::with_capacity(slice_len);
 
         for i in logical_indices[0][0]..logical_indices[0][1] {
             for j in logical_indices[1][0]..logical_indices[1][1] {
@@ -357,8 +358,8 @@ impl Tensor {
         new_data
     }
 
-    fn four_dimension_slice(&self, logical_indices: &[[usize; 2]]) -> Vec<f32> {
-        let mut new_data = Vec::new();
+    fn four_dimension_slice(&self, logical_indices: &[[usize; 2]], slice_len: usize) -> Vec<f32> {
+        let mut new_data = Vec::with_capacity(slice_len);
 
         for i in logical_indices[0][0]..logical_indices[0][1] {
             for j in logical_indices[1][0]..logical_indices[1][1] {
@@ -384,16 +385,17 @@ impl Tensor {
     }
 
     pub fn slice(&self, logical_indices: &[[usize; 2]]) -> Tensor {
-        let new_data = match logical_indices.len() {
-            1 => self.one_dimension_slice(logical_indices),
-            2 => self.two_dimension_slice(logical_indices),
-            3 => self.three_dimension_slice(logical_indices),
-            4 => self.four_dimension_slice(logical_indices),
-            _ => panic!("Invalid slice"),
-        };
-
         // converting to a slice b/c can't move `new_shape` to tensor and pass a reference to it to `Tensor::calc_strides_from_shape()`
         let new_shape: &[usize] = &Tensor::calc_shape_from_slice(logical_indices)[..];
+        let slice_len = Tensor::calc_tensor_len_from_shape(&new_shape);
+
+        let new_data = match logical_indices.len() {
+            1 => self.one_dimension_slice(logical_indices, slice_len),
+            2 => self.two_dimension_slice(logical_indices, slice_len),
+            3 => self.three_dimension_slice(logical_indices, slice_len),
+            4 => self.four_dimension_slice(logical_indices, slice_len),
+            _ => panic!("Invalid slice"),
+        };
 
         Tensor {
             data: new_data,

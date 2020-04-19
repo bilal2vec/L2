@@ -14,8 +14,6 @@
 
 ### Todo
 
--   change col-major to row-major
--   impl iterator
 -   pre-allocate size of new vectors
 -   add checks for slicing and tensor creation
 
@@ -59,6 +57,11 @@
     -   http://scipy-lectures.org/advanced/advanced_numpy/#indexing-scheme-strides
     -   https://ipython-books.github.io/45-understanding-the-internals-of-numpy-to-avoid-unnecessary-array-copying/
 -   ndarray heap (https://users.rust-lang.org/t/ndarray-stack-and-heap-memory-and-overhead/25254)
+
+### wont do
+
+-   change col-major to row-major
+-   impl iterator
 
 ### Notes
 
