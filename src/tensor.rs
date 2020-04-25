@@ -15,52 +15,47 @@ mod tests {
 
     #[test]
     fn allocate_tensor_zeros() {
-        let _t = Tensor::zeros(&[2, 4]);
+        let _t = Tensor::zeros(&[2, 4]).unwrap();
     }
 
     #[test]
-    #[should_panic(expected = "Shape cannot be empty")]
+    #[should_panic]
     fn try_allocate_tensor_no_shape() {
-        let _t = Tensor::zeros(&[]);
+        let _t = Tensor::zeros(&[]).unwrap();
     }
 
     #[test]
-    #[should_panic(expected = "We currently only support Tensors with up to 4 dimensions")]
+    #[should_panic]
     fn try_allocate_tensor_too_many_dims() {
-        let _t = Tensor::zeros(&[2, 2, 2, 2, 2]);
-    }
-    #[test]
-    #[should_panic(expected = "Cannot create a Tensor with a shape of zero for a dimension")]
-    fn try_allocate_tensor_zero_shape() {
-        let _t = Tensor::zeros(&[2, 0, 2]);
+        let _t = Tensor::zeros(&[2, 2, 2, 2, 2]).unwrap();
     }
 
     #[test]
-    #[should_panic(expected = "Invalid slice for Tensor")]
+    #[should_panic]
     fn try_slice_tensor_empty_slice() {
-        let t = Tensor::zeros(&[2, 2]);
-        let _x = t.slice(&[]);
+        let t = Tensor::zeros(&[2, 2]).unwrap();
+        let _x = t.slice(&[]).unwrap();
     }
 
     #[test]
-    #[should_panic(expected = "Invalid slice for Tensor")]
+    #[should_panic]
     fn try_slice_tensor_too_large_slice() {
-        let t = Tensor::zeros(&[2, 2]);
-        let _x = t.slice(&[[0, 1], [0, 1], [0, 1]]);
+        let t = Tensor::zeros(&[2, 2]).unwrap();
+        let _x = t.slice(&[[0, 1], [0, 1], [0, 1]]).unwrap();
     }
 
     #[test]
-    #[should_panic(expected = "Invalid slice for Tensor")]
+    #[should_panic]
     fn try_slice_tensor_start_greater_than_stop() {
-        let t = Tensor::zeros(&[2, 2]);
-        let _x = t.slice(&[[0, 1], [1, 0]]);
+        let t = Tensor::zeros(&[2, 2]).unwrap();
+        let _x = t.slice(&[[0, 1], [1, 0]]).unwrap();
     }
 
     #[test]
-    #[should_panic(expected = "Invalid slice for Tensor")]
+    #[should_panic]
     fn try_slice_tensor_stop_greater_than_shape() {
-        let t = Tensor::zeros(&[2, 2]);
-        let _x = t.slice(&[[0, 1], [0, 3]]);
+        let t = Tensor::zeros(&[2, 2]).unwrap();
+        let _x = t.slice(&[[0, 1], [0, 3]]).unwrap();
     }
 
     #[test]
@@ -71,7 +66,7 @@ mod tests {
             strides: vec![1],
         };
 
-        let x = t.slice(&[[0, 1]]);
+        let x = t.slice(&[[0, 1]]).unwrap();
 
         assert!((x.data == vec![1.0]) && (x.shape == vec![1]) && (x.strides == vec![1]))
     }
@@ -83,7 +78,7 @@ mod tests {
             strides: vec![2, 1],
         };
 
-        let x = t.slice(&[[0, 1], [0, 1]]);
+        let x = t.slice(&[[0, 1], [0, 1]]).unwrap();
 
         assert!((x.data == vec![1.0]) && (x.shape == vec![1]) && (x.strides == vec![1]))
     }
@@ -96,7 +91,7 @@ mod tests {
             strides: vec![2, 1],
         };
 
-        let x = t.slice(&[[0, 1], [0, 2]]);
+        let x = t.slice(&[[0, 1], [0, 2]]).unwrap();
 
         assert!((x.data == vec![1.0, 2.0]) && (x.shape == vec![2]) && (x.strides == vec![1]))
     }
@@ -109,7 +104,7 @@ mod tests {
             strides: vec![2, 1],
         };
 
-        let x = t.slice(&[[0, 2], [0, 1]]);
+        let x = t.slice(&[[0, 2], [0, 1]]).unwrap();
 
         assert!((x.data == vec![1.0, 3.0]) && (x.shape == vec![2]) && (x.strides == vec![1]))
     }
@@ -122,7 +117,7 @@ mod tests {
             strides: vec![4, 2, 1],
         };
 
-        let x = t.slice(&[[0, 1], [0, 1], [0, 1]]);
+        let x = t.slice(&[[0, 1], [0, 1], [0, 1]]).unwrap();
 
         assert!((x.data == vec![1.0]) && (x.shape == vec![1]) && (x.strides == vec![1]))
     }
@@ -135,7 +130,7 @@ mod tests {
             strides: vec![4, 2, 1],
         };
 
-        let x = t.slice(&[[0, 1], [0, 1], [0, 2]]);
+        let x = t.slice(&[[0, 1], [0, 1], [0, 2]]).unwrap();
 
         assert!((x.data == vec![1.0, 2.0]) && (x.shape == vec![2]) && (x.strides == vec![1]))
     }
@@ -148,7 +143,7 @@ mod tests {
             strides: vec![4, 2, 1],
         };
 
-        let x = t.slice(&[[0, 1], [0, 2], [0, 1]]);
+        let x = t.slice(&[[0, 1], [0, 2], [0, 1]]).unwrap();
 
         assert!((x.data == vec![1.0, 3.0]) && (x.shape == vec![2]) && (x.strides == vec![1]))
     }
@@ -161,7 +156,7 @@ mod tests {
             strides: vec![4, 2, 1],
         };
 
-        let x = t.slice(&[[0, 2], [0, 1], [0, 1]]);
+        let x = t.slice(&[[0, 2], [0, 1], [0, 1]]).unwrap();
 
         assert!((x.data == vec![1.0, 5.0]) && (x.shape == vec![2]) && (x.strides == vec![1]))
     }
@@ -174,7 +169,7 @@ mod tests {
             strides: vec![4, 2, 1],
         };
 
-        let x = t.slice(&[[0, 2], [0, 2], [0, 1]]);
+        let x = t.slice(&[[0, 2], [0, 2], [0, 1]]).unwrap();
 
         assert!(
             (x.data == vec![1.0, 3.0, 5.0, 7.0])
@@ -193,7 +188,7 @@ mod tests {
             strides: vec![8, 4, 2, 1],
         };
 
-        let x = t.slice(&[[0, 1], [0, 1], [0, 1], [0, 1]]);
+        let x = t.slice(&[[0, 1], [0, 1], [0, 1], [0, 1]]).unwrap();
 
         assert!((x.data == vec![1.0]) && (x.shape == vec![1]) && (x.strides == vec![1]))
     }
@@ -209,7 +204,7 @@ mod tests {
             strides: vec![8, 4, 2, 1],
         };
 
-        let x = t.slice(&[[0, 1], [0, 1], [0, 1], [0, 2]]);
+        let x = t.slice(&[[0, 1], [0, 1], [0, 1], [0, 2]]).unwrap();
 
         assert!((x.data == vec![1.0, 2.0]) && (x.shape == vec![2]) && (x.strides == vec![1]))
     }
@@ -225,7 +220,7 @@ mod tests {
             strides: vec![8, 4, 2, 1],
         };
 
-        let x = t.slice(&[[0, 1], [0, 1], [0, 2], [0, 1]]);
+        let x = t.slice(&[[0, 1], [0, 1], [0, 2], [0, 1]]).unwrap();
 
         assert!((x.data == vec![1.0, 3.0]) && (x.shape == vec![2]) && (x.strides == vec![1]))
     }
@@ -241,7 +236,7 @@ mod tests {
             strides: vec![8, 4, 2, 1],
         };
 
-        let x = t.slice(&[[0, 1], [0, 2], [0, 1], [0, 1]]);
+        let x = t.slice(&[[0, 1], [0, 2], [0, 1], [0, 1]]).unwrap();
 
         assert!((x.data == vec![1.0, 5.0]) && (x.shape == vec![2]) && (x.strides == vec![1]))
     }
@@ -257,7 +252,7 @@ mod tests {
             strides: vec![8, 4, 2, 1],
         };
 
-        let x = t.slice(&[[0, 2], [0, 1], [0, 1], [0, 1]]);
+        let x = t.slice(&[[0, 2], [0, 1], [0, 1], [0, 1]]).unwrap();
 
         assert!((x.data == vec![1.0, 9.0]) && (x.shape == vec![2]) && (x.strides == vec![1]))
     }
@@ -273,7 +268,7 @@ mod tests {
             strides: vec![8, 4, 2, 1],
         };
 
-        let x = t.slice(&[[0, 2], [0, 2], [0, 1], [0, 1]]);
+        let x = t.slice(&[[0, 2], [0, 2], [0, 1], [0, 1]]).unwrap();
 
         assert!(
             (x.data == vec![1.0, 5.0, 9.0, 13.0])
@@ -282,7 +277,7 @@ mod tests {
         )
     }
 }
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Tensor {
     pub data: Vec<f32>,
     pub shape: Vec<usize>,
@@ -290,23 +285,6 @@ pub struct Tensor {
 }
 
 impl Tensor {
-    fn validate_shape(shape: &[usize]) -> Result<&[usize], TensorError> {
-        if shape.len() == 0 {
-            Err(TensorError::EmptyShapeError())
-        } else if shape.len() > 4 {
-            Err(TensorError::TooManyDimensionsError())
-        } else {
-            match shape.iter().min() {
-                //shape is a usize, so the compiler won't let us have a negative shape for a dimension
-                Some(min) => match min {
-                    min if min > &0 => Ok(shape),
-                    _ => Err(TensorError::ZeroShapeError()),
-                },
-                None => Err(TensorError::EmptyShapeError()),
-            }
-        }
-    }
-
     fn calc_tensor_len_from_shape(shape: &[usize]) -> usize {
         let mut length = 1;
         for i in shape {
@@ -407,17 +385,23 @@ impl Tensor {
         new_data
     }
 
-    pub fn zeros(shape: &[usize]) -> Self {
-        let shape = Tensor::validate_shape(shape);
-
-        match shape {
-            Ok(s) => Tensor {
-                data: vec![0.0; Tensor::calc_tensor_len_from_shape(s)],
-                shape: s.to_vec(),
-                strides: Tensor::calc_strides_from_shape(s),
-            },
-            Err(e) => panic!("{}", e),
+    pub fn new(data: Vec<f32>, shape: &[usize]) -> Result<Tensor, TensorError> {
+        if data.len() == Tensor::calc_tensor_len_from_shape(shape)
+            && shape.len() > 0
+            && shape.len() < 5
+        {
+            Ok(Tensor {
+                data,
+                shape: shape.to_vec(),
+                strides: Tensor::calc_strides_from_shape(shape),
+            })
+        } else {
+            Err(TensorError::InvalidTensor)
         }
+    }
+
+    pub fn zeros(shape: &[usize]) -> Result<Self, TensorError> {
+        Tensor::new(vec![0.0; Tensor::calc_tensor_len_from_shape(shape)], shape)
     }
 
     fn validate_logical_indices<'a>(
@@ -425,41 +409,40 @@ impl Tensor {
         logical_indices: &'a [[usize; 2]],
     ) -> Result<&'a [[usize; 2]], TensorError> {
         if logical_indices.len() != self.shape.len() {
-            Err(TensorError::SliceError())
+            Err(TensorError::SliceError)
         } else {
             for i in 0..logical_indices.len() {
                 if logical_indices[i][0] >= logical_indices[i][1]
                     || logical_indices[i][1] > self.shape[i]
                 {
-                    return Err(TensorError::SliceError());
+                    return Err(TensorError::SliceError);
                 }
             }
             Ok(logical_indices)
         }
     }
 
-    pub fn slice(&self, logical_indices: &[[usize; 2]]) -> Tensor {
-        let logical_indices = match self.validate_logical_indices(logical_indices) {
-            Ok(idxs) => idxs,
-            Err(e) => panic!("{}", e),
-        };
+    pub fn slice(&self, logical_indices: &[[usize; 2]]) -> Result<Self, TensorError> {
+        match self.validate_logical_indices(logical_indices) {
+            Ok(idxs) => {
+                // converting to a slice b/c can't move `new_shape` to tensor and pass a reference to it to `Tensor::calc_strides_from_shape()`
+                let new_shape: &[usize] = &Tensor::calc_shape_from_slice(idxs)[..];
+                let slice_len = Tensor::calc_tensor_len_from_shape(&new_shape);
 
-        // converting to a slice b/c can't move `new_shape` to tensor and pass a reference to it to `Tensor::calc_strides_from_shape()`
-        let new_shape: &[usize] = &Tensor::calc_shape_from_slice(logical_indices)[..];
-        let slice_len = Tensor::calc_tensor_len_from_shape(&new_shape);
+                let new_data = match idxs.len() {
+                    1 => Ok(self.one_dimension_slice(idxs, slice_len)),
+                    2 => Ok(self.two_dimension_slice(idxs, slice_len)),
+                    3 => Ok(self.three_dimension_slice(idxs, slice_len)),
+                    4 => Ok(self.four_dimension_slice(idxs, slice_len)),
+                    _ => Err(TensorError::SliceError),
+                };
 
-        let new_data = match logical_indices.len() {
-            1 => self.one_dimension_slice(logical_indices, slice_len),
-            2 => self.two_dimension_slice(logical_indices, slice_len),
-            3 => self.three_dimension_slice(logical_indices, slice_len),
-            4 => self.four_dimension_slice(logical_indices, slice_len),
-            _ => panic!("{}", TensorError::SliceError()),
-        };
-
-        Tensor {
-            data: new_data,
-            shape: new_shape.to_vec(),
-            strides: Tensor::calc_strides_from_shape(&new_shape),
+                match new_data {
+                    Ok(data) => Tensor::new(data, new_shape),
+                    Err(e) => Err(e),
+                }
+            }
+            Err(e) => Err(e),
         }
     }
 }

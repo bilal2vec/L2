@@ -14,8 +14,8 @@
 
 ### Todo
 
--   panic!("Invalid slice")
--   should panicing be done in main?
+-   ops
+-   broadcasting
 
 ### Done
 
@@ -59,11 +59,16 @@
 -   ndarray heap (https://users.rust-lang.org/t/ndarray-stack-and-heap-memory-and-overhead/25254)
 -   pre-allocate size of new vectors
 -   add checks for slicing and tensor creation
+-   validation should happen at initialization
+-   fix error handling and structure
+-   panic!("Invalid slice")
+-   should panicing be done in main?
 
 ### wont do
 
 -   change col-major to row-major
 -   impl iterator
+-   replace indices slice with enum
 
 ### Notes
 

@@ -9,10 +9,10 @@ fn main() {
 
     // let x = t.slice(&[[0, 2], [0, 2], [0, 1]]);
 
-    // println!("{:?}", t);
-    // println!("{:?}", x);
+    let t = Tensor::zeros(&[2, 2]).unwrap();
 
-    let t = Tensor::zeros(&[2, 2]);
+    let x = t.slice(&[[0, 1], [0, 1]]).unwrap();
 
-    let _x = t.slice(&[[0, 1], [0, 1]]);
+    println!("{:?}", t);
+    println!("{:?}", x);
 }
