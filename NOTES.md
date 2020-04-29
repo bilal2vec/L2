@@ -14,8 +14,15 @@
 
 ### Todo
 
+-   reshape
 -   ops
+    -   all ops are tensor-tensor ops
+    -   element-wise ops
+    -   matmul
+        -   batch matmul
+    -   self-ops
 -   broadcasting
+-   concat
 
 ### Done
 
@@ -63,6 +70,10 @@
 -   fix error handling and structure
 -   panic!("Invalid slice")
 -   should panicing be done in main?
+-   use smarter indexing
+    -   -1 for all values
+    -   not needing to say either first or last vals
+    -   slicing with an empty slice will return a copy of the orignal tensor
 
 ### wont do
 

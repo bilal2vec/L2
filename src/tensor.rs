@@ -32,16 +32,27 @@ mod tests {
 
     #[test]
     #[should_panic]
-    fn try_slice_tensor_empty_slice() {
-        let t = Tensor::zeros(&[2, 2]).unwrap();
-        let _x = t.slice(&[]).unwrap();
-    }
-
-    #[test]
-    #[should_panic]
     fn try_slice_tensor_too_large_slice() {
         let t = Tensor::zeros(&[2, 2]).unwrap();
         let _x = t.slice(&[[0, 1], [0, 1], [0, 1]]).unwrap();
+    }
+
+    #[test]
+    fn try_slice_tensor_negative_1() {
+        let t = Tensor::new(vec![1.0, 2.0, 3.0, 4.0], &[2, 2]).unwrap();
+
+        let x = t.slice(&[[0, -1], [0, 1]]).unwrap();
+
+        assert!((x.data == vec![1.0, 3.0]) && (x.shape == vec![2]));
+    }
+
+    #[test]
+    fn try_slice_fewer_dims() {
+        let t = Tensor::new(vec![1.0, 2.0, 3.0, 4.0], &[2, 2]).unwrap();
+
+        let x = t.slice(&[[0, 1]]).unwrap();
+
+        assert!((x.data == vec![1.0, 2.0]) && (x.shape == vec![2]));
     }
 
     #[test]
@@ -422,10 +433,37 @@ impl Tensor {
         }
     }
 
-    pub fn slice(&self, logical_indices: &[[usize; 2]]) -> Result<Self, TensorError> {
+    fn process_indices(&self, indices: &[[isize; 2]]) -> Vec<[usize; 2]> {
+        let mut indices = indices.to_vec();
+        let mut processed_indices: Vec<[usize; 2]> = Vec::with_capacity(indices.len());
+
+        let diff = self.shape.len() - indices.len();
+        if diff > 0 {
+            for _ in 0..diff {
+                indices.push([0, -1]);
+            }
+        }
+
+        for i in 0..indices.len() {
+            let start: usize = indices[i][0] as usize;
+            let stop: usize = if indices[i][1] == -1 {
+                self.shape[i]
+            } else {
+                indices[i][1] as usize
+            };
+
+            processed_indices.push([start, stop]);
+        }
+
+        processed_indices
+    }
+
+    pub fn slice(&self, logical_indices: &[[isize; 2]]) -> Result<Self, TensorError> {
+        let logical_indices = &self.process_indices(logical_indices)[..];
+
         match self.validate_logical_indices(logical_indices) {
             Ok(idxs) => {
-                // converting to a slice b/c can't move `new_shape` to tensor and pass a reference to it to `Tensor::calc_strides_from_shape()`
+                // converting to a slice b/c can't move `new_shape` to tensor and pass a reference to it to `Tensor::calc_strides_from_shape
                 let new_shape: &[usize] = &Tensor::calc_shape_from_slice(idxs)[..];
                 let slice_len = Tensor::calc_tensor_len_from_shape(&new_shape);
 
