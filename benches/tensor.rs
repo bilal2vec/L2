@@ -46,6 +46,13 @@ mod tests {
     }
 
     #[bench]
+    fn bench_slice_2d_tensor_col_neg_1(b: &mut Bencher) {
+        let t = Tensor::zeros(&[64, 64]).unwrap();
+        b.iter(|| {
+            let _x = t.slice(&[[0, -1], [0, 1]]).unwrap();
+        })
+    }
+    #[bench]
     fn bench_slice_2d_tensor_chunk(b: &mut Bencher) {
         let t = Tensor::zeros(&[64, 64]).unwrap();
         b.iter(|| {
@@ -63,6 +70,22 @@ mod tests {
         let t = Tensor::zeros(&[64, 64, 64]).unwrap();
         b.iter(|| {
             let _x = t.slice(&[[0, 1], [0, 1], [0, 64]]).unwrap();
+        })
+    }
+
+    #[bench]
+    fn bench_slice_3d_tensor_row_neg_1(b: &mut Bencher) {
+        let t = Tensor::zeros(&[64, 64, 64]).unwrap();
+        b.iter(|| {
+            let _x = t.slice(&[[0, 1], [0, 1], [0, -1]]).unwrap();
+        })
+    }
+
+    #[bench]
+    fn bench_slice_3d_tensor_row_automatic_slicing(b: &mut Bencher) {
+        let t = Tensor::zeros(&[64, 64, 64]).unwrap();
+        b.iter(|| {
+            let _x = t.slice(&[[0, 1], [0, 1]]).unwrap();
         })
     }
 
@@ -133,6 +156,22 @@ mod tests {
         let t = Tensor::zeros(&[64, 64, 64, 64]).unwrap();
         b.iter(|| {
             let _x = t.slice(&[[0, 16], [0, 16], [0, 16], [0, 16]]).unwrap();
+        })
+    }
+
+    #[bench]
+    fn bench_view_2d_to_1d(b: &mut Bencher) {
+        let t = Tensor::zeros(&[64, 64]).unwrap();
+        b.iter(|| {
+            let _x = t.view(&[64 * 64]).unwrap();
+        })
+    }
+
+    #[bench]
+    fn bench_view_2d_to_1d_automatic_expanding(b: &mut Bencher) {
+        let t = Tensor::zeros(&[64, 64]).unwrap();
+        b.iter(|| {
+            let _x = t.view(&[-1]).unwrap();
         })
     }
 }
