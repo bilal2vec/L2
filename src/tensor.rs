@@ -287,7 +287,69 @@ mod tests {
                 && (x.strides == vec![2, 1])
         )
     }
+
+    #[test]
+    fn view_tensor() {
+        let t = Tensor::new(vec![1.0, 2.0, 3.0, 4.0], &[2, 2]).unwrap();
+
+        let x = t.view(&[4]).unwrap();
+
+        assert!((x.data == vec![1.0, 2.0, 3.0, 4.0]) && (x.shape == vec![4]));
+    }
+
+    #[test]
+    fn view_tensor_neg_1() {
+        let t = Tensor::new(vec![1.0, 2.0, 3.0, 4.0], &[2, 2]).unwrap();
+
+        let _x = t.view(&[-1]).unwrap();
+    }
+
+    #[test]
+    fn view_tensor_neg_2() {
+        let t = Tensor::new(vec![1.0, 2.0, 3.0, 4.0], &[2, 2]).unwrap();
+
+        let _x = t.view(&[2, -1]).unwrap();
+    }
+
+    #[test]
+    fn view_tensor_neg_3() {
+        let t = Tensor::new(vec![1.0, 2.0, 3.0, 4.0], &[2, 2]).unwrap();
+
+        let _x = t.view(&[1, -1]).unwrap();
+    }
+
+    #[test]
+    fn view_tensor_neg_4() {
+        let t = Tensor::new(vec![1.0, 2.0, 3.0, 4.0], &[2, 2]).unwrap();
+
+        let _x = t.view(&[4, -1]).unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    fn view_tensor_should_panic() {
+        let t = Tensor::new(vec![1.0, 2.0, 3.0, 4.0], &[2, 2]).unwrap();
+
+        let _x = t.view(&[1, 1, 1, 1]).unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    fn view_tensor_neg_should_panic() {
+        let t = Tensor::new(vec![1.0, 2.0, 3.0, 4.0], &[2, 2]).unwrap();
+
+        let _x = t.view(&[-1, -1]).unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    fn view_tensor_neg_should_panic_2() {
+        let t = Tensor::new(vec![1.0, 2.0, 3.0, 4.0], &[2, 2]).unwrap();
+
+        let _x = t.view(&[6, -1]).unwrap();
+    }
 }
+
 #[derive(Debug, PartialEq)]
 pub struct Tensor {
     pub data: Vec<f32>,
@@ -459,12 +521,12 @@ impl Tensor {
     }
 
     pub fn slice(&self, logical_indices: &[[isize; 2]]) -> Result<Self, TensorError> {
-        let logical_indices = &self.process_indices(logical_indices)[..];
+        let logical_indices = self.process_indices(logical_indices);
 
-        match self.validate_logical_indices(logical_indices) {
+        match self.validate_logical_indices(&logical_indices) {
             Ok(idxs) => {
                 // converting to a slice b/c can't move `new_shape` to tensor and pass a reference to it to `Tensor::calc_strides_from_shape
-                let new_shape: &[usize] = &Tensor::calc_shape_from_slice(idxs)[..];
+                let new_shape = Tensor::calc_shape_from_slice(idxs);
                 let slice_len = Tensor::calc_tensor_len_from_shape(&new_shape);
 
                 let new_data = match idxs.len() {
@@ -476,11 +538,47 @@ impl Tensor {
                 };
 
                 match new_data {
-                    Ok(data) => Tensor::new(data, new_shape),
+                    Ok(data) => Tensor::new(data, &new_shape),
                     Err(e) => Err(e),
                 }
             }
             Err(e) => Err(e),
+        }
+    }
+
+    fn process_view(&self, shape: &[isize]) -> Result<Vec<usize>, TensorError> {
+        match shape.iter().filter(|&&val| val == -1).count() {
+            0 => Ok(shape.iter().map(|&val| val as usize).collect()),
+            1 => {
+                let tensor_len = Tensor::calc_tensor_len_from_shape(&self.shape);
+
+                let mut remainder_len = 1;
+                for val in shape.iter() {
+                    if *val != -1 {
+                        remainder_len *= *val as usize;
+                    }
+                }
+
+                // can't return an error
+                let neg_1_idx = shape.iter().position(|&val| val == -1).unwrap();
+
+                let mut shape: Vec<usize> = shape.iter().map(|&val| val as usize).collect();
+                shape[neg_1_idx] = tensor_len / remainder_len;
+
+                Ok(shape)
+            }
+            _ => Err(TensorError::ViewError),
+        }
+    }
+
+    pub fn view(&self, shape: &[isize]) -> Result<Self, TensorError> {
+        let shape = self.process_view(shape)?;
+
+        match Tensor::calc_tensor_len_from_shape(&self.shape)
+            == Tensor::calc_tensor_len_from_shape(&shape)
+        {
+            true => Tensor::new(self.data.clone(), &shape),
+            false => Err(TensorError::ViewError),
         }
     }
 }

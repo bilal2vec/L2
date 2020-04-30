@@ -5,6 +5,7 @@ use std::fmt;
 pub enum TensorError {
     InvalidTensor,
     SliceError,
+    ViewError,
 }
 
 impl fmt::Display for TensorError {
@@ -12,6 +13,7 @@ impl fmt::Display for TensorError {
         match self {
             TensorError::InvalidTensor => write!(f, "Invalid parameters for Tensor"),
             TensorError::SliceError => write!(f, "Invalid slice for Tensor"),
+            TensorError::ViewError => write!(f, "Invalid view shape for Tensor"),
         }
     }
 }

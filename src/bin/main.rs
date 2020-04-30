@@ -9,9 +9,9 @@ fn main() {
 
     // let x = t.slice(&[[0, 2], [0, 2], [0, 1]]);
 
-    let t = Tensor::zeros(&[3, 2]).unwrap();
+    let t = Tensor::zeros(&[4]).unwrap();
 
-    let x = t.slice(&[]).unwrap();
+    let x = t.view(&[4, -1]).unwrap();
 
     println!("{:?}", t);
     println!("{:?}", x);

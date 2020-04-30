@@ -14,7 +14,7 @@
 
 ### Todo
 
--   reshape
+-   benchmarks for previous stuff
 -   ops
     -   all ops are tensor-tensor ops
     -   element-wise ops
@@ -74,6 +74,8 @@
     -   -1 for all values
     -   not needing to say either first or last vals
     -   slicing with an empty slice will return a copy of the orignal tensor
+-   reduce number of &[..]
+-   reshape
 
 ### wont do
 
