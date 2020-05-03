@@ -14,7 +14,6 @@
 
 ### Todo
 
--   tensor::new shouldn't return result
 -   ops
     -   elementwise ops are comparable to numpy until ~ 4096x4096
     -   other should be reference
@@ -23,10 +22,32 @@
         -   will panic instead
     -   all ops are tensor-tensor ops
     -   element-wise ops
-    -   self-ops
+-   self-ops
+    -   pow
+    -   sqrt
+    -   exp
+    -   log
+        -   e
+        -   10
+    -   abs
+    -   sin
+    -   cos
+    -   tan
+-   other ops
+    -   over dim or all dims
+    -   sum
+    -   mean
+    -   max
+    -   min
+    -   argmax
+    -   argmin
 -   matmul
     -   batch matmul
 -   concat
+-   normal
+-   uniform
+-   transpose
+-   clone
 
 ### Done
 
@@ -88,6 +109,7 @@
 -   change col-major to row-major
 -   impl iterator
 -   replace indices slice with enum
+-   tensor::new shouldn't return result
 
 ### Notes
 
