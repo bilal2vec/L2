@@ -6,6 +6,9 @@ pub enum TensorError {
     InvalidTensor,
     SliceError,
     ViewError,
+    BroadcastError,
+    OpError,
+    OpNotSupportedError,
 }
 
 impl fmt::Display for TensorError {
@@ -14,6 +17,9 @@ impl fmt::Display for TensorError {
             TensorError::InvalidTensor => write!(f, "Invalid parameters for Tensor"),
             TensorError::SliceError => write!(f, "Invalid slice for Tensor"),
             TensorError::ViewError => write!(f, "Invalid view shape for Tensor"),
+            TensorError::BroadcastError => write!(f, "Shapes are not broadcastable"),
+            TensorError::OpError => write!(f, "Tensors cannot be operated on"),
+            TensorError::OpNotSupportedError => write!(f, "Operation not supported"),
         }
     }
 }

@@ -9,10 +9,10 @@ fn main() {
 
     // let x = t.slice(&[[0, 2], [0, 2], [0, 1]]);
 
-    let t = Tensor::zeros(&[4]).unwrap();
+    let a = Tensor::new(vec![2.0, 3.0, 4.0, 5.0], &[2, 2]).unwrap();
+    let b = Tensor::new(vec![2.0, 3.0], &[2]).unwrap();
 
-    let x = t.view(&[4, -1]).unwrap();
+    let c = &a * &b;
 
-    println!("{:?}", t);
-    println!("{:?}", x);
+    println!("{:?}", c);
 }

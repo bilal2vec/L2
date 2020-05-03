@@ -14,14 +14,18 @@
 
 ### Todo
 
--   benchmarks for previous stuff
+-   tensor::new shouldn't return result
 -   ops
+    -   elementwise ops are comparable to numpy until ~ 4096x4096
+    -   other should be reference
+    -   ops won't return Result<Tensor, TensorError>
+        -   that would mean that you would need to run `let x = (a + b).unwrap();`
+        -   will panic instead
     -   all ops are tensor-tensor ops
     -   element-wise ops
-    -   matmul
-        -   batch matmul
     -   self-ops
--   broadcasting
+-   matmul
+    -   batch matmul
 -   concat
 
 ### Done
@@ -76,6 +80,8 @@
     -   slicing with an empty slice will return a copy of the orignal tensor
 -   reduce number of &[..]
 -   reshape
+-   benchmarks for previous stuff
+-   broadcasting
 
 ### wont do
 

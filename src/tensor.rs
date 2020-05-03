@@ -1,3 +1,5 @@
+use std::ops::{Add, Div, Mul, Sub};
+
 use crate::errors::TensorError;
 
 #[cfg(test)]
@@ -348,6 +350,99 @@ mod tests {
 
         let _x = t.view(&[6, -1]).unwrap();
     }
+
+    #[test]
+    fn elementwise_add_op() {
+        let a = Tensor::new(vec![2.0, 3.0, 4.0, 5.0], &[4]).unwrap();
+        let b = Tensor::new(vec![2.0, 3.0, 4.0, 5.0], &[4]).unwrap();
+
+        let c = &a + &b;
+
+        let x = Tensor::new(vec![4.0, 6.0, 8.0, 10.0], &[4]).unwrap();
+
+        assert_eq!(c, x);
+    }
+
+    #[test]
+    fn elementwise_sub_op() {
+        let a = Tensor::new(vec![2.0, 3.0, 4.0, 5.0], &[2, 2]).unwrap();
+        let b = Tensor::new(vec![2.0, 3.0], &[2]).unwrap();
+
+        let c = &a - &b;
+
+        let x = Tensor::new(vec![0.0, 0.0, 2.0, 2.0], &[2, 2]).unwrap();
+
+        assert_eq!(c, x);
+    }
+
+    #[test]
+    fn elementwise_mul_op() {
+        let a = Tensor::new(vec![2.0, 3.0, 4.0, 5.0], &[2, 2]).unwrap();
+        let b = Tensor::new(vec![2.0, 3.0], &[2]).unwrap();
+
+        let c = &a * &b;
+
+        let x = Tensor::new(vec![4.0, 9.0, 8.0, 15.0], &[2, 2]).unwrap();
+
+        assert_eq!(c, x);
+    }
+
+    #[test]
+    fn elementwise_div_op() {
+        let a = Tensor::new(vec![2.0, 4.0, 6.0, 8.0], &[2, 2]).unwrap();
+        let b = Tensor::new(vec![2.0, 4.0], &[2]).unwrap();
+
+        let c = &a / &b;
+
+        let x = Tensor::new(vec![1.0, 1.0, 3.0, 2.0], &[2, 2]).unwrap();
+
+        assert_eq!(c, x);
+    }
+
+    #[test]
+    fn broadcast_shapes() {
+        let a = Tensor::new(vec![2.0, 3.0, 4.0, 5.0], &[1, 4]).unwrap();
+        let b = Tensor::new(vec![2.0, 3.0, 4.0, 5.0], &[4]).unwrap();
+
+        let c = &a + &b;
+
+        let x = Tensor::new(vec![4.0, 6.0, 8.0, 10.0], &[1, 4]).unwrap();
+
+        assert!((x == c) && (c.shape == vec![1, 4]));
+    }
+
+    #[test]
+    fn broadcast_dims() {
+        let a = Tensor::new(vec![2.0, 3.0, 4.0, 5.0], &[2, 2]).unwrap();
+        let b = Tensor::new(vec![2.0, 3.0], &[2]).unwrap();
+
+        let c = &a + &b;
+
+        let x = Tensor::new(vec![4.0, 6.0, 6.0, 8.0], &[2, 2]).unwrap();
+
+        assert!((x == c) && (c.shape == vec![2, 2]));
+    }
+
+    #[test]
+    fn broadcast_shapes_and_dims() {
+        let a = Tensor::new(vec![2.0, 3.0, 4.0, 5.0], &[1, 2, 2]).unwrap();
+        let b = Tensor::new(vec![2.0, 3.0], &[2]).unwrap();
+
+        let c = &a + &b;
+
+        let x = Tensor::new(vec![4.0, 6.0, 6.0, 8.0], &[1, 2, 2]).unwrap();
+
+        assert!((x == c) && (c.shape == vec![1, 2, 2]));
+    }
+
+    #[test]
+    #[should_panic]
+    fn broadcast_should_panic() {
+        let a = Tensor::new(vec![2.0, 3.0, 4.0, 5.0], &[4]).unwrap();
+        let b = Tensor::new(vec![2.0, 3.0, 4.0, 5.0], &[2, 2]).unwrap();
+
+        let _c = &a + &b;
+    }
 }
 
 #[derive(Debug, PartialEq)]
@@ -366,7 +461,6 @@ impl Tensor {
 
         length
     }
-
     fn calc_strides_from_shape(shape: &[usize]) -> Vec<usize> {
         let mut strides = Vec::with_capacity(shape.len());
 
@@ -378,7 +472,6 @@ impl Tensor {
 
         strides
     }
-
     fn calc_shape_from_slice(slice: &[[usize; 2]]) -> Vec<usize> {
         // can't preallocate vec length because we don't know its length at compile time
         let mut slice_shape = Vec::new();
@@ -396,11 +489,11 @@ impl Tensor {
         slice_shape
     }
 
-    fn get_physical_idx(&self, logical_indices: &[usize]) -> usize {
+    fn get_physical_idx(logical_indices: &[usize], strides: &[usize]) -> usize {
         let mut physical_idx = 0;
 
         for (i, idx) in logical_indices.iter().enumerate() {
-            physical_idx += idx * self.strides[i];
+            physical_idx += idx * strides[i];
         }
 
         physical_idx
@@ -410,38 +503,35 @@ impl Tensor {
         let mut new_data = Vec::with_capacity(slice_len);
 
         for i in logical_indices[0][0]..logical_indices[0][1] {
-            new_data.push(self.data[self.get_physical_idx(&[i])]);
+            new_data.push(self.data[Tensor::get_physical_idx(&[i], &self.strides)]);
         }
 
         new_data
     }
-
     fn two_dimension_slice(&self, logical_indices: &[[usize; 2]], slice_len: usize) -> Vec<f32> {
         let mut new_data = Vec::with_capacity(slice_len);
 
         for i in logical_indices[0][0]..logical_indices[0][1] {
             for j in logical_indices[1][0]..logical_indices[1][1] {
-                new_data.push(self.data[self.get_physical_idx(&[i, j])]);
+                new_data.push(self.data[Tensor::get_physical_idx(&[i, j], &self.strides)]);
             }
         }
 
         new_data
     }
-
     fn three_dimension_slice(&self, logical_indices: &[[usize; 2]], slice_len: usize) -> Vec<f32> {
         let mut new_data = Vec::with_capacity(slice_len);
 
         for i in logical_indices[0][0]..logical_indices[0][1] {
             for j in logical_indices[1][0]..logical_indices[1][1] {
                 for k in logical_indices[2][0]..logical_indices[2][1] {
-                    new_data.push(self.data[self.get_physical_idx(&[i, j, k])]);
+                    new_data.push(self.data[Tensor::get_physical_idx(&[i, j, k], &self.strides)]);
                 }
             }
         }
 
         new_data
     }
-
     fn four_dimension_slice(&self, logical_indices: &[[usize; 2]], slice_len: usize) -> Vec<f32> {
         let mut new_data = Vec::with_capacity(slice_len);
 
@@ -449,7 +539,9 @@ impl Tensor {
             for j in logical_indices[1][0]..logical_indices[1][1] {
                 for k in logical_indices[2][0]..logical_indices[2][1] {
                     for m in logical_indices[3][0]..logical_indices[3][1] {
-                        new_data.push(self.data[self.get_physical_idx(&[i, j, k, m])]);
+                        new_data.push(
+                            self.data[Tensor::get_physical_idx(&[i, j, k, m], &self.strides)],
+                        );
                     }
                 }
             }
@@ -494,7 +586,6 @@ impl Tensor {
             Ok(logical_indices)
         }
     }
-
     fn process_indices(&self, indices: &[[isize; 2]]) -> Vec<[usize; 2]> {
         let mut indices = indices.to_vec();
         let mut processed_indices: Vec<[usize; 2]> = Vec::with_capacity(indices.len());
@@ -519,31 +610,24 @@ impl Tensor {
 
         processed_indices
     }
-
     pub fn slice(&self, logical_indices: &[[isize; 2]]) -> Result<Self, TensorError> {
         let logical_indices = self.process_indices(logical_indices);
 
-        match self.validate_logical_indices(&logical_indices) {
-            Ok(idxs) => {
-                // converting to a slice b/c can't move `new_shape` to tensor and pass a reference to it to `Tensor::calc_strides_from_shape
-                let new_shape = Tensor::calc_shape_from_slice(idxs);
-                let slice_len = Tensor::calc_tensor_len_from_shape(&new_shape);
+        let logical_indices = self.validate_logical_indices(&logical_indices)?;
 
-                let new_data = match idxs.len() {
-                    1 => Ok(self.one_dimension_slice(idxs, slice_len)),
-                    2 => Ok(self.two_dimension_slice(idxs, slice_len)),
-                    3 => Ok(self.three_dimension_slice(idxs, slice_len)),
-                    4 => Ok(self.four_dimension_slice(idxs, slice_len)),
-                    _ => Err(TensorError::SliceError),
-                };
+        // converting to a slice b/c can't move `new_shape` to tensor and pass a reference to it to `Tensor::calc_strides_from_shape
+        let new_shape = Tensor::calc_shape_from_slice(logical_indices);
+        let slice_len = Tensor::calc_tensor_len_from_shape(&new_shape);
 
-                match new_data {
-                    Ok(data) => Tensor::new(data, &new_shape),
-                    Err(e) => Err(e),
-                }
-            }
-            Err(e) => Err(e),
-        }
+        let new_data = match logical_indices.len() {
+            1 => Ok(self.one_dimension_slice(logical_indices, slice_len)),
+            2 => Ok(self.two_dimension_slice(logical_indices, slice_len)),
+            3 => Ok(self.three_dimension_slice(logical_indices, slice_len)),
+            4 => Ok(self.four_dimension_slice(logical_indices, slice_len)),
+            _ => Err(TensorError::SliceError),
+        }?;
+
+        Tensor::new(new_data, &new_shape)
     }
 
     fn process_view(&self, shape: &[isize]) -> Result<Vec<usize>, TensorError> {
@@ -570,7 +654,6 @@ impl Tensor {
             _ => Err(TensorError::ViewError),
         }
     }
-
     pub fn view(&self, shape: &[isize]) -> Result<Self, TensorError> {
         let shape = self.process_view(shape)?;
 
@@ -579,6 +662,244 @@ impl Tensor {
         {
             true => Tensor::new(self.data.clone(), &shape),
             false => Err(TensorError::ViewError),
+        }
+    }
+
+    fn broadcast(
+        lhs_shape: &Vec<usize>,
+        rhs_shape: &Vec<usize>,
+    ) -> Result<(Vec<usize>, Vec<usize>, Vec<usize>), TensorError> {
+        let lhs_shape = if lhs_shape.len() < rhs_shape.len() {
+            let ones = vec![1; rhs_shape.len() - lhs_shape.len()];
+            [&ones[..], &lhs_shape[..]].concat()
+        } else {
+            lhs_shape.clone()
+        };
+
+        let rhs_shape = if rhs_shape.len() < lhs_shape.len() {
+            let ones = vec![1; lhs_shape.len() - rhs_shape.len()];
+            [&ones[..], &rhs_shape[..]].concat()
+        } else {
+            rhs_shape.clone()
+        };
+
+        let mut broadcasted_shape: Vec<usize> = Vec::with_capacity(lhs_shape.len());
+        let mut broadcasted_lhs_strides: Vec<usize> = Tensor::calc_strides_from_shape(&lhs_shape);
+        let mut broadcasted_rhs_strides: Vec<usize> = Tensor::calc_strides_from_shape(&rhs_shape);
+
+        for (i, (&lhs, &rhs)) in lhs_shape.iter().zip(rhs_shape.iter()).enumerate() {
+            if lhs == rhs {
+                broadcasted_shape.push(lhs);
+            } else if lhs == 1 {
+                broadcasted_shape.push(rhs);
+                broadcasted_lhs_strides[i] = 0;
+            } else if rhs == 1 {
+                broadcasted_shape.push(lhs);
+                broadcasted_rhs_strides[i] = 0;
+            } else {
+                return Err(TensorError::BroadcastError);
+            }
+        }
+
+        Ok((
+            broadcasted_shape,
+            broadcasted_lhs_strides,
+            broadcasted_rhs_strides,
+        ))
+    }
+    fn op(lhs: &f32, rhs: &f32, op: &str) -> Result<f32, TensorError> {
+        match op {
+            "+" => Ok(lhs + rhs),
+            "-" => Ok(lhs - rhs),
+            "*" => Ok(lhs * rhs),
+            "/" => Ok(lhs / rhs),
+            _ => Err(TensorError::OpNotSupportedError),
+        }
+    }
+    fn one_dimension_tensor_op(
+        &self,
+        other: &Tensor,
+        lhs_strides: &[usize],
+        rhs_strides: &[usize],
+        new_shape: &Vec<usize>,
+        op: &str,
+    ) -> Vec<f32> {
+        let mut new_data: Vec<f32> =
+            Vec::with_capacity(Tensor::calc_tensor_len_from_shape(new_shape));
+
+        for i in 0..new_shape[0] {
+            let op_result = Tensor::op(
+                &self.data[Tensor::get_physical_idx(&[i], &lhs_strides)],
+                &other.data[Tensor::get_physical_idx(&[i], &rhs_strides)],
+                op,
+            )
+            .unwrap();
+
+            new_data.push(op_result);
+        }
+
+        new_data
+    }
+    fn two_dimension_tensor_op(
+        &self,
+        other: &Tensor,
+        lhs_strides: &[usize],
+        rhs_strides: &[usize],
+        new_shape: &Vec<usize>,
+        op: &str,
+    ) -> Vec<f32> {
+        let mut new_data: Vec<f32> =
+            Vec::with_capacity(Tensor::calc_tensor_len_from_shape(new_shape));
+
+        for i in 0..new_shape[0] {
+            for j in 0..new_shape[1] {
+                let op_result = Tensor::op(
+                    &self.data[Tensor::get_physical_idx(&[i, j], &lhs_strides)],
+                    &other.data[Tensor::get_physical_idx(&[i, j], &rhs_strides)],
+                    op,
+                )
+                .unwrap();
+
+                new_data.push(op_result);
+            }
+        }
+
+        new_data
+    }
+    fn three_dimension_tensor_op(
+        &self,
+        other: &Tensor,
+        lhs_strides: &[usize],
+        rhs_strides: &[usize],
+        new_shape: &Vec<usize>,
+        op: &str,
+    ) -> Vec<f32> {
+        let mut new_data: Vec<f32> =
+            Vec::with_capacity(Tensor::calc_tensor_len_from_shape(new_shape));
+
+        for i in 0..new_shape[0] {
+            for j in 0..new_shape[1] {
+                for k in 0..new_shape[2] {
+                    let op_result = Tensor::op(
+                        &self.data[Tensor::get_physical_idx(&[i, j, k], &lhs_strides)],
+                        &other.data[Tensor::get_physical_idx(&[i, j, k], &rhs_strides)],
+                        op,
+                    )
+                    .unwrap();
+
+                    new_data.push(op_result);
+                }
+            }
+        }
+
+        new_data
+    }
+    fn four_dimension_tensor_op(
+        &self,
+        other: &Tensor,
+        lhs_strides: &[usize],
+        rhs_strides: &[usize],
+        new_shape: &Vec<usize>,
+        op: &str,
+    ) -> Vec<f32> {
+        let mut new_data: Vec<f32> =
+            Vec::with_capacity(Tensor::calc_tensor_len_from_shape(new_shape));
+
+        for i in 0..new_shape[0] {
+            for j in 0..new_shape[1] {
+                for k in 0..new_shape[2] {
+                    for m in 0..new_shape[3] {
+                        let op_result = Tensor::op(
+                            &self.data[Tensor::get_physical_idx(&[i, j, k, m], &lhs_strides)],
+                            &other.data[Tensor::get_physical_idx(&[i, j, k, m], &rhs_strides)],
+                            op,
+                        )
+                        .unwrap();
+
+                        new_data.push(op_result);
+                    }
+                }
+            }
+        }
+
+        new_data
+    }
+    fn tensor_op(&self, other: &Tensor, op: &str) -> Result<Tensor, TensorError> {
+        let (new_shape, lhs_strides, rhs_strides) = Tensor::broadcast(&self.shape, &other.shape)?;
+
+        let new_data = match new_shape.len() {
+            1 => Ok(self.one_dimension_tensor_op(
+                &other,
+                &lhs_strides,
+                &rhs_strides,
+                &new_shape,
+                op,
+            )),
+            2 => Ok(self.two_dimension_tensor_op(
+                &other,
+                &lhs_strides,
+                &rhs_strides,
+                &new_shape,
+                op,
+            )),
+            3 => Ok(self.three_dimension_tensor_op(
+                &other,
+                &lhs_strides,
+                &rhs_strides,
+                &new_shape,
+                op,
+            )),
+            4 => Ok(self.four_dimension_tensor_op(
+                &other,
+                &lhs_strides,
+                &rhs_strides,
+                &new_shape,
+                op,
+            )),
+            _ => Err(TensorError::OpError),
+        }?;
+
+        Tensor::new(new_data, &new_shape)
+    }
+}
+
+impl Add for &Tensor {
+    type Output = Tensor;
+
+    fn add(self, other: &Tensor) -> Tensor {
+        match self.tensor_op(other, "+") {
+            Ok(t) => t,
+            Err(e) => panic!("{}", e),
+        }
+    }
+}
+impl Sub for &Tensor {
+    type Output = Tensor;
+
+    fn sub(self, other: &Tensor) -> Tensor {
+        match self.tensor_op(other, "-") {
+            Ok(t) => t,
+            Err(e) => panic!("{}", e),
+        }
+    }
+}
+impl Mul for &Tensor {
+    type Output = Tensor;
+
+    fn mul(self, other: &Tensor) -> Tensor {
+        match self.tensor_op(other, "*") {
+            Ok(t) => t,
+            Err(e) => panic!("{}", e),
+        }
+    }
+}
+impl Div for &Tensor {
+    type Output = Tensor;
+
+    fn div(self, other: &Tensor) -> Tensor {
+        match self.tensor_op(other, "/") {
+            Ok(t) => t,
+            Err(e) => panic!("{}", e),
         }
     }
 }

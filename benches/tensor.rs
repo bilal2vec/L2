@@ -174,4 +174,13 @@ mod tests {
             let _x = t.view(&[-1]).unwrap();
         })
     }
+
+    #[bench]
+    fn bench_add(b: &mut Bencher) {
+        let x = Tensor::zeros(&[256, 256]).unwrap();
+        let y = Tensor::zeros(&[256, 256]).unwrap();
+        b.iter(|| {
+            let _z = &x + &y;
+        })
+    }
 }
