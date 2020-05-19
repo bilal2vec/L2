@@ -14,25 +14,6 @@
 
 ### Todo
 
--   ops
-    -   elementwise ops are comparable to numpy until ~ 4096x4096
-    -   other should be reference
-    -   ops won't return Result<Tensor, TensorError>
-        -   that would mean that you would need to run `let x = (a + b).unwrap();`
-        -   will panic instead
-    -   all ops are tensor-tensor ops
-    -   element-wise ops
--   self-ops
-    -   pow
-    -   sqrt
-    -   exp
-    -   log
-        -   e
-        -   10
-    -   abs
-    -   sin
-    -   cos
-    -   tan
 -   other ops
     -   over dim or all dims
     -   sum
@@ -103,6 +84,26 @@
 -   reshape
 -   benchmarks for previous stuff
 -   broadcasting
+-   ops
+    -   should be like `let c = &a + &b;` and `let c = l2::add(a, b);`
+    -   elementwise ops are comparable to numpy until ~ 4096x4096
+    -   other should be reference
+    -   ops won't return Result<Tensor, TensorError>
+        -   that would mean that you would need to run `let x = (a + b).unwrap();`
+        -   will panic instead
+    -   all ops are tensor-tensor ops
+    -   element-wise ops
+-   self-ops
+    -   pow
+    -   sqrt
+    -   exp
+    -   log
+        -   e
+        -   10
+    -   abs
+    -   sin
+    -   cos
+    -   tan
 
 ### wont do
 

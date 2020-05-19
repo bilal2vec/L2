@@ -1,3 +1,4 @@
+use std::f32::consts::E;
 use std::ops::{Add, Div, Mul, Sub};
 
 use crate::errors::TensorError;
@@ -443,6 +444,15 @@ mod tests {
 
         let _c = &a + &b;
     }
+
+    #[test]
+    fn pow() {
+        let a = Tensor::new(vec![2.0, 3.0, 4.0, 5.0], &[4]).unwrap();
+
+        let b = a.pow(2);
+
+        assert!((b.data == vec![4.0, 9.0, 16.0, 25.0]) && (b.shape == vec![4]))
+    }
 }
 
 #[derive(Debug, PartialEq)]
@@ -550,25 +560,6 @@ impl Tensor {
         new_data
     }
 
-    pub fn new(data: Vec<f32>, shape: &[usize]) -> Result<Tensor, TensorError> {
-        if data.len() == Tensor::calc_tensor_len_from_shape(shape)
-            && shape.len() > 0
-            && shape.len() < 5
-        {
-            Ok(Tensor {
-                data,
-                shape: shape.to_vec(),
-                strides: Tensor::calc_strides_from_shape(shape),
-            })
-        } else {
-            Err(TensorError::InvalidTensor)
-        }
-    }
-
-    pub fn zeros(shape: &[usize]) -> Result<Self, TensorError> {
-        Tensor::new(vec![0.0; Tensor::calc_tensor_len_from_shape(shape)], shape)
-    }
-
     fn validate_logical_indices<'a>(
         &self,
         logical_indices: &'a [[usize; 2]],
@@ -610,25 +601,6 @@ impl Tensor {
 
         processed_indices
     }
-    pub fn slice(&self, logical_indices: &[[isize; 2]]) -> Result<Self, TensorError> {
-        let logical_indices = self.process_indices(logical_indices);
-
-        let logical_indices = self.validate_logical_indices(&logical_indices)?;
-
-        // converting to a slice b/c can't move `new_shape` to tensor and pass a reference to it to `Tensor::calc_strides_from_shape
-        let new_shape = Tensor::calc_shape_from_slice(logical_indices);
-        let slice_len = Tensor::calc_tensor_len_from_shape(&new_shape);
-
-        let new_data = match logical_indices.len() {
-            1 => Ok(self.one_dimension_slice(logical_indices, slice_len)),
-            2 => Ok(self.two_dimension_slice(logical_indices, slice_len)),
-            3 => Ok(self.three_dimension_slice(logical_indices, slice_len)),
-            4 => Ok(self.four_dimension_slice(logical_indices, slice_len)),
-            _ => Err(TensorError::SliceError),
-        }?;
-
-        Tensor::new(new_data, &new_shape)
-    }
 
     fn process_view(&self, shape: &[isize]) -> Result<Vec<usize>, TensorError> {
         match shape.iter().filter(|&&val| val == -1).count() {
@@ -652,16 +624,6 @@ impl Tensor {
                 Ok(shape)
             }
             _ => Err(TensorError::ViewError),
-        }
-    }
-    pub fn view(&self, shape: &[isize]) -> Result<Self, TensorError> {
-        let shape = self.process_view(shape)?;
-
-        match Tensor::calc_tensor_len_from_shape(&self.shape)
-            == Tensor::calc_tensor_len_from_shape(&shape)
-        {
-            true => Tensor::new(self.data.clone(), &shape),
-            false => Err(TensorError::ViewError),
         }
     }
 
@@ -860,6 +822,111 @@ impl Tensor {
         }?;
 
         Tensor::new(new_data, &new_shape)
+    }
+
+    pub fn new(data: Vec<f32>, shape: &[usize]) -> Result<Tensor, TensorError> {
+        if data.len() == Tensor::calc_tensor_len_from_shape(shape)
+            && shape.len() > 0
+            && shape.len() < 5
+        {
+            Ok(Tensor {
+                data,
+                shape: shape.to_vec(),
+                strides: Tensor::calc_strides_from_shape(shape),
+            })
+        } else {
+            Err(TensorError::InvalidTensor)
+        }
+    }
+
+    pub fn zeros(shape: &[usize]) -> Result<Self, TensorError> {
+        Tensor::new(vec![0.0; Tensor::calc_tensor_len_from_shape(shape)], shape)
+    }
+
+    pub fn slice(&self, logical_indices: &[[isize; 2]]) -> Result<Self, TensorError> {
+        let logical_indices = self.process_indices(logical_indices);
+
+        let logical_indices = self.validate_logical_indices(&logical_indices)?;
+
+        // converting to a slice b/c can't move `new_shape` to tensor and pass a reference to it to `Tensor::calc_strides_from_shape
+        let new_shape = Tensor::calc_shape_from_slice(logical_indices);
+        let slice_len = Tensor::calc_tensor_len_from_shape(&new_shape);
+
+        let new_data = match logical_indices.len() {
+            1 => Ok(self.one_dimension_slice(logical_indices, slice_len)),
+            2 => Ok(self.two_dimension_slice(logical_indices, slice_len)),
+            3 => Ok(self.three_dimension_slice(logical_indices, slice_len)),
+            4 => Ok(self.four_dimension_slice(logical_indices, slice_len)),
+            _ => Err(TensorError::SliceError),
+        }?;
+
+        Tensor::new(new_data, &new_shape)
+    }
+
+    pub fn view(&self, shape: &[isize]) -> Result<Self, TensorError> {
+        let shape = self.process_view(shape)?;
+
+        match Tensor::calc_tensor_len_from_shape(&self.shape)
+            == Tensor::calc_tensor_len_from_shape(&shape)
+        {
+            true => Tensor::new(self.data.clone(), &shape),
+            false => Err(TensorError::ViewError),
+        }
+    }
+
+    // not returning result since low chance of any errors
+    pub fn pow(&self, exp: usize) -> Tensor {
+        let new_data = self.data.iter().map(|val| val.powi(exp as i32)).collect();
+
+        Tensor::new(new_data, &self.shape).unwrap()
+    }
+
+    pub fn sqrt(&self) -> Tensor {
+        let new_data = self.data.iter().map(|val| val.sqrt()).collect();
+
+        Tensor::new(new_data, &self.shape).unwrap()
+    }
+
+    pub fn exp(&self) -> Tensor {
+        let new_data = self.data.iter().map(|val| val.exp()).collect();
+
+        Tensor::new(new_data, &self.shape).unwrap()
+    }
+
+    pub fn log10(&self) -> Tensor {
+        let new_data = self.data.iter().map(|val| val.log10()).collect();
+
+        Tensor::new(new_data, &self.shape).unwrap()
+    }
+
+    pub fn log(&self) -> Tensor {
+        let new_data = self.data.iter().map(|val| val.log(E)).collect();
+
+        Tensor::new(new_data, &self.shape).unwrap()
+    }
+
+    pub fn abs(&self) -> Tensor {
+        let new_data = self.data.iter().map(|val| val.abs()).collect();
+
+        Tensor::new(new_data, &self.shape).unwrap()
+    }
+
+    pub fn sin(&self) -> Tensor {
+        let new_data = self.data.iter().map(|val| val.sin()).collect();
+
+        Tensor::new(new_data, &self.shape).unwrap()
+    }
+
+    pub fn cos(&self) -> Tensor {
+        let new_data = self.data.iter().map(|val| val.cos()).collect();
+
+        Tensor::new(new_data, &self.shape).unwrap()
+    }
+
+    pub fn tan(&self) -> Tensor {
+        let new_data = self.data.iter().map(|val| val.tan()).collect();
+
+        Tensor::new(new_data, &self.shape).unwrap()
     }
 }
 

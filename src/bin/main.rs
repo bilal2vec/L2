@@ -1,3 +1,4 @@
+use l2;
 use l2::tensor::*;
 
 fn main() {
@@ -12,7 +13,8 @@ fn main() {
     let a = Tensor::new(vec![2.0, 3.0, 4.0, 5.0], &[2, 2]).unwrap();
     let b = Tensor::new(vec![2.0, 3.0], &[2]).unwrap();
 
-    let c = &a * &b;
+    // let c = &a * &b;
+    let c = l2::sqrt(&a);
 
     println!("{:?}", c);
 }
