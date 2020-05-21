@@ -49,7 +49,7 @@ mod tests {
     fn test_pow() {
         let a = Tensor::new(vec![2.0, 3.0], &[2]).unwrap();
 
-        let c = pow(&a, 2);
+        let c = pow(&a, 2).unwrap();
 
         assert!((c.data == vec![4.0, 9.0]) && (c.shape == vec![2]))
     }
@@ -71,38 +71,38 @@ pub fn div(lhs: &tensor::Tensor, rhs: &tensor::Tensor) -> tensor::Tensor {
     lhs / rhs
 }
 
-pub fn pow(lhs: &tensor::Tensor, exp: usize) -> tensor::Tensor {
+pub fn pow(lhs: &tensor::Tensor, exp: usize) -> Result<tensor::Tensor, errors::TensorError> {
     lhs.pow(exp)
 }
 
-pub fn sqrt(lhs: &tensor::Tensor) -> tensor::Tensor {
+pub fn sqrt(lhs: &tensor::Tensor) -> Result<tensor::Tensor, errors::TensorError> {
     lhs.sqrt()
 }
 
-pub fn exp(lhs: &tensor::Tensor) -> tensor::Tensor {
+pub fn exp(lhs: &tensor::Tensor) -> Result<tensor::Tensor, errors::TensorError> {
     lhs.exp()
 }
 
-pub fn log10(lhs: &tensor::Tensor) -> tensor::Tensor {
+pub fn log10(lhs: &tensor::Tensor) -> Result<tensor::Tensor, errors::TensorError> {
     lhs.log10()
 }
 
-pub fn log(lhs: &tensor::Tensor) -> tensor::Tensor {
+pub fn log(lhs: &tensor::Tensor) -> Result<tensor::Tensor, errors::TensorError> {
     lhs.log()
 }
 
-pub fn abs(lhs: &tensor::Tensor) -> tensor::Tensor {
+pub fn abs(lhs: &tensor::Tensor) -> Result<tensor::Tensor, errors::TensorError> {
     lhs.abs()
 }
 
-pub fn sin(lhs: &tensor::Tensor) -> tensor::Tensor {
+pub fn sin(lhs: &tensor::Tensor) -> Result<tensor::Tensor, errors::TensorError> {
     lhs.sin()
 }
 
-pub fn cos(lhs: &tensor::Tensor) -> tensor::Tensor {
+pub fn cos(lhs: &tensor::Tensor) -> Result<tensor::Tensor, errors::TensorError> {
     lhs.cos()
 }
 
-pub fn tan(lhs: &tensor::Tensor) -> tensor::Tensor {
+pub fn tan(lhs: &tensor::Tensor) -> Result<tensor::Tensor, errors::TensorError> {
     lhs.tan()
 }

@@ -449,7 +449,7 @@ mod tests {
     fn pow() {
         let a = Tensor::new(vec![2.0, 3.0, 4.0, 5.0], &[4]).unwrap();
 
-        let b = a.pow(2);
+        let b = a.pow(2).unwrap();
 
         assert!((b.data == vec![4.0, 9.0, 16.0, 25.0]) && (b.shape == vec![4]))
     }
@@ -875,59 +875,61 @@ impl Tensor {
     }
 
     // not returning result since low chance of any errors
-    pub fn pow(&self, exp: usize) -> Tensor {
+    pub fn pow(&self, exp: usize) -> Result<Tensor, TensorError> {
         let new_data = self.data.iter().map(|val| val.powi(exp as i32)).collect();
 
-        Tensor::new(new_data, &self.shape).unwrap()
+        Tensor::new(new_data, &self.shape)
     }
 
-    pub fn sqrt(&self) -> Tensor {
+    pub fn sqrt(&self) -> Result<Tensor, TensorError> {
         let new_data = self.data.iter().map(|val| val.sqrt()).collect();
 
-        Tensor::new(new_data, &self.shape).unwrap()
+        Tensor::new(new_data, &self.shape)
     }
 
-    pub fn exp(&self) -> Tensor {
+    pub fn exp(&self) -> Result<Tensor, TensorError> {
         let new_data = self.data.iter().map(|val| val.exp()).collect();
 
-        Tensor::new(new_data, &self.shape).unwrap()
+        Tensor::new(new_data, &self.shape)
     }
 
-    pub fn log10(&self) -> Tensor {
+    pub fn log10(&self) -> Result<Tensor, TensorError> {
         let new_data = self.data.iter().map(|val| val.log10()).collect();
 
-        Tensor::new(new_data, &self.shape).unwrap()
+        Tensor::new(new_data, &self.shape)
     }
 
-    pub fn log(&self) -> Tensor {
+    pub fn log(&self) -> Result<Tensor, TensorError> {
         let new_data = self.data.iter().map(|val| val.log(E)).collect();
 
-        Tensor::new(new_data, &self.shape).unwrap()
+        Tensor::new(new_data, &self.shape)
     }
 
-    pub fn abs(&self) -> Tensor {
+    pub fn abs(&self) -> Result<Tensor, TensorError> {
         let new_data = self.data.iter().map(|val| val.abs()).collect();
 
-        Tensor::new(new_data, &self.shape).unwrap()
+        Tensor::new(new_data, &self.shape)
     }
 
-    pub fn sin(&self) -> Tensor {
+    pub fn sin(&self) -> Result<Tensor, TensorError> {
         let new_data = self.data.iter().map(|val| val.sin()).collect();
 
-        Tensor::new(new_data, &self.shape).unwrap()
+        Tensor::new(new_data, &self.shape)
     }
 
-    pub fn cos(&self) -> Tensor {
+    pub fn cos(&self) -> Result<Tensor, TensorError> {
         let new_data = self.data.iter().map(|val| val.cos()).collect();
 
-        Tensor::new(new_data, &self.shape).unwrap()
+        Tensor::new(new_data, &self.shape)
     }
 
-    pub fn tan(&self) -> Tensor {
+    pub fn tan(&self) -> Result<Tensor, TensorError> {
         let new_data = self.data.iter().map(|val| val.tan()).collect();
 
-        Tensor::new(new_data, &self.shape).unwrap()
+        Tensor::new(new_data, &self.shape)
     }
+
+    // pub fn sum(&self, dim: isize) -> Tensor {}
 }
 
 impl Add for &Tensor {
