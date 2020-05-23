@@ -183,4 +183,136 @@ mod tests {
             let _z = &x + &y;
         })
     }
+
+    #[bench]
+    fn bench_pow(b: &mut Bencher) {
+        let x = Tensor::zeros(&[256, 256]).unwrap();
+
+        b.iter(|| {
+            let _y = x.pow(2).unwrap();
+        })
+    }
+
+    #[bench]
+    fn bench_sqrt(b: &mut Bencher) {
+        let x = Tensor::zeros(&[256, 256]).unwrap();
+
+        b.iter(|| {
+            let _y = x.sqrt().unwrap();
+        })
+    }
+
+    #[bench]
+    fn bench_exp(b: &mut Bencher) {
+        let x = Tensor::zeros(&[256, 256]).unwrap();
+
+        b.iter(|| {
+            let _y = x.exp().unwrap();
+        })
+    }
+
+    #[bench]
+    fn bench_log(b: &mut Bencher) {
+        let x = Tensor::zeros(&[256, 256]).unwrap();
+
+        b.iter(|| {
+            let _y = x.log().unwrap();
+        })
+    }
+
+    #[bench]
+    fn bench_log10(b: &mut Bencher) {
+        let x = Tensor::zeros(&[256, 256]).unwrap();
+
+        b.iter(|| {
+            let _y = x.log10().unwrap();
+        })
+    }
+    #[bench]
+    fn bench_abs(b: &mut Bencher) {
+        let x = Tensor::zeros(&[256, 256]).unwrap();
+
+        b.iter(|| {
+            let _y = x.abs().unwrap();
+        })
+    }
+
+    #[bench]
+    fn bench_sin(b: &mut Bencher) {
+        let x = Tensor::zeros(&[256, 256]).unwrap();
+
+        b.iter(|| {
+            let _y = x.sin().unwrap();
+        })
+    }
+    #[bench]
+    fn bench_cos(b: &mut Bencher) {
+        let x = Tensor::zeros(&[256, 256]).unwrap();
+
+        b.iter(|| {
+            let _y = x.cos().unwrap();
+        })
+    }
+
+    #[bench]
+    fn bench_tan(b: &mut Bencher) {
+        let x = Tensor::zeros(&[256, 256]).unwrap();
+
+        b.iter(|| {
+            let _y = x.tan().unwrap();
+        })
+    }
+
+    #[bench]
+    fn bench_sum(b: &mut Bencher) {
+        let x = Tensor::zeros(&[256, 256]).unwrap();
+
+        b.iter(|| {
+            let _y = x.sum(-1).unwrap();
+        })
+    }
+
+    #[bench]
+    fn bench_mean(b: &mut Bencher) {
+        let x = Tensor::zeros(&[256, 256]).unwrap();
+
+        b.iter(|| {
+            let _y = x.mean(-1).unwrap();
+        })
+    }
+
+    #[bench]
+    fn bench_max(b: &mut Bencher) {
+        let x = Tensor::zeros(&[256, 256]).unwrap();
+
+        b.iter(|| {
+            let _y = x.max(-1).unwrap();
+        })
+    }
+
+    #[bench]
+    fn bench_min(b: &mut Bencher) {
+        let x = Tensor::zeros(&[256, 256]).unwrap();
+
+        b.iter(|| {
+            let _y = x.min(-1).unwrap();
+        })
+    }
+    #[bench]
+    fn bench_argmax(b: &mut Bencher) {
+        let x = Tensor::zeros(&[256, 256]).unwrap();
+
+        b.iter(|| {
+            let _y = x.argmax(-1).unwrap();
+        })
+    }
+
+    #[bench]
+    fn bench_argmin(b: &mut Bencher) {
+        let x = Tensor::zeros(&[256, 256]).unwrap();
+
+        b.iter(|| {
+            let _y = x.mean(-1).unwrap();
+        })
+    }
 }

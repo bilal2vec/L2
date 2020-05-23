@@ -10,15 +10,11 @@ fn main() -> Result<(), l2::errors::TensorError> {
 
     // let x = t.slice(&[[0, 2], [0, 2], [0, 1]]);
 
-    let a = Tensor::new(vec![2.0, 3.0, 4.0, 5.0], &[2, 2]).unwrap();
-    // let b = Tensor::new(vec![2.0, 3.0], &[2]).unwrap();
-
-    // let c = &a * &b;
-    // let c = l2::sqrt(&a);
-
-    let c = a.view(&[6])?;
+    let a = Tensor::new(vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0], &[2, 3]).unwrap();
+    let c = l2::sum(&a, -1)?;
 
     println!("{:?}", c);
+    println!("{:?}", a);
 
     Ok(())
 }

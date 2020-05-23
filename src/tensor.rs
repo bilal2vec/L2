@@ -1,6 +1,8 @@
 use std::f32::consts::E;
 use std::ops::{Add, Div, Mul, Sub};
 
+use std::cmp::Ordering;
+
 use crate::errors::TensorError;
 
 #[cfg(test)]
@@ -453,6 +455,121 @@ mod tests {
 
         assert!((b.data == vec![4.0, 9.0, 16.0, 25.0]) && (b.shape == vec![4]))
     }
+
+    #[test]
+    fn sum_1d() {
+        let x = Tensor::new(
+            vec![
+                1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0,
+                16.0,
+            ],
+            &[16],
+        )
+        .unwrap();
+
+        let y = x.sum(0).unwrap();
+
+        assert!((y.data == vec![136.0]) && (y.shape == vec![1]))
+    }
+
+    #[test]
+    fn sum_2d() {
+        let x = Tensor::new(
+            vec![
+                1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0,
+                16.0,
+            ],
+            &[2, 8],
+        )
+        .unwrap();
+
+        let y = x.sum(1).unwrap();
+
+        assert!((y.data == vec![36.0, 100.0]) && (y.shape == vec![2]))
+    }
+
+    #[test]
+    fn sum_3d() {
+        let x = Tensor::new(
+            vec![
+                1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0,
+                16.0,
+            ],
+            &[2, 2, 4],
+        )
+        .unwrap();
+
+        let y = x.sum(1).unwrap();
+
+        assert!(
+            (y.data == vec![6.0, 8.0, 10.0, 12.0, 22.0, 24.0, 26.0, 28.0])
+                && (y.shape == vec![2, 4])
+        )
+    }
+
+    #[test]
+    fn sum_4d() {
+        let x = Tensor::new(
+            vec![
+                1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0,
+                16.0,
+            ],
+            &[2, 2, 2, 2],
+        )
+        .unwrap();
+
+        let y = x.sum(-1).unwrap();
+
+        assert!(
+            (y.data == vec![3.0, 7.0, 11.0, 15.0, 19.0, 23.0, 27.0, 31.0])
+                && (y.shape == vec![2, 2, 2])
+        )
+    }
+
+    #[test]
+    fn mean() {
+        let x = Tensor::new(vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0], &[2, 3]).unwrap();
+
+        let y = x.mean(-1).unwrap();
+
+        assert!((y.data == vec![2.0, 5.0]) && (y.shape == vec![2]))
+    }
+
+    #[test]
+    fn max() {
+        let x = Tensor::new(vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0], &[2, 3]).unwrap();
+
+        let y = x.max(-1).unwrap();
+
+        assert!((y.data == vec![3.0, 6.0]) && (y.shape == vec![2]))
+    }
+
+    #[test]
+    fn min() {
+        let x = Tensor::new(vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0], &[2, 3]).unwrap();
+
+        let y = x.min(-1).unwrap();
+
+        assert!((y.data == vec![1.0, 4.0]) && (y.shape == vec![2]))
+    }
+
+    #[test]
+    fn argmax() {
+        let x = Tensor::new(vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0], &[2, 3]).unwrap();
+
+        let y = x.argmax(-1).unwrap();
+
+        assert!((y.data == vec![2.0, 2.0]) && (y.shape == vec![2]))
+    }
+
+    #[test]
+    fn argmin() {
+        let x = Tensor::new(vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0], &[2, 3]).unwrap();
+
+        let y = x.argmin(-1).unwrap();
+
+        assert!((y.data == vec![0.0, 0.0]) && (y.shape == vec![2]))
+    }
 }
 
 #[derive(Debug, PartialEq)]
@@ -786,6 +903,228 @@ impl Tensor {
 
         new_data
     }
+
+    fn process_dims(
+        idxs: &mut Vec<[isize; 2]>,
+        dim: usize,
+        current_dim: usize,
+        current_idx: usize,
+    ) {
+        if dim == current_dim {
+            idxs[current_dim] = [0, -1];
+        } else {
+            idxs[current_dim] = [current_idx as isize, current_idx as isize + 1];
+        }
+    }
+
+    fn dim_op(lhs: &Tensor, op: &str) -> Result<f32, TensorError> {
+        match op {
+            "sum" => Ok(lhs.data.iter().sum()),
+            "mean" => {
+                let sum: f32 = lhs.data.iter().sum();
+                Ok(sum / lhs.data.len() as f32)
+            }
+            "max" => {
+                let max = lhs
+                    .data
+                    .iter()
+                    .enumerate()
+                    .max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap_or(Ordering::Equal))
+                    .map(|(_, val)| val);
+
+                match max {
+                    Some(x) => Ok(*x),
+                    None => Err(TensorError::OpError),
+                }
+            }
+            "min" => {
+                let min = lhs
+                    .data
+                    .iter()
+                    .enumerate()
+                    .min_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap_or(Ordering::Equal))
+                    .map(|(_, val)| val);
+
+                match min {
+                    Some(x) => Ok(*x),
+                    None => Err(TensorError::OpError),
+                }
+            }
+            "argmax" => {
+                let argmax = lhs
+                    .data
+                    .iter()
+                    .enumerate()
+                    .max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap_or(Ordering::Equal))
+                    .map(|(i, _)| i);
+
+                match argmax {
+                    Some(x) => Ok(x as f32),
+                    None => Err(TensorError::OpError),
+                }
+            }
+            "argmin" => {
+                let argmin = lhs
+                    .data
+                    .iter()
+                    .enumerate()
+                    .min_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap_or(Ordering::Equal))
+                    .map(|(i, _)| i);
+
+                match argmin {
+                    Some(x) => Ok(x as f32),
+                    None => Err(TensorError::OpError),
+                }
+            }
+            _ => Err(TensorError::OpNotSupportedError),
+        }
+    }
+
+    fn one_dimension_dimension_op(
+        &self,
+        new_dim: usize,
+        new_shape: &Vec<usize>,
+        op: &str,
+    ) -> Result<Vec<f32>, TensorError> {
+        let mut new_data: Vec<f32> =
+            Vec::with_capacity(Tensor::calc_tensor_len_from_shape(new_shape));
+
+        let mut idxs: Vec<[isize; 2]> = vec![[0, 0]; self.shape.len()];
+
+        let dim_zero_bounds = if new_dim == 0 { 1 } else { self.shape[0] };
+        for i in 0..dim_zero_bounds {
+            Tensor::process_dims(&mut idxs, new_dim, 0, i);
+
+            new_data.push(Tensor::dim_op(&self.slice(&idxs)?, op)?);
+        }
+
+        Ok(new_data)
+    }
+
+    fn two_dimension_dimension_op(
+        &self,
+        new_dim: usize,
+        new_shape: &Vec<usize>,
+        op: &str,
+    ) -> Result<Vec<f32>, TensorError> {
+        let mut new_data: Vec<f32> =
+            Vec::with_capacity(Tensor::calc_tensor_len_from_shape(new_shape));
+
+        let mut idxs: Vec<[isize; 2]> = vec![[0, 0]; self.shape.len()];
+
+        let dim_zero_bounds = if new_dim == 0 { 1 } else { self.shape[0] };
+        for i in 0..dim_zero_bounds {
+            Tensor::process_dims(&mut idxs, new_dim, 0, i);
+
+            let dim_one_bounds = if new_dim == 1 { 1 } else { self.shape[1] };
+            for j in 0..dim_one_bounds {
+                Tensor::process_dims(&mut idxs, new_dim, 1, j);
+
+                new_data.push(Tensor::dim_op(&self.slice(&idxs)?, op)?);
+            }
+        }
+
+        Ok(new_data)
+    }
+
+    fn three_dimension_dimension_op(
+        &self,
+        new_dim: usize,
+        new_shape: &Vec<usize>,
+        op: &str,
+    ) -> Result<Vec<f32>, TensorError> {
+        let mut new_data: Vec<f32> =
+            Vec::with_capacity(Tensor::calc_tensor_len_from_shape(new_shape));
+
+        let mut idxs: Vec<[isize; 2]> = vec![[0, 0]; self.shape.len()];
+
+        let dim_zero_bounds = if new_dim == 0 { 1 } else { self.shape[0] };
+        for i in 0..dim_zero_bounds {
+            Tensor::process_dims(&mut idxs, new_dim, 0, i);
+
+            let dim_one_bounds = if new_dim == 1 { 1 } else { self.shape[1] };
+            for j in 0..dim_one_bounds {
+                Tensor::process_dims(&mut idxs, new_dim, 1, j);
+
+                let dim_two_bounds = if new_dim == 2 { 1 } else { self.shape[2] };
+                for k in 0..dim_two_bounds {
+                    Tensor::process_dims(&mut idxs, new_dim, 2, k);
+
+                    new_data.push(Tensor::dim_op(&self.slice(&idxs)?, op)?);
+                }
+            }
+        }
+
+        Ok(new_data)
+    }
+
+    fn four_dimension_dimension_op(
+        &self,
+        new_dim: usize,
+        new_shape: &Vec<usize>,
+        op: &str,
+    ) -> Result<Vec<f32>, TensorError> {
+        let mut new_data: Vec<f32> =
+            Vec::with_capacity(Tensor::calc_tensor_len_from_shape(new_shape));
+
+        let mut idxs: Vec<[isize; 2]> = vec![[0, 0]; self.shape.len()];
+
+        let dim_zero_bounds = if new_dim == 0 { 1 } else { self.shape[0] };
+        for i in 0..dim_zero_bounds {
+            Tensor::process_dims(&mut idxs, new_dim, 0, i);
+
+            let dim_one_bounds = if new_dim == 1 { 1 } else { self.shape[1] };
+            for j in 0..dim_one_bounds {
+                Tensor::process_dims(&mut idxs, new_dim, 1, j);
+
+                let dim_two_bounds = if new_dim == 2 { 1 } else { self.shape[2] };
+                for k in 0..dim_two_bounds {
+                    Tensor::process_dims(&mut idxs, new_dim, 2, k);
+
+                    let dim_three_bounds = if new_dim == 3 { 1 } else { self.shape[3] };
+                    for m in 0..dim_three_bounds {
+                        Tensor::process_dims(&mut idxs, new_dim, 3, m);
+
+                        new_data.push(Tensor::dim_op(&self.slice(&idxs)?, op)?);
+                    }
+                }
+            }
+        }
+
+        Ok(new_data)
+    }
+
+    fn dimension_op(&self, dim: isize, op: &str) -> Result<Tensor, TensorError> {
+        let new_dim = if dim == -1 {
+            self.shape.len() - 1 as usize
+        } else if (dim >= 0) && (dim < self.shape.len() as isize) {
+            dim as usize
+        } else {
+            return Err(TensorError::OpError);
+        };
+
+        let mut new_shape: Vec<usize> = Vec::new();
+        for i in 0..self.shape.len() {
+            if i != new_dim {
+                new_shape.push(self.shape[i]);
+            }
+        }
+
+        if new_shape.len() == 0 {
+            new_shape.push(1);
+        }
+
+        let new_data = match self.shape.len() {
+            1 => self.one_dimension_dimension_op(new_dim, &new_shape, op),
+            2 => self.two_dimension_dimension_op(new_dim, &new_shape, op),
+            3 => self.three_dimension_dimension_op(new_dim, &new_shape, op),
+            4 => self.four_dimension_dimension_op(new_dim, &new_shape, op),
+            _ => Err(TensorError::SliceError),
+        }?;
+
+        Tensor::new(new_data, &new_shape)
+    }
+
     fn tensor_op(&self, other: &Tensor, op: &str) -> Result<Tensor, TensorError> {
         let (new_shape, lhs_strides, rhs_strides) = Tensor::broadcast(&self.shape, &other.shape)?;
 
@@ -929,7 +1268,29 @@ impl Tensor {
         Tensor::new(new_data, &self.shape)
     }
 
-    // pub fn sum(&self, dim: isize) -> Tensor {}
+    pub fn sum(&self, dim: isize) -> Result<Tensor, TensorError> {
+        self.dimension_op(dim, "sum")
+    }
+
+    pub fn mean(&self, dim: isize) -> Result<Tensor, TensorError> {
+        self.dimension_op(dim, "mean")
+    }
+
+    pub fn max(&self, dim: isize) -> Result<Tensor, TensorError> {
+        self.dimension_op(dim, "max")
+    }
+
+    pub fn min(&self, dim: isize) -> Result<Tensor, TensorError> {
+        self.dimension_op(dim, "min")
+    }
+
+    pub fn argmax(&self, dim: isize) -> Result<Tensor, TensorError> {
+        self.dimension_op(dim, "argmax")
+    }
+
+    pub fn argmin(&self, dim: isize) -> Result<Tensor, TensorError> {
+        self.dimension_op(dim, "argmin")
+    }
 }
 
 impl Add for &Tensor {

@@ -14,14 +14,7 @@
 
 ### Todo
 
--   other ops
-    -   over dim or all dims
-    -   sum
-    -   mean
-    -   max
-    -   min
-    -   argmax
-    -   argmin
+-   use enum for ops?
 -   matmul
     -   batch matmul
 -   concat
@@ -104,6 +97,16 @@
     -   sin
     -   cos
     -   tan
+-   other ops
+    -   _dim ops are slower than numpy (30us vs 300us), numpy seems to cache stuff_
+    -   _argmax and argmin return f32 tensors_
+    -   over dim or all dims
+    -   sum
+    -   mean
+    -   max
+    -   min
+    -   argmax
+    -   argmin
 
 ### wont do
 
