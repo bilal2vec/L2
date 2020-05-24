@@ -14,7 +14,6 @@
 
 ### Todo
 
--   use enum for ops?
 -   matmul
     -   batch matmul
 -   concat
@@ -107,6 +106,7 @@
     -   min
     -   argmax
     -   argmin
+-   use enum for ops?
 
 ### wont do
 

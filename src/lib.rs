@@ -1,4 +1,5 @@
 pub mod errors;
+mod ops;
 pub mod tensor;
 
 use errors::TensorError;
