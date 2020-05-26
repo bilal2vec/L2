@@ -9,6 +9,7 @@ pub enum TensorError {
     BroadcastError,
     OpError,
     OpNotSupportedError,
+    MatmulShapeError,
 }
 
 impl fmt::Display for TensorError {
@@ -20,6 +21,10 @@ impl fmt::Display for TensorError {
             TensorError::BroadcastError => write!(f, "Shapes are not broadcastable"),
             TensorError::OpError => write!(f, "Tensors cannot be operated on"),
             TensorError::OpNotSupportedError => write!(f, "Operation not supported"),
+            TensorError::MatmulShapeError => write!(
+                f,
+                "Tensors must have at least two dimensions and have same shape in all dims except the last dimension"
+            ),
         }
     }
 }

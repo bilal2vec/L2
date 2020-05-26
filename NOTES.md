@@ -14,13 +14,11 @@
 
 ### Todo
 
--   matmul
-    -   batch matmul
 -   concat
--   normal
--   uniform
 -   transpose
 -   clone
+-   normal
+-   uniform
 
 ### Done
 
@@ -107,6 +105,10 @@
     -   argmax
     -   argmin
 -   use enum for ops?
+-   matmul
+    -   _about 100x slower than numpy_
+    -   _wont implement broadcasting on matmul_
+    -   batch matmul
 
 ### wont do
 

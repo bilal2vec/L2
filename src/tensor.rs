@@ -571,6 +571,88 @@ mod tests {
 
         assert!((y.data == vec![0.0, 0.0]) && (y.shape == vec![2]))
     }
+
+    #[test]
+    fn matmul_2d() {
+        let x = Tensor::new(
+            vec![
+                1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0,
+                16.0,
+            ],
+            &[2, 8],
+        )
+        .unwrap();
+        let y = Tensor::new(
+            vec![
+                1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0,
+                16.0,
+            ],
+            &[8, 2],
+        )
+        .unwrap();
+
+        let z = x.matmul(&y).unwrap();
+
+        assert!((z.data == vec![372.0, 408.0, 884.0, 984.0]) && (z.shape == vec![2, 2]))
+    }
+
+    #[test]
+    fn matmul_3d() {
+        let x = Tensor::new(
+            vec![
+                1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0,
+                16.0,
+            ],
+            &[2, 2, 4],
+        )
+        .unwrap();
+        let y = Tensor::new(
+            vec![
+                1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0,
+                16.0,
+            ],
+            &[2, 4, 2],
+        )
+        .unwrap();
+
+        let z = x.matmul(&y).unwrap();
+
+        assert!(
+            (z.data == vec![50.0, 60.0, 114.0, 140.0, 514.0, 556.0, 706.0, 764.0])
+                && (z.shape == vec![2, 2, 2])
+        )
+    }
+
+    #[test]
+    fn matmul_4d() {
+        let x = Tensor::new(
+            vec![
+                1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0,
+                16.0,
+            ],
+            &[2, 2, 2, 2],
+        )
+        .unwrap();
+        let y = Tensor::new(
+            vec![
+                1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0,
+                16.0,
+            ],
+            &[2, 2, 2, 2],
+        )
+        .unwrap();
+
+        let z = x.matmul(&y).unwrap();
+
+        assert!(
+            (z.data
+                == vec![
+                    7.0, 10.0, 15.0, 22.0, 67.0, 78.0, 91.0, 106.0, 191.0, 210.0, 231.0, 254.0,
+                    379.0, 406.0, 435.0, 466.0
+                ])
+                && (z.shape == vec![2, 2, 2, 2])
+        )
+    }
 }
 
 #[derive(Debug, PartialEq)]
@@ -1162,6 +1244,116 @@ impl Tensor {
         Tensor::new(new_data, &new_shape)
     }
 
+    fn validate_tensors(lhs: &Tensor, rhs: &Tensor) -> Result<Vec<usize>, TensorError> {
+        let lhs_shape = lhs.shape.clone();
+        let rhs_shape = rhs.shape.clone();
+
+        if (lhs_shape.len() == rhs_shape.len())
+            && (lhs_shape[lhs_shape.len() - 1] == rhs_shape[rhs_shape.len() - 2])
+        {
+            let mut new_shape = lhs_shape.clone();
+            new_shape[lhs_shape.len() - 1] = rhs_shape[rhs_shape.len() - 1];
+
+            Ok(new_shape)
+        } else {
+            Err(TensorError::BroadcastError)
+        }
+    }
+
+    fn two_dimension_matmul(
+        lhs: &Tensor,
+        rhs: &Tensor,
+        dim: usize,
+    ) -> Result<Vec<f32>, TensorError> {
+        let mut new_data: Vec<f32> = Vec::new();
+
+        for i in 0..dim as isize {
+            let a = lhs.slice(&[[i, i + 1], [0, -1]])?;
+            let a = a.view(&[-1, 1])?;
+
+            let c: Tensor = &a * rhs;
+            let d = c.sum(0)?;
+
+            new_data.append(&mut d.data.clone());
+        }
+
+        Ok(new_data)
+    }
+
+    fn three_dimension_matmul(
+        &self,
+        rhs: &Tensor,
+        dim: usize,
+        dims: &Vec<usize>,
+    ) -> Result<Vec<f32>, TensorError> {
+        let mut idxs: Vec<[isize; 2]> = vec![[0, -1]; 3];
+
+        let lhs_shape: Vec<isize> = self.shape[self.shape.len() - 2..]
+            .to_vec()
+            .iter()
+            .map(|&val| val as isize)
+            .collect();
+        let rhs_shape: Vec<isize> = rhs.shape[rhs.shape.len() - 2..]
+            .to_vec()
+            .iter()
+            .map(|&val| val as isize)
+            .collect();
+
+        let mut new_data: Vec<f32> = Vec::new();
+
+        for i in 0..dims[0] {
+            idxs[0] = [i as isize, i as isize + 1];
+
+            let mut temp = Tensor::two_dimension_matmul(
+                &self.slice(&idxs)?.view(&lhs_shape)?,
+                &rhs.slice(&idxs)?.view(&rhs_shape)?,
+                dim,
+            )?;
+            new_data.append(&mut temp);
+        }
+
+        Ok(new_data)
+    }
+
+    fn four_dimension_matmul(
+        &self,
+        rhs: &Tensor,
+        dim: usize,
+        dims: &Vec<usize>,
+    ) -> Result<Vec<f32>, TensorError> {
+        let mut idxs: Vec<[isize; 2]> = vec![[0, -1]; 4];
+
+        let lhs_shape: Vec<isize> = self.shape[self.shape.len() - 2..]
+            .to_vec()
+            .iter()
+            .map(|&val| val as isize)
+            .collect();
+        let rhs_shape: Vec<isize> = rhs.shape[rhs.shape.len() - 2..]
+            .to_vec()
+            .iter()
+            .map(|&val| val as isize)
+            .collect();
+
+        let mut new_data: Vec<f32> = Vec::new();
+
+        for i in 0..dims[0] {
+            idxs[0] = [i as isize, i as isize + 1];
+
+            for j in 0..dims[1] {
+                idxs[1] = [j as isize, j as isize + 1];
+
+                let mut temp = Tensor::two_dimension_matmul(
+                    &self.slice(&idxs)?.view(&lhs_shape)?,
+                    &rhs.slice(&idxs)?.view(&rhs_shape)?,
+                    dim,
+                )?;
+                new_data.append(&mut temp);
+            }
+        }
+
+        Ok(new_data)
+    }
+
     pub fn new(data: Vec<f32>, shape: &[usize]) -> Result<Tensor, TensorError> {
         if data.len() == Tensor::calc_tensor_len_from_shape(shape)
             && shape.len() > 0
@@ -1288,6 +1480,24 @@ impl Tensor {
 
     pub fn argmin(&self, dim: isize) -> Result<Tensor, TensorError> {
         self.dimension_op(dim, DimOp::Argmin)
+    }
+
+    pub fn matmul(&self, rhs: &Tensor) -> Result<Tensor, TensorError> {
+        let new_shape = Tensor::validate_tensors(self, &rhs)?;
+
+        let batch_dims = new_shape[0..new_shape.len() - 2].to_vec();
+
+        let matmul_dim = new_shape[new_shape.len() - 2];
+
+        let new_data = match new_shape.len() {
+            1 => Err(TensorError::MatmulShapeError),
+            2 => Tensor::two_dimension_matmul(&self, &rhs, matmul_dim),
+            3 => self.three_dimension_matmul(&rhs, matmul_dim, &batch_dims),
+            4 => self.four_dimension_matmul(&rhs, matmul_dim, &batch_dims),
+            _ => Err(TensorError::SliceError),
+        }?;
+
+        Tensor::new(new_data, &new_shape)
     }
 }
 
