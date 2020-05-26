@@ -781,6 +781,98 @@ mod tests {
                 && (z.shape == vec![2, 2, 2, 4])
         )
     }
+
+    #[test]
+    fn transpose_1d() {
+        let x = Tensor::new(
+            vec![
+                1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0,
+                16.0,
+            ],
+            &[16],
+        )
+        .unwrap();
+
+        let z = x.transpose().unwrap();
+
+        assert!(
+            (z.data
+                == vec![
+                    1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0,
+                    15.0, 16.0,
+                ])
+                && (z.shape == vec![16])
+        )
+    }
+
+    #[test]
+    fn transpose_2d() {
+        let x = Tensor::new(
+            vec![
+                1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0,
+                16.0,
+            ],
+            &[2, 8],
+        )
+        .unwrap();
+
+        let z = x.transpose().unwrap();
+
+        assert!(
+            (z.data
+                == vec![
+                    1.0, 9.0, 2.0, 10.0, 3.0, 11.0, 4.0, 12.0, 5.0, 13.0, 6.0, 14.0, 7.0, 15.0,
+                    8.0, 16.0
+                ])
+                && (z.shape == vec![8, 2])
+        )
+    }
+
+    #[test]
+    fn transpose_3d() {
+        let x = Tensor::new(
+            vec![
+                1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0,
+                16.0,
+            ],
+            &[2, 2, 4],
+        )
+        .unwrap();
+
+        let z = x.transpose().unwrap();
+
+        assert!(
+            (z.data
+                == vec![
+                    1.0, 9.0, 5.0, 13.0, 2.0, 10.0, 6.0, 14.0, 3.0, 11.0, 7.0, 15.0, 4.0, 12.0,
+                    8.0, 16.0
+                ])
+                && (z.shape == vec![4, 2, 2])
+        )
+    }
+
+    #[test]
+    fn transpose_4d() {
+        let x = Tensor::new(
+            vec![
+                1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0,
+                16.0,
+            ],
+            &[2, 2, 2, 2],
+        )
+        .unwrap();
+
+        let z = x.transpose().unwrap();
+
+        assert!(
+            (z.data
+                == vec![
+                    1.0, 9.0, 5.0, 13.0, 3.0, 11.0, 7.0, 15.0, 2.0, 10.0, 6.0, 14.0, 4.0, 12.0,
+                    8.0, 16.0
+                ])
+                && (z.shape == vec![2, 2, 2, 2])
+        )
+    }
 }
 
 #[derive(Debug, PartialEq)]
@@ -1596,6 +1688,74 @@ impl Tensor {
         Ok(new_data)
     }
 
+    fn one_dimension_transpose(
+        &self,
+        shape: &Vec<usize>,
+        strides: &Vec<usize>,
+    ) -> Result<Vec<f32>, TensorError> {
+        let mut new_data: Vec<f32> = Vec::with_capacity(Tensor::calc_tensor_len_from_shape(shape));
+
+        for i in 0..self.shape[0] {
+            new_data.push(self.data[Tensor::get_physical_idx(&[i], strides)]);
+        }
+
+        Ok(new_data)
+    }
+
+    fn two_dimension_transpose(
+        &self,
+        shape: &Vec<usize>,
+        strides: &Vec<usize>,
+    ) -> Result<Vec<f32>, TensorError> {
+        let mut new_data: Vec<f32> = Vec::with_capacity(Tensor::calc_tensor_len_from_shape(shape));
+
+        for i in 0..shape[0] {
+            for j in 0..shape[1] {
+                new_data.push(self.data[Tensor::get_physical_idx(&[i, j], strides)]);
+            }
+        }
+
+        Ok(new_data)
+    }
+
+    fn three_dimension_transpose(
+        &self,
+        shape: &Vec<usize>,
+        strides: &Vec<usize>,
+    ) -> Result<Vec<f32>, TensorError> {
+        let mut new_data: Vec<f32> = Vec::with_capacity(Tensor::calc_tensor_len_from_shape(shape));
+
+        for i in 0..shape[0] {
+            for j in 0..shape[1] {
+                for k in 0..shape[2] {
+                    new_data.push(self.data[Tensor::get_physical_idx(&[i, j, k], strides)]);
+                }
+            }
+        }
+
+        Ok(new_data)
+    }
+
+    fn four_dimension_transpose(
+        &self,
+        shape: &Vec<usize>,
+        strides: &Vec<usize>,
+    ) -> Result<Vec<f32>, TensorError> {
+        let mut new_data: Vec<f32> = Vec::with_capacity(Tensor::calc_tensor_len_from_shape(shape));
+
+        for i in 0..shape[0] {
+            for j in 0..shape[1] {
+                for k in 0..shape[2] {
+                    for m in 0..shape[3] {
+                        new_data.push(self.data[Tensor::get_physical_idx(&[i, j, k, m], strides)]);
+                    }
+                }
+            }
+        }
+
+        Ok(new_data)
+    }
+
     pub fn new(data: Vec<f32>, shape: &[usize]) -> Result<Tensor, TensorError> {
         if data.len() == Tensor::calc_tensor_len_from_shape(shape)
             && shape.len() > 0
@@ -1776,6 +1936,24 @@ impl Tensor {
         }?;
 
         Tensor::new(new_data, &new_shape)
+    }
+
+    pub fn transpose(&self) -> Result<Tensor, TensorError> {
+        let mut transposed_shape = self.shape.clone();
+        let mut transposed_strides = self.strides.clone();
+
+        transposed_shape.reverse();
+        transposed_strides.reverse();
+
+        let new_data = match self.shape.len() {
+            1 => self.one_dimension_transpose(&transposed_shape, &transposed_strides),
+            2 => self.two_dimension_transpose(&transposed_shape, &transposed_strides),
+            3 => self.three_dimension_transpose(&transposed_shape, &transposed_strides),
+            4 => self.four_dimension_transpose(&transposed_shape, &transposed_strides),
+            _ => Err(TensorError::MaxDimsError),
+        }?;
+
+        Tensor::new(new_data, &transposed_shape)
     }
 }
 

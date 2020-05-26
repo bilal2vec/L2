@@ -14,7 +14,6 @@
 
 ### Todo
 
--   transpose
 -   clone
 -   normal
 -   uniform
@@ -110,6 +109,7 @@
     -   batch matmul
 -   check errors
 -   concat
+-   transpose
 
 ### wont do
 

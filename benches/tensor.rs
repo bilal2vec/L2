@@ -374,4 +374,12 @@ mod tests {
             let _z = x.concat(&y, -1).unwrap();
         })
     }
+    #[bench]
+    fn bench_transpose(b: &mut Bencher) {
+        let x = Tensor::zeros(&[256, 256]).unwrap();
+
+        b.iter(|| {
+            let _z = x.transpose().unwrap();
+        })
+    }
 }
