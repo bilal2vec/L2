@@ -14,7 +14,6 @@
 
 ### Todo
 
--   clone
 -   normal
 -   uniform
 
@@ -110,6 +109,7 @@
 -   check errors
 -   concat
 -   transpose
+-   clone
 
 ### wont do
 

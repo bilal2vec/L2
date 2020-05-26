@@ -10,7 +10,7 @@ fn main() -> Result<(), l2::errors::TensorError> {
     )
     .unwrap();
 
-    let z = x.transpose().unwrap();
+    let z = x.clone()?;
 
     println!("{:?}", z);
 

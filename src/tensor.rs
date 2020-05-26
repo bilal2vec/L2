@@ -873,6 +873,22 @@ mod tests {
                 && (z.shape == vec![2, 2, 2, 2])
         )
     }
+
+    #[test]
+    fn clone() {
+        let x = Tensor::new(
+            vec![
+                1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0,
+                16.0,
+            ],
+            &[2, 2, 2, 2],
+        )
+        .unwrap();
+
+        let y = x.clone().unwrap();
+
+        assert!((x.data == y.data) && (x.shape == y.shape))
+    }
 }
 
 #[derive(Debug, PartialEq)]
@@ -1954,6 +1970,10 @@ impl Tensor {
         }?;
 
         Tensor::new(new_data, &transposed_shape)
+    }
+
+    pub fn clone(&self) -> Result<Tensor, TensorError> {
+        Tensor::new(self.data.clone(), &self.shape.clone())
     }
 }
 
