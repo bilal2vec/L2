@@ -7,7 +7,6 @@ mod tests {
     use test::Bencher;
 
     use l2::tensor::*;
-    use l2::*;
     #[bench]
     fn bench_allocate_1d_tensor(b: &mut Bencher) {
         b.iter(|| {
@@ -343,6 +342,36 @@ mod tests {
 
         b.iter(|| {
             let _z = x.matmul(&y).unwrap();
+        })
+    }
+
+    #[bench]
+    fn bench_concat_1d(b: &mut Bencher) {
+        let x = Tensor::zeros(&[256 * 256]).unwrap();
+        let y = Tensor::zeros(&[256 * 256]).unwrap();
+
+        b.iter(|| {
+            let _z = x.concat(&y, -1).unwrap();
+        })
+    }
+
+    #[bench]
+    fn bench_concat_2d(b: &mut Bencher) {
+        let x = Tensor::zeros(&[256, 256]).unwrap();
+        let y = Tensor::zeros(&[256, 256]).unwrap();
+
+        b.iter(|| {
+            let _z = x.concat(&y, -1).unwrap();
+        })
+    }
+
+    #[bench]
+    fn bench_concat_3d(b: &mut Bencher) {
+        let x = Tensor::zeros(&[64, 64, 64]).unwrap();
+        let y = Tensor::zeros(&[64, 64, 64]).unwrap();
+
+        b.iter(|| {
+            let _z = x.concat(&y, -1).unwrap();
         })
     }
 }

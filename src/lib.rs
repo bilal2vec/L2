@@ -135,6 +135,38 @@ mod tests {
                 && (z.shape == vec![2, 2, 2])
         )
     }
+
+    #[test]
+    fn test_concat() {
+        let x = Tensor::new(
+            vec![
+                1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0,
+                16.0,
+            ],
+            &[2, 2, 2, 2],
+        )
+        .unwrap();
+        let y = Tensor::new(
+            vec![
+                1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0,
+                16.0,
+            ],
+            &[2, 2, 2, 2],
+        )
+        .unwrap();
+
+        let z = concat(&x, &y, -1).unwrap();
+
+        assert!(
+            (z.data
+                == vec![
+                    1.0, 2.0, 1.0, 2.0, 3.0, 4.0, 3.0, 4.0, 5.0, 6.0, 5.0, 6.0, 7.0, 8.0, 7.0, 8.0,
+                    9.0, 10.0, 9.0, 10.0, 11.0, 12.0, 11.0, 12.0, 13.0, 14.0, 13.0, 14.0, 15.0,
+                    16.0, 15.0, 16.0
+                ])
+                && (z.shape == vec![2, 2, 2, 4])
+        )
+    }
 }
 
 pub fn add(lhs: &Tensor, rhs: &Tensor) -> Tensor {
@@ -215,4 +247,8 @@ pub fn argmin(lhs: &Tensor, dim: isize) -> Result<Tensor, TensorError> {
 
 pub fn matmul(lhs: &Tensor, rhs: &Tensor) -> Result<Tensor, TensorError> {
     lhs.matmul(rhs)
+}
+
+pub fn concat(lhs: &Tensor, rhs: &Tensor, dim: isize) -> Result<Tensor, TensorError> {
+    lhs.concat(&rhs, dim)
 }

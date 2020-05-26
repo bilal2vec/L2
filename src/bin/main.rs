@@ -17,8 +17,8 @@ fn main() -> Result<(), l2::errors::TensorError> {
     )
     .unwrap();
 
-    let c = l2::matmul(&x, &y)?;
-    println!("{:?}", c);
+    let z = x.concat(&y, -1).unwrap();
+    println!("{:?}", z);
 
     Ok(())
 }

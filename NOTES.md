@@ -14,7 +14,6 @@
 
 ### Todo
 
--   concat
 -   transpose
 -   clone
 -   normal
@@ -109,6 +108,8 @@
     -   _about 100x slower than numpy_
     -   _wont implement broadcasting on matmul_
     -   batch matmul
+-   check errors
+-   concat
 
 ### wont do
 

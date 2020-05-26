@@ -653,6 +653,134 @@ mod tests {
                 && (z.shape == vec![2, 2, 2, 2])
         )
     }
+
+    #[test]
+    fn concat_1d() {
+        let x = Tensor::new(
+            vec![
+                1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0,
+                16.0,
+            ],
+            &[16],
+        )
+        .unwrap();
+        let y = Tensor::new(
+            vec![
+                1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0,
+                16.0,
+            ],
+            &[16],
+        )
+        .unwrap();
+
+        let z = x.concat(&y, -1).unwrap();
+
+        assert!(
+            (z.data
+                == vec![
+                    1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0,
+                    15.0, 16.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0,
+                    13.0, 14.0, 15.0, 16.0,
+                ])
+                && (z.shape == vec![32])
+        )
+    }
+
+    #[test]
+    fn concat_2d() {
+        let x = Tensor::new(
+            vec![
+                1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0,
+                16.0,
+            ],
+            &[2, 8],
+        )
+        .unwrap();
+        let y = Tensor::new(
+            vec![
+                1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0,
+                16.0,
+            ],
+            &[2, 8],
+        )
+        .unwrap();
+
+        let z = x.concat(&y, -1).unwrap();
+
+        assert!(
+            (z.data
+                == vec![
+                    1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0,
+                    9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 9.0, 10.0, 11.0, 12.0, 13.0,
+                    14.0, 15.0, 16.0,
+                ])
+                && (z.shape == vec![2, 16])
+        )
+    }
+
+    #[test]
+    fn concat_3d() {
+        let x = Tensor::new(
+            vec![
+                1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0,
+                16.0,
+            ],
+            &[2, 2, 4],
+        )
+        .unwrap();
+        let y = Tensor::new(
+            vec![
+                1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0,
+                16.0,
+            ],
+            &[2, 2, 4],
+        )
+        .unwrap();
+
+        let z = x.concat(&y, -1).unwrap();
+
+        assert!(
+            (z.data
+                == vec![
+                    1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 5.0, 6.0, 7.0, 8.0,
+                    9.0, 10.0, 11.0, 12.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 13.0,
+                    14.0, 15.0, 16.0
+                ])
+                && (z.shape == vec![2, 2, 8])
+        )
+    }
+
+    #[test]
+    fn concat_4d() {
+        let x = Tensor::new(
+            vec![
+                1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0,
+                16.0,
+            ],
+            &[2, 2, 2, 2],
+        )
+        .unwrap();
+        let y = Tensor::new(
+            vec![
+                1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0,
+                16.0,
+            ],
+            &[2, 2, 2, 2],
+        )
+        .unwrap();
+
+        let z = x.concat(&y, -1).unwrap();
+
+        assert!(
+            (z.data
+                == vec![
+                    1.0, 2.0, 1.0, 2.0, 3.0, 4.0, 3.0, 4.0, 5.0, 6.0, 5.0, 6.0, 7.0, 8.0, 7.0, 8.0,
+                    9.0, 10.0, 9.0, 10.0, 11.0, 12.0, 11.0, 12.0, 13.0, 14.0, 13.0, 14.0, 15.0,
+                    16.0, 15.0, 16.0
+                ])
+                && (z.shape == vec![2, 2, 2, 4])
+        )
+    }
 }
 
 #[derive(Debug, PartialEq)]
@@ -1181,7 +1309,7 @@ impl Tensor {
         } else if (dim >= 0) && (dim < self.shape.len() as isize) {
             dim as usize
         } else {
-            return Err(TensorError::OpError);
+            return Err(TensorError::DimError);
         };
 
         let mut new_shape: Vec<usize> = Vec::new();
@@ -1200,7 +1328,7 @@ impl Tensor {
             2 => self.two_dimension_dimension_op(new_dim, &new_shape, &op),
             3 => self.three_dimension_dimension_op(new_dim, &new_shape, &op),
             4 => self.four_dimension_dimension_op(new_dim, &new_shape, &op),
-            _ => Err(TensorError::SliceError),
+            _ => Err(TensorError::MaxDimsError),
         }?;
 
         Tensor::new(new_data, &new_shape)
@@ -1238,7 +1366,7 @@ impl Tensor {
                 &new_shape,
                 &op,
             )),
-            _ => Err(TensorError::OpError),
+            _ => Err(TensorError::MaxDimsError),
         }?;
 
         Tensor::new(new_data, &new_shape)
@@ -1256,7 +1384,7 @@ impl Tensor {
 
             Ok(new_shape)
         } else {
-            Err(TensorError::BroadcastError)
+            Err(TensorError::MatmulShapeError)
         }
     }
 
@@ -1354,6 +1482,120 @@ impl Tensor {
         Ok(new_data)
     }
 
+    fn one_dimension_concat(
+        &self,
+        rhs: &Tensor,
+        dim: usize,
+        shape: &Vec<usize>,
+    ) -> Result<Vec<f32>, TensorError> {
+        let mut new_data: Vec<f32> = Vec::with_capacity(Tensor::calc_tensor_len_from_shape(shape));
+
+        let mut idxs: Vec<[isize; 2]> = vec![[0, 0]; self.shape.len()];
+
+        let dim_zero_bounds = if dim == 0 { 1 } else { self.shape[0] };
+        for i in 0..dim_zero_bounds {
+            Tensor::process_dims(&mut idxs, dim, 0, i);
+
+            new_data.extend(self.slice(&idxs)?.data);
+            new_data.extend(rhs.slice(&idxs)?.data);
+        }
+
+        Ok(new_data)
+    }
+
+    fn two_dimension_concat(
+        &self,
+        rhs: &Tensor,
+        dim: usize,
+        shape: &Vec<usize>,
+    ) -> Result<Vec<f32>, TensorError> {
+        let mut new_data: Vec<f32> = Vec::with_capacity(Tensor::calc_tensor_len_from_shape(shape));
+
+        let mut idxs: Vec<[isize; 2]> = vec![[0, 0]; self.shape.len()];
+
+        let dim_zero_bounds = if dim == 0 { 1 } else { self.shape[0] };
+        for i in 0..dim_zero_bounds {
+            Tensor::process_dims(&mut idxs, dim, 0, i);
+
+            let dim_one_bounds = if dim == 1 { 1 } else { self.shape[1] };
+            for j in 0..dim_one_bounds {
+                Tensor::process_dims(&mut idxs, dim, 1, j);
+
+                new_data.extend(self.slice(&idxs)?.data);
+                new_data.extend(rhs.slice(&idxs)?.data);
+            }
+        }
+
+        Ok(new_data)
+    }
+
+    fn three_dimension_concat(
+        &self,
+        rhs: &Tensor,
+        dim: usize,
+        shape: &Vec<usize>,
+    ) -> Result<Vec<f32>, TensorError> {
+        let mut new_data: Vec<f32> = Vec::with_capacity(Tensor::calc_tensor_len_from_shape(shape));
+
+        let mut idxs: Vec<[isize; 2]> = vec![[0, 0]; self.shape.len()];
+
+        let dim_zero_bounds = if dim == 0 { 1 } else { self.shape[0] };
+        for i in 0..dim_zero_bounds {
+            Tensor::process_dims(&mut idxs, dim, 0, i);
+
+            let dim_one_bounds = if dim == 1 { 1 } else { self.shape[1] };
+            for j in 0..dim_one_bounds {
+                Tensor::process_dims(&mut idxs, dim, 1, j);
+
+                let dim_two_bounds = if dim == 2 { 1 } else { self.shape[2] };
+                for k in 0..dim_two_bounds {
+                    Tensor::process_dims(&mut idxs, dim, 2, k);
+
+                    new_data.extend(self.slice(&idxs)?.data);
+                    new_data.extend(rhs.slice(&idxs)?.data);
+                }
+            }
+        }
+
+        Ok(new_data)
+    }
+
+    fn four_dimension_concat(
+        &self,
+        rhs: &Tensor,
+        dim: usize,
+        shape: &Vec<usize>,
+    ) -> Result<Vec<f32>, TensorError> {
+        let mut new_data: Vec<f32> = Vec::with_capacity(Tensor::calc_tensor_len_from_shape(shape));
+
+        let mut idxs: Vec<[isize; 2]> = vec![[0, 0]; self.shape.len()];
+
+        let dim_zero_bounds = if dim == 0 { 1 } else { self.shape[0] };
+        for i in 0..dim_zero_bounds {
+            Tensor::process_dims(&mut idxs, dim, 0, i);
+
+            let dim_one_bounds = if dim == 1 { 1 } else { self.shape[1] };
+            for j in 0..dim_one_bounds {
+                Tensor::process_dims(&mut idxs, dim, 1, j);
+
+                let dim_two_bounds = if dim == 2 { 1 } else { self.shape[2] };
+                for k in 0..dim_two_bounds {
+                    Tensor::process_dims(&mut idxs, dim, 2, k);
+
+                    let dim_three_bounds = if dim == 3 { 1 } else { self.shape[3] };
+                    for m in 0..dim_three_bounds {
+                        Tensor::process_dims(&mut idxs, dim, 3, m);
+
+                        new_data.extend(self.slice(&idxs)?.data);
+                        new_data.extend(rhs.slice(&idxs)?.data);
+                    }
+                }
+            }
+        }
+
+        Ok(new_data)
+    }
+
     pub fn new(data: Vec<f32>, shape: &[usize]) -> Result<Tensor, TensorError> {
         if data.len() == Tensor::calc_tensor_len_from_shape(shape)
             && shape.len() > 0
@@ -1387,7 +1629,7 @@ impl Tensor {
             2 => Ok(self.two_dimension_slice(logical_indices, slice_len)),
             3 => Ok(self.three_dimension_slice(logical_indices, slice_len)),
             4 => Ok(self.four_dimension_slice(logical_indices, slice_len)),
-            _ => Err(TensorError::SliceError),
+            _ => Err(TensorError::MaxDimsError),
         }?;
 
         Tensor::new(new_data, &new_shape)
@@ -1494,7 +1736,43 @@ impl Tensor {
             2 => Tensor::two_dimension_matmul(&self, &rhs, matmul_dim),
             3 => self.three_dimension_matmul(&rhs, matmul_dim, &batch_dims),
             4 => self.four_dimension_matmul(&rhs, matmul_dim, &batch_dims),
-            _ => Err(TensorError::SliceError),
+            _ => Err(TensorError::MaxDimsError),
+        }?;
+
+        Tensor::new(new_data, &new_shape)
+    }
+
+    pub fn concat(&self, rhs: &Tensor, dim: isize) -> Result<Tensor, TensorError> {
+        let concat_dim = if dim == -1 {
+            self.shape.len() - 1 as usize
+        } else if (dim >= 0) && (dim < self.shape.len() as isize) {
+            dim as usize
+        } else {
+            return Err(TensorError::ShapeError);
+        };
+
+        if self.shape.len() != rhs.shape.len() {
+            return Err(TensorError::ShapeError);
+        }
+
+        let mut new_shape: Vec<usize> = Vec::with_capacity(self.shape.len());
+        for i in 0..self.shape.len() {
+            if i != concat_dim {
+                if self.shape[i] != rhs.shape[i] {
+                    return Err(TensorError::ShapeError);
+                }
+                new_shape.push(self.shape[i]);
+            } else {
+                new_shape.push(self.shape[i] + rhs.shape[i]);
+            }
+        }
+
+        let new_data = match self.shape.len() {
+            1 => self.one_dimension_concat(&rhs, concat_dim, &new_shape),
+            2 => self.two_dimension_concat(&rhs, concat_dim, &new_shape),
+            3 => self.three_dimension_concat(&rhs, concat_dim, &new_shape),
+            4 => self.four_dimension_concat(&rhs, concat_dim, &new_shape),
+            _ => Err(TensorError::MaxDimsError),
         }?;
 
         Tensor::new(new_data, &new_shape)
