@@ -6,16 +6,9 @@
 
 ## Tensor
 
-### slicing
-
--   use enum to store diff between two types of indices
-    -   [start, end)
-    -   -1
-
 ### Todo
 
--   normal
--   uniform
+-   autodiff
 
 ### Done
 
@@ -110,6 +103,8 @@
 -   concat
 -   transpose
 -   clone
+-   normal
+-   uniform
 
 ### wont do
 
@@ -117,6 +112,9 @@
 -   impl iterator
 -   replace indices slice with enum
 -   tensor::new shouldn't return result
+-   use enum to store diff between two types of indices
+    -   [start, end)
+    -   -1
 
 ### Notes
 

@@ -391,4 +391,18 @@ mod tests {
             let _z = x.clone().unwrap();
         })
     }
+
+    #[bench]
+    fn bench_normal(b: &mut Bencher) {
+        b.iter(|| {
+            let _x = Tensor::normal(&[256, 256], 0.0, 1.0).unwrap();
+        })
+    }
+
+    #[bench]
+    fn bench_uniform(b: &mut Bencher) {
+        b.iter(|| {
+            let _x = Tensor::uniform(&[256, 256], 0.0, 1.0).unwrap();
+        })
+    }
 }

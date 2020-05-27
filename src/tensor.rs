@@ -3,6 +3,9 @@ use std::ops::{Add, Div, Mul, Sub};
 
 use std::cmp::Ordering;
 
+use rand::distributions::{Distribution, Uniform};
+use rand_distr::Normal;
+
 use crate::errors::TensorError;
 use crate::ops::{DimOp, TensorOp};
 
@@ -1789,6 +1792,34 @@ impl Tensor {
 
     pub fn zeros(shape: &[usize]) -> Result<Self, TensorError> {
         Tensor::new(vec![0.0; Tensor::calc_tensor_len_from_shape(shape)], shape)
+    }
+
+    pub fn normal(shape: &[usize], mean: f32, std: f32) -> Result<Self, TensorError> {
+        let normal = Normal::new(mean, std).unwrap();
+        let mut rng = rand::thread_rng();
+
+        let tensor_len = Tensor::calc_tensor_len_from_shape(shape);
+        let mut new_data: Vec<f32> = Vec::with_capacity(tensor_len);
+
+        for _ in 0..tensor_len {
+            new_data.push(normal.sample(&mut rng));
+        }
+
+        Tensor::new(new_data, shape)
+    }
+
+    pub fn uniform(shape: &[usize], low: f32, high: f32) -> Result<Self, TensorError> {
+        let uniform = Uniform::from(low..high);
+        let mut rng = rand::thread_rng();
+
+        let tensor_len = Tensor::calc_tensor_len_from_shape(shape);
+        let mut new_data: Vec<f32> = Vec::with_capacity(tensor_len);
+
+        for _ in 0..tensor_len {
+            new_data.push(uniform.sample(&mut rng));
+        }
+
+        Tensor::new(new_data, shape)
     }
 
     pub fn slice(&self, logical_indices: &[[isize; 2]]) -> Result<Self, TensorError> {
