@@ -169,86 +169,86 @@ mod tests {
     }
 }
 
-pub fn add(lhs: &Tensor, rhs: &Tensor) -> Tensor {
+pub fn add<'a>(lhs: &'a Tensor, rhs: &'a Tensor) -> Tensor<'a> {
     lhs + rhs
 }
 
-pub fn sub(lhs: &Tensor, rhs: &Tensor) -> Tensor {
+pub fn sub<'a>(lhs: &'a Tensor, rhs: &'a Tensor) -> Tensor<'a> {
     lhs - rhs
 }
 
-pub fn mul(lhs: &Tensor, rhs: &Tensor) -> Tensor {
+pub fn mul<'a>(lhs: &'a Tensor, rhs: &'a Tensor) -> Tensor<'a> {
     lhs * rhs
 }
 
-pub fn div(lhs: &Tensor, rhs: &Tensor) -> Tensor {
+pub fn div<'a>(lhs: &'a Tensor, rhs: &'a Tensor) -> Tensor<'a> {
     lhs / rhs
 }
 
-pub fn pow(lhs: &Tensor, exp: usize) -> Result<Tensor, TensorError> {
+pub fn pow<'a>(lhs: &'a Tensor, exp: usize) -> Result<Tensor<'a>, TensorError> {
     lhs.pow(exp)
 }
 
-pub fn sqrt(lhs: &Tensor) -> Result<Tensor, TensorError> {
+pub fn sqrt<'a>(lhs: &'a Tensor) -> Result<Tensor<'a>, TensorError> {
     lhs.sqrt()
 }
 
-pub fn exp(lhs: &Tensor) -> Result<Tensor, TensorError> {
+pub fn exp<'a>(lhs: &'a Tensor) -> Result<Tensor<'a>, TensorError> {
     lhs.exp()
 }
 
-pub fn log10(lhs: &Tensor) -> Result<Tensor, TensorError> {
+pub fn log10<'a>(lhs: &'a Tensor) -> Result<Tensor<'a>, TensorError> {
     lhs.log10()
 }
 
-pub fn log(lhs: &Tensor) -> Result<Tensor, TensorError> {
+pub fn log<'a>(lhs: &'a Tensor) -> Result<Tensor<'a>, TensorError> {
     lhs.log()
 }
 
-pub fn abs(lhs: &Tensor) -> Result<Tensor, TensorError> {
+pub fn abs<'a>(lhs: &'a Tensor) -> Result<Tensor<'a>, TensorError> {
     lhs.abs()
 }
 
-pub fn sin(lhs: &Tensor) -> Result<Tensor, TensorError> {
+pub fn sin<'a>(lhs: &'a Tensor) -> Result<Tensor<'a>, TensorError> {
     lhs.sin()
 }
 
-pub fn cos(lhs: &Tensor) -> Result<Tensor, TensorError> {
+pub fn cos<'a>(lhs: &'a Tensor) -> Result<Tensor<'a>, TensorError> {
     lhs.cos()
 }
 
-pub fn tan(lhs: &Tensor) -> Result<Tensor, TensorError> {
+pub fn tan<'a>(lhs: &'a Tensor) -> Result<Tensor<'a>, TensorError> {
     lhs.tan()
 }
 
-pub fn sum(lhs: &Tensor, dim: isize) -> Result<Tensor, TensorError> {
+pub fn sum<'a>(lhs: &'a Tensor, dim: isize) -> Result<Tensor<'a>, TensorError> {
     lhs.sum(dim)
 }
 
-pub fn mean(lhs: &Tensor, dim: isize) -> Result<Tensor, TensorError> {
+pub fn mean<'a>(lhs: &'a Tensor, dim: isize) -> Result<Tensor<'a>, TensorError> {
     lhs.mean(dim)
 }
 
-pub fn max(lhs: &Tensor, dim: isize) -> Result<Tensor, TensorError> {
+pub fn max<'a>(lhs: &'a Tensor, dim: isize) -> Result<Tensor<'a>, TensorError> {
     lhs.max(dim)
 }
 
-pub fn min(lhs: &Tensor, dim: isize) -> Result<Tensor, TensorError> {
+pub fn min<'a>(lhs: &'a Tensor, dim: isize) -> Result<Tensor<'a>, TensorError> {
     lhs.min(dim)
 }
 
-pub fn argmax(lhs: &Tensor, dim: isize) -> Result<Tensor, TensorError> {
+pub fn argmax<'a>(lhs: &'a Tensor, dim: isize) -> Result<Tensor<'a>, TensorError> {
     lhs.argmax(dim)
 }
 
-pub fn argmin(lhs: &Tensor, dim: isize) -> Result<Tensor, TensorError> {
+pub fn argmin<'a>(lhs: &'a Tensor, dim: isize) -> Result<Tensor<'a>, TensorError> {
     lhs.argmin(dim)
 }
 
-pub fn matmul(lhs: &Tensor, rhs: &Tensor) -> Result<Tensor, TensorError> {
+pub fn matmul<'a>(lhs: &'a Tensor, rhs: &'a Tensor) -> Result<Tensor<'a>, TensorError> {
     lhs.matmul(rhs)
 }
 
-pub fn concat(lhs: &Tensor, rhs: &Tensor, dim: isize) -> Result<Tensor, TensorError> {
+pub fn concat<'a>(lhs: &'a Tensor, rhs: &'a Tensor, dim: isize) -> Result<Tensor<'a>, TensorError> {
     lhs.concat(&rhs, dim)
 }

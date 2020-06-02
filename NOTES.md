@@ -9,6 +9,12 @@
 ### Todo
 
 -   autodiff
+    -   hold reference to parents
+        -   lhs and rhs?
+    -   hold gradient
+    -   accumulate gradients?
+    -   know grad functions for each op
+    -   notes
 
 ### Done
 

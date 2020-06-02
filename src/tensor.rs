@@ -19,6 +19,8 @@ mod tests {
             data: vec![0.0; 16],
             shape: vec![16],
             strides: vec![1],
+            lhs_parent: None,
+            rhs_parent: None,
         };
     }
 
@@ -52,7 +54,7 @@ mod tests {
 
         let x = t.slice(&[[0, -1], [0, 1]]).unwrap();
 
-        assert!((x.data == vec![1.0, 3.0]) && (x.shape == vec![2]));
+        assert!((x.data == vec![1.0, 3.0]) && (x.shape == &[2]));
     }
 
     #[test]
@@ -80,11 +82,7 @@ mod tests {
 
     #[test]
     fn slice_tensor_1d_element() {
-        let t = Tensor {
-            data: vec![1.0, 2.0, 3.0, 4.0],
-            shape: vec![4],
-            strides: vec![1],
-        };
+        let t = Tensor::new(vec![1.0, 2.0, 3.0, 4.0], &[4]).unwrap();
 
         let x = t.slice(&[[0, 1]]).unwrap();
 
@@ -92,11 +90,7 @@ mod tests {
     }
     #[test]
     fn slice_tensor_2d_element() {
-        let t = Tensor {
-            data: vec![1.0, 2.0, 3.0, 4.0],
-            shape: vec![2, 2],
-            strides: vec![2, 1],
-        };
+        let t = Tensor::new(vec![1.0, 2.0, 3.0, 4.0], &[2, 2]).unwrap();
 
         let x = t.slice(&[[0, 1], [0, 1]]).unwrap();
 
@@ -105,11 +99,7 @@ mod tests {
 
     #[test]
     fn slice_tensor_2d_row() {
-        let t = Tensor {
-            data: vec![1.0, 2.0, 3.0, 4.0],
-            shape: vec![2, 2],
-            strides: vec![2, 1],
-        };
+        let t = Tensor::new(vec![1.0, 2.0, 3.0, 4.0], &[2, 2]).unwrap();
 
         let x = t.slice(&[[0, 1], [0, 2]]).unwrap();
 
@@ -118,11 +108,7 @@ mod tests {
 
     #[test]
     fn slice_tensor_2d_col() {
-        let t = Tensor {
-            data: vec![1.0, 2.0, 3.0, 4.0],
-            shape: vec![2, 2],
-            strides: vec![2, 1],
-        };
+        let t = Tensor::new(vec![1.0, 2.0, 3.0, 4.0], &[2, 2]).unwrap();
 
         let x = t.slice(&[[0, 2], [0, 1]]).unwrap();
 
@@ -131,11 +117,7 @@ mod tests {
 
     #[test]
     fn slice_tensor_3d_element() {
-        let t = Tensor {
-            data: vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],
-            shape: vec![2, 2, 2],
-            strides: vec![4, 2, 1],
-        };
+        let t = Tensor::new(vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0], &[2, 2, 2]).unwrap();
 
         let x = t.slice(&[[0, 1], [0, 1], [0, 1]]).unwrap();
 
@@ -144,11 +126,7 @@ mod tests {
 
     #[test]
     fn slice_tensor_3d_row() {
-        let t = Tensor {
-            data: vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],
-            shape: vec![2, 2, 2],
-            strides: vec![4, 2, 1],
-        };
+        let t = Tensor::new(vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0], &[2, 2, 2]).unwrap();
 
         let x = t.slice(&[[0, 1], [0, 1], [0, 2]]).unwrap();
 
@@ -157,11 +135,7 @@ mod tests {
 
     #[test]
     fn slice_tensor_3d_col() {
-        let t = Tensor {
-            data: vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],
-            shape: vec![2, 2, 2],
-            strides: vec![4, 2, 1],
-        };
+        let t = Tensor::new(vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0], &[2, 2, 2]).unwrap();
 
         let x = t.slice(&[[0, 1], [0, 2], [0, 1]]).unwrap();
 
@@ -170,11 +144,7 @@ mod tests {
 
     #[test]
     fn slice_tensor_3d_channel() {
-        let t = Tensor {
-            data: vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],
-            shape: vec![2, 2, 2],
-            strides: vec![4, 2, 1],
-        };
+        let t = Tensor::new(vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0], &[2, 2, 2]).unwrap();
 
         let x = t.slice(&[[0, 2], [0, 1], [0, 1]]).unwrap();
 
@@ -183,30 +153,26 @@ mod tests {
 
     #[test]
     fn slice_tensor_3d_chunk() {
-        let t = Tensor {
-            data: vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],
-            shape: vec![2, 2, 2],
-            strides: vec![4, 2, 1],
-        };
+        let t = Tensor::new(vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0], &[2, 2, 2]).unwrap();
 
         let x = t.slice(&[[0, 2], [0, 2], [0, 1]]).unwrap();
 
         assert!(
             (x.data == vec![1.0, 3.0, 5.0, 7.0])
-                && (x.shape == vec![2, 2])
+                && (x.shape == &[2, 2])
                 && (x.strides == vec![2, 1])
         )
     }
     #[test]
     fn slice_tensor_4d_element() {
-        let t = Tensor {
-            data: vec![
+        let t = Tensor::new(
+            vec![
                 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0,
                 16.0,
             ],
-            shape: vec![2, 2, 2, 2],
-            strides: vec![8, 4, 2, 1],
-        };
+            &[2, 2, 2, 2],
+        )
+        .unwrap();
 
         let x = t.slice(&[[0, 1], [0, 1], [0, 1], [0, 1]]).unwrap();
 
@@ -215,14 +181,14 @@ mod tests {
 
     #[test]
     fn slice_tensor_4d_row() {
-        let t = Tensor {
-            data: vec![
+        let t = Tensor::new(
+            vec![
                 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0,
                 16.0,
             ],
-            shape: vec![2, 2, 2, 2],
-            strides: vec![8, 4, 2, 1],
-        };
+            &[2, 2, 2, 2],
+        )
+        .unwrap();
 
         let x = t.slice(&[[0, 1], [0, 1], [0, 1], [0, 2]]).unwrap();
 
@@ -231,14 +197,14 @@ mod tests {
 
     #[test]
     fn slice_tensor_4d_col() {
-        let t = Tensor {
-            data: vec![
+        let t = Tensor::new(
+            vec![
                 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0,
                 16.0,
             ],
-            shape: vec![2, 2, 2, 2],
-            strides: vec![8, 4, 2, 1],
-        };
+            &[2, 2, 2, 2],
+        )
+        .unwrap();
 
         let x = t.slice(&[[0, 1], [0, 1], [0, 2], [0, 1]]).unwrap();
 
@@ -247,14 +213,14 @@ mod tests {
 
     #[test]
     fn slice_tensor_4d_channel() {
-        let t = Tensor {
-            data: vec![
+        let t = Tensor::new(
+            vec![
                 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0,
                 16.0,
             ],
-            shape: vec![2, 2, 2, 2],
-            strides: vec![8, 4, 2, 1],
-        };
+            &[2, 2, 2, 2],
+        )
+        .unwrap();
 
         let x = t.slice(&[[0, 1], [0, 2], [0, 1], [0, 1]]).unwrap();
 
@@ -263,14 +229,14 @@ mod tests {
 
     #[test]
     fn slice_tensor_4d_batch() {
-        let t = Tensor {
-            data: vec![
+        let t = Tensor::new(
+            vec![
                 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0,
                 16.0,
             ],
-            shape: vec![2, 2, 2, 2],
-            strides: vec![8, 4, 2, 1],
-        };
+            &[2, 2, 2, 2],
+        )
+        .unwrap();
 
         let x = t.slice(&[[0, 2], [0, 1], [0, 1], [0, 1]]).unwrap();
 
@@ -279,20 +245,20 @@ mod tests {
 
     #[test]
     fn slice_tensor_4d_chunk() {
-        let t = Tensor {
-            data: vec![
+        let t = Tensor::new(
+            vec![
                 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0,
                 16.0,
             ],
-            shape: vec![2, 2, 2, 2],
-            strides: vec![8, 4, 2, 1],
-        };
+            &[2, 2, 2, 2],
+        )
+        .unwrap();
 
         let x = t.slice(&[[0, 2], [0, 2], [0, 1], [0, 1]]).unwrap();
 
         assert!(
             (x.data == vec![1.0, 5.0, 9.0, 13.0])
-                && (x.shape == vec![2, 2])
+                && (x.shape == &[2, 2])
                 && (x.strides == vec![2, 1])
         )
     }
@@ -895,13 +861,15 @@ mod tests {
 }
 
 #[derive(Debug, PartialEq)]
-pub struct Tensor {
+pub struct Tensor<'a> {
     pub data: Vec<f32>,
     pub shape: Vec<usize>,
     pub strides: Vec<usize>,
+    lhs_parent: Option<&'a Tensor<'a>>,
+    rhs_parent: Option<&'a Tensor<'a>>,
 }
 
-impl Tensor {
+impl<'a> Tensor<'a> {
     fn calc_tensor_len_from_shape(shape: &[usize]) -> usize {
         let mut length = 1;
         for i in shape {
@@ -910,6 +878,7 @@ impl Tensor {
 
         length
     }
+
     fn calc_strides_from_shape(shape: &[usize]) -> Vec<usize> {
         let mut strides = Vec::with_capacity(shape.len());
 
@@ -921,6 +890,7 @@ impl Tensor {
 
         strides
     }
+
     fn calc_shape_from_slice(slice: &[[usize; 2]]) -> Vec<usize> {
         // can't preallocate vec length because we don't know its length at compile time
         let mut slice_shape = Vec::new();
@@ -957,6 +927,7 @@ impl Tensor {
 
         new_data
     }
+
     fn two_dimension_slice(&self, logical_indices: &[[usize; 2]], slice_len: usize) -> Vec<f32> {
         let mut new_data = Vec::with_capacity(slice_len);
 
@@ -968,6 +939,7 @@ impl Tensor {
 
         new_data
     }
+
     fn three_dimension_slice(&self, logical_indices: &[[usize; 2]], slice_len: usize) -> Vec<f32> {
         let mut new_data = Vec::with_capacity(slice_len);
 
@@ -981,6 +953,7 @@ impl Tensor {
 
         new_data
     }
+
     fn four_dimension_slice(&self, logical_indices: &[[usize; 2]], slice_len: usize) -> Vec<f32> {
         let mut new_data = Vec::with_capacity(slice_len);
 
@@ -999,10 +972,10 @@ impl Tensor {
         new_data
     }
 
-    fn validate_logical_indices<'a>(
+    fn validate_logical_indices<'b>(
         &self,
-        logical_indices: &'a [[usize; 2]],
-    ) -> Result<&'a [[usize; 2]], TensorError> {
+        logical_indices: &'b [[usize; 2]],
+    ) -> Result<&'b [[usize; 2]], TensorError> {
         if logical_indices.len() != self.shape.len() {
             Err(TensorError::SliceError)
         } else {
@@ -1016,6 +989,7 @@ impl Tensor {
             Ok(logical_indices)
         }
     }
+
     fn process_indices(&self, indices: &[[isize; 2]]) -> Vec<[usize; 2]> {
         let mut indices = indices.to_vec();
         let mut processed_indices: Vec<[usize; 2]> = Vec::with_capacity(indices.len());
@@ -1108,6 +1082,7 @@ impl Tensor {
             broadcasted_rhs_strides,
         ))
     }
+
     fn op(lhs: &f32, rhs: &f32, op: &TensorOp) -> Result<f32, TensorError> {
         match op {
             TensorOp::Add => Ok(lhs + rhs),
@@ -1116,6 +1091,7 @@ impl Tensor {
             TensorOp::Div => Ok(lhs / rhs),
         }
     }
+
     fn one_dimension_tensor_op(
         &self,
         other: &Tensor,
@@ -1140,6 +1116,7 @@ impl Tensor {
 
         new_data
     }
+
     fn two_dimension_tensor_op(
         &self,
         other: &Tensor,
@@ -1166,6 +1143,7 @@ impl Tensor {
 
         new_data
     }
+
     fn three_dimension_tensor_op(
         &self,
         other: &Tensor,
@@ -1194,6 +1172,7 @@ impl Tensor {
 
         new_data
     }
+
     fn four_dimension_tensor_op(
         &self,
         other: &Tensor,
@@ -1775,7 +1754,7 @@ impl Tensor {
         Ok(new_data)
     }
 
-    pub fn new(data: Vec<f32>, shape: &[usize]) -> Result<Tensor, TensorError> {
+    pub fn new<'b>(data: Vec<f32>, shape: &[usize]) -> Result<Tensor<'b>, TensorError> {
         if data.len() == Tensor::calc_tensor_len_from_shape(shape)
             && shape.len() > 0
             && shape.len() < 5
@@ -1784,17 +1763,19 @@ impl Tensor {
                 data,
                 shape: shape.to_vec(),
                 strides: Tensor::calc_strides_from_shape(shape),
+                lhs_parent: None,
+                rhs_parent: None,
             })
         } else {
             Err(TensorError::InvalidTensor)
         }
     }
 
-    pub fn zeros(shape: &[usize]) -> Result<Self, TensorError> {
+    pub fn zeros<'b>(shape: &[usize]) -> Result<Tensor<'b>, TensorError> {
         Tensor::new(vec![0.0; Tensor::calc_tensor_len_from_shape(shape)], shape)
     }
 
-    pub fn normal(shape: &[usize], mean: f32, std: f32) -> Result<Self, TensorError> {
+    pub fn normal<'b>(shape: &[usize], mean: f32, std: f32) -> Result<Tensor<'b>, TensorError> {
         let normal = Normal::new(mean, std).unwrap();
         let mut rng = rand::thread_rng();
 
@@ -1808,7 +1789,7 @@ impl Tensor {
         Tensor::new(new_data, shape)
     }
 
-    pub fn uniform(shape: &[usize], low: f32, high: f32) -> Result<Self, TensorError> {
+    pub fn uniform<'b>(shape: &[usize], low: f32, high: f32) -> Result<Tensor<'b>, TensorError> {
         let uniform = Uniform::from(low..high);
         let mut rng = rand::thread_rng();
 
@@ -2004,44 +1985,47 @@ impl Tensor {
     }
 
     pub fn clone(&self) -> Result<Tensor, TensorError> {
-        Tensor::new(self.data.clone(), &self.shape.clone())
+        Tensor::new(self.data.clone(), &self.shape)
     }
 }
 
-impl Add for &Tensor {
-    type Output = Tensor;
+impl<'a> Add for &'a Tensor<'a> {
+    type Output = Tensor<'a>;
 
-    fn add(self, other: &Tensor) -> Tensor {
+    fn add(self, other: &Tensor) -> Tensor<'a> {
         match self.tensor_op(other, TensorOp::Add) {
             Ok(t) => t,
             Err(e) => panic!("{}", e),
         }
     }
 }
-impl Sub for &Tensor {
-    type Output = Tensor;
 
-    fn sub(self, other: &Tensor) -> Tensor {
+impl<'a> Sub for &'a Tensor<'a> {
+    type Output = Tensor<'a>;
+
+    fn sub(self, other: &Tensor) -> Tensor<'a> {
         match self.tensor_op(other, TensorOp::Sub) {
             Ok(t) => t,
             Err(e) => panic!("{}", e),
         }
     }
 }
-impl Mul for &Tensor {
-    type Output = Tensor;
 
-    fn mul(self, other: &Tensor) -> Tensor {
+impl<'a> Mul for &'a Tensor<'a> {
+    type Output = Tensor<'a>;
+
+    fn mul(self, other: &Tensor) -> Tensor<'a> {
         match self.tensor_op(other, TensorOp::Mul) {
             Ok(t) => t,
             Err(e) => panic!("{}", e),
         }
     }
 }
-impl Div for &Tensor {
-    type Output = Tensor;
 
-    fn div(self, other: &Tensor) -> Tensor {
+impl<'a> Div for &'a Tensor<'a> {
+    type Output = Tensor<'a>;
+
+    fn div(self, other: &Tensor) -> Tensor<'a> {
         match self.tensor_op(other, TensorOp::Div) {
             Ok(t) => t,
             Err(e) => panic!("{}", e),
