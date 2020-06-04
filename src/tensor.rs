@@ -9,6 +9,9 @@ use rand_distr::Normal;
 use crate::errors::TensorError;
 use crate::ops::{DimOp, TensorOp};
 
+use std::cell::RefCell;
+use std::rc::Rc;
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -19,8 +22,11 @@ mod tests {
             data: vec![0.0; 16],
             shape: vec![16],
             strides: vec![1],
+            track_grad: false,
             lhs_parent: None,
             rhs_parent: None,
+            create_op: None,
+            derivative: None,
         };
     }
 
@@ -331,9 +337,7 @@ mod tests {
 
         let c = &a + &b;
 
-        let x = Tensor::new(vec![4.0, 6.0, 8.0, 10.0], &[4]).unwrap();
-
-        assert_eq!(c, x);
+        assert!((c.data == vec![4.0, 6.0, 8.0, 10.0]) && (c.shape == vec![4]))
     }
 
     #[test]
@@ -343,9 +347,7 @@ mod tests {
 
         let c = &a - &b;
 
-        let x = Tensor::new(vec![0.0, 0.0, 2.0, 2.0], &[2, 2]).unwrap();
-
-        assert_eq!(c, x);
+        assert!((c.data == vec![0.0, 0.0, 2.0, 2.0]) && (c.shape == vec![2, 2]))
     }
 
     #[test]
@@ -355,9 +357,7 @@ mod tests {
 
         let c = &a * &b;
 
-        let x = Tensor::new(vec![4.0, 9.0, 8.0, 15.0], &[2, 2]).unwrap();
-
-        assert_eq!(c, x);
+        assert!((c.data == vec![4.0, 9.0, 8.0, 15.0]) && (c.shape == vec![2, 2]))
     }
 
     #[test]
@@ -367,9 +367,7 @@ mod tests {
 
         let c = &a / &b;
 
-        let x = Tensor::new(vec![1.0, 1.0, 3.0, 2.0], &[2, 2]).unwrap();
-
-        assert_eq!(c, x);
+        assert!((c.data == vec![1.0, 1.0, 3.0, 2.0]) && (c.shape == vec![2, 2]))
     }
 
     #[test]
@@ -379,9 +377,7 @@ mod tests {
 
         let c = &a + &b;
 
-        let x = Tensor::new(vec![4.0, 6.0, 8.0, 10.0], &[1, 4]).unwrap();
-
-        assert!((x == c) && (c.shape == vec![1, 4]));
+        assert!((c.data == vec![4.0, 6.0, 8.0, 10.0]) && (c.shape == vec![1, 4]));
     }
 
     #[test]
@@ -391,9 +387,7 @@ mod tests {
 
         let c = &a + &b;
 
-        let x = Tensor::new(vec![4.0, 6.0, 6.0, 8.0], &[2, 2]).unwrap();
-
-        assert!((x == c) && (c.shape == vec![2, 2]));
+        assert!((c.data == vec![4.0, 6.0, 6.0, 8.0]) && (c.shape == vec![2, 2]));
     }
 
     #[test]
@@ -403,9 +397,7 @@ mod tests {
 
         let c = &a + &b;
 
-        let x = Tensor::new(vec![4.0, 6.0, 6.0, 8.0], &[1, 2, 2]).unwrap();
-
-        assert!((x == c) && (c.shape == vec![1, 2, 2]));
+        assert!((c.data == vec![4.0, 6.0, 6.0, 8.0]) && (c.shape == vec![1, 2, 2]));
     }
 
     #[test]
@@ -865,8 +857,14 @@ pub struct Tensor<'a> {
     pub data: Vec<f32>,
     pub shape: Vec<usize>,
     pub strides: Vec<usize>,
+
+    track_grad: bool,
+
     lhs_parent: Option<&'a Tensor<'a>>,
     rhs_parent: Option<&'a Tensor<'a>>,
+    create_op: Option<TensorOp>,
+    // derivative: Option<Rc<Tensor<'a>>>,
+    derivative: Option<RefCell<Box<Tensor<'a>>>>,
 }
 
 impl<'a> Tensor<'a> {
@@ -1424,7 +1422,7 @@ impl<'a> Tensor<'a> {
         Tensor::new(new_data, &new_shape)
     }
 
-    fn tensor_op(&self, other: &Tensor, op: TensorOp) -> Result<Tensor, TensorError> {
+    fn tensor_op<'b>(&'b self, other: &'b Tensor, op: TensorOp) -> Result<Tensor<'b>, TensorError> {
         let (new_shape, lhs_strides, rhs_strides) = Tensor::broadcast(&self.shape, &other.shape)?;
 
         let new_data = match new_shape.len() {
@@ -1459,7 +1457,11 @@ impl<'a> Tensor<'a> {
             _ => Err(TensorError::MaxDimsError),
         }?;
 
-        Tensor::new(new_data, &new_shape)
+        if self.track_grad && other.track_grad {
+            Tensor::new_with_parents(new_data, &new_shape, self, other, op)
+        } else {
+            Tensor::new_no_grad(new_data, &new_shape)
+        }
     }
 
     fn validate_tensors(lhs: &Tensor, rhs: &Tensor) -> Result<Vec<usize>, TensorError> {
@@ -1754,6 +1756,32 @@ impl<'a> Tensor<'a> {
         Ok(new_data)
     }
 
+    fn new_with_parents<'b>(
+        data: Vec<f32>,
+        shape: &[usize],
+        lhs_parent: &'b Tensor,
+        rhs_parent: &'b Tensor,
+        op: TensorOp,
+    ) -> Result<Tensor<'b>, TensorError> {
+        if data.len() == Tensor::calc_tensor_len_from_shape(shape)
+            && shape.len() > 0
+            && shape.len() < 5
+        {
+            Ok(Tensor {
+                data,
+                shape: shape.to_vec(),
+                strides: Tensor::calc_strides_from_shape(shape),
+                track_grad: true,
+                lhs_parent: Some(lhs_parent),
+                rhs_parent: Some(rhs_parent),
+                create_op: Some(op),
+                derivative: None,
+            })
+        } else {
+            Err(TensorError::InvalidTensor)
+        }
+    }
+
     pub fn new<'b>(data: Vec<f32>, shape: &[usize]) -> Result<Tensor<'b>, TensorError> {
         if data.len() == Tensor::calc_tensor_len_from_shape(shape)
             && shape.len() > 0
@@ -1763,14 +1791,36 @@ impl<'a> Tensor<'a> {
                 data,
                 shape: shape.to_vec(),
                 strides: Tensor::calc_strides_from_shape(shape),
+                track_grad: true,
                 lhs_parent: None,
                 rhs_parent: None,
+                create_op: None,
+                derivative: None,
             })
         } else {
             Err(TensorError::InvalidTensor)
         }
     }
 
+    pub fn new_no_grad<'b>(data: Vec<f32>, shape: &[usize]) -> Result<Tensor<'b>, TensorError> {
+        if data.len() == Tensor::calc_tensor_len_from_shape(shape)
+            && shape.len() > 0
+            && shape.len() < 5
+        {
+            Ok(Tensor {
+                data,
+                shape: shape.to_vec(),
+                strides: Tensor::calc_strides_from_shape(shape),
+                track_grad: false,
+                lhs_parent: None,
+                rhs_parent: None,
+                create_op: None,
+                derivative: None,
+            })
+        } else {
+            Err(TensorError::InvalidTensor)
+        }
+    }
     pub fn zeros<'b>(shape: &[usize]) -> Result<Tensor<'b>, TensorError> {
         Tensor::new(vec![0.0; Tensor::calc_tensor_len_from_shape(shape)], shape)
     }
@@ -1987,12 +2037,75 @@ impl<'a> Tensor<'a> {
     pub fn clone(&self) -> Result<Tensor, TensorError> {
         Tensor::new(self.data.clone(), &self.shape)
     }
+
+    pub fn clone_no_grad(&self) -> Result<Tensor, TensorError> {
+        Tensor::new_no_grad(self.data.clone(), &self.shape)
+    }
+
+    pub fn backward(&self, d: &'a Tensor) {
+        // self.derivative = Some(Box::new(d.clone_no_grad().unwrap()));
+
+        println!("create op: {:?}", self.create_op);
+
+        match self.lhs_parent {
+            Some(t) => {
+                println!("\ncalling backward on lhs tensor");
+
+                let d_lhs = match self.create_op {
+                    Some(TensorOp::Add) => Tensor::new_no_grad(
+                        vec![1.0; Tensor::calc_tensor_len_from_shape(&self.shape)],
+                        &self.shape,
+                    ),
+                    Some(TensorOp::Sub) => Tensor::new_no_grad(
+                        vec![1.0; Tensor::calc_tensor_len_from_shape(&self.shape)],
+                        &self.shape,
+                    ),
+                    Some(TensorOp::Mul) => self.rhs_parent.unwrap().clone_no_grad(),
+                    Some(TensorOp::Div) => self.rhs_parent.unwrap().clone_no_grad(), //not correct
+                    None => Err(TensorError::ShapeError),
+                }
+                .unwrap();
+
+                let d_lhs = &d_lhs * d;
+                println!("derivative: {:?}", d_lhs);
+
+                t.backward(&d_lhs);
+            }
+            None => println!("Reached a leaf node for lhs tensor"),
+        }
+
+        match self.rhs_parent {
+            Some(t) => {
+                println!("\ncalling backward on rhs tensor");
+                let d_rhs = match self.create_op {
+                    Some(TensorOp::Add) => Tensor::new(
+                        vec![1.0; Tensor::calc_tensor_len_from_shape(&self.shape)],
+                        &self.shape,
+                    ),
+                    Some(TensorOp::Sub) => Tensor::new(
+                        vec![1.0; Tensor::calc_tensor_len_from_shape(&self.shape)],
+                        &self.shape,
+                    ),
+                    Some(TensorOp::Mul) => self.lhs_parent.unwrap().clone(),
+                    Some(TensorOp::Div) => self.lhs_parent.unwrap().clone(),
+                    None => Err(TensorError::ShapeError),
+                }
+                .unwrap();
+
+                let d_rhs = &d_rhs * &d;
+                println!("derivative: {:?}", d_rhs);
+
+                t.backward(&d_rhs);
+            }
+            None => println!("Reached a leaf node for rhs tensor"),
+        }
+    }
 }
 
 impl<'a> Add for &'a Tensor<'a> {
     type Output = Tensor<'a>;
 
-    fn add(self, other: &Tensor) -> Tensor<'a> {
+    fn add(self, other: &'a Tensor) -> Tensor<'a> {
         match self.tensor_op(other, TensorOp::Add) {
             Ok(t) => t,
             Err(e) => panic!("{}", e),
@@ -2003,7 +2116,7 @@ impl<'a> Add for &'a Tensor<'a> {
 impl<'a> Sub for &'a Tensor<'a> {
     type Output = Tensor<'a>;
 
-    fn sub(self, other: &Tensor) -> Tensor<'a> {
+    fn sub(self, other: &'a Tensor) -> Tensor<'a> {
         match self.tensor_op(other, TensorOp::Sub) {
             Ok(t) => t,
             Err(e) => panic!("{}", e),
@@ -2014,7 +2127,7 @@ impl<'a> Sub for &'a Tensor<'a> {
 impl<'a> Mul for &'a Tensor<'a> {
     type Output = Tensor<'a>;
 
-    fn mul(self, other: &Tensor) -> Tensor<'a> {
+    fn mul(self, other: &'a Tensor) -> Tensor<'a> {
         match self.tensor_op(other, TensorOp::Mul) {
             Ok(t) => t,
             Err(e) => panic!("{}", e),
@@ -2025,7 +2138,7 @@ impl<'a> Mul for &'a Tensor<'a> {
 impl<'a> Div for &'a Tensor<'a> {
     type Output = Tensor<'a>;
 
-    fn div(self, other: &Tensor) -> Tensor<'a> {
+    fn div(self, other: &'a Tensor) -> Tensor<'a> {
         match self.tensor_op(other, TensorOp::Div) {
             Ok(t) => t,
             Err(e) => panic!("{}", e),

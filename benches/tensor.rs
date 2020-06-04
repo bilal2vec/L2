@@ -405,4 +405,38 @@ mod tests {
             let _x = Tensor::uniform(&[256, 256], 0.0, 1.0).unwrap();
         })
     }
+
+    #[bench]
+    fn bench_backwards(b: &mut Bencher) {
+        b.iter(|| {
+            let x = Tensor::normal(&[2, 2], 0.0, 1.0).unwrap();
+            let y = Tensor::normal(&[2, 2], 0.0, 1.0).unwrap();
+
+            let q = &x + &y;
+
+            let z = Tensor::normal(&[2, 2], 0.0, 1.0).unwrap();
+
+            let f = &q * &z;
+
+            let derivative = Tensor::normal(&[2, 2], 0.0, 1.0).unwrap();
+
+            f.backward(&derivative);
+        })
+    }
+
+    #[bench]
+    fn bench_backwards_2(b: &mut Bencher) {
+        b.iter(|| {
+            let x = Tensor::normal(&[2, 2], 0.0, 1.0).unwrap();
+            let y = Tensor::normal(&[2, 2], 0.0, 1.0).unwrap();
+
+            let q = &x + &y;
+
+            let z = Tensor::normal(&[2, 2], 0.0, 1.0).unwrap();
+
+            let _f = &q * &z;
+
+            let _derivative = Tensor::normal(&[2, 2], 0.0, 1.0).unwrap();
+        })
+    }
 }

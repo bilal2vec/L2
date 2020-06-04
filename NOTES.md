@@ -15,6 +15,39 @@
     -   accumulate gradients?
     -   know grad functions for each op
     -   notes
+-   impl == on tensors
+    -   account for creators
+    -   do tensor-tensor op without grad tracking for backend
+        -   use .clone?
+    -   will need to hold mutable references to creators
+    -   will need to be able to have more than one mutable ref to a tensor
+    -   rc and refcell on the heap
+    -   jax style functional backprop?
+        -   no
+    -   original tensor is a rc refcell and rc::clone on backprop?
+    -   own tensor instead of ref?
+
+```
+   a
+  / \
+ *   *
+/     \
+b      c
+
+b and c created from a
+needs rc refcell
+```
+
+```
+b       c
+ \     /
+  *   *
+   \ /
+    a
+
+a created from b and c
+doesn't need rc refcell
+```
 
 ### Done
 
