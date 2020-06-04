@@ -10,7 +10,6 @@ use crate::errors::TensorError;
 use crate::ops::{DimOp, TensorOp};
 
 use std::cell::RefCell;
-use std::rc::Rc;
 
 #[cfg(test)]
 mod tests {
@@ -26,7 +25,7 @@ mod tests {
             lhs_parent: None,
             rhs_parent: None,
             create_op: None,
-            derivative: None,
+            derivative: RefCell::new(None),
         };
     }
 
@@ -864,7 +863,8 @@ pub struct Tensor<'a> {
     rhs_parent: Option<&'a Tensor<'a>>,
     create_op: Option<TensorOp>,
     // derivative: Option<Rc<Tensor<'a>>>,
-    derivative: Option<RefCell<Box<Tensor<'a>>>>,
+    // derivative: Option<RefCell<Box<Vec<f32>>>>,
+    derivative: RefCell<Option<Vec<f32>>>,
 }
 
 impl<'a> Tensor<'a> {
@@ -1775,7 +1775,7 @@ impl<'a> Tensor<'a> {
                 lhs_parent: Some(lhs_parent),
                 rhs_parent: Some(rhs_parent),
                 create_op: Some(op),
-                derivative: None,
+                derivative: RefCell::new(None),
             })
         } else {
             Err(TensorError::InvalidTensor)
@@ -1795,7 +1795,7 @@ impl<'a> Tensor<'a> {
                 lhs_parent: None,
                 rhs_parent: None,
                 create_op: None,
-                derivative: None,
+                derivative: RefCell::new(None),
             })
         } else {
             Err(TensorError::InvalidTensor)
@@ -1815,7 +1815,7 @@ impl<'a> Tensor<'a> {
                 lhs_parent: None,
                 rhs_parent: None,
                 create_op: None,
-                derivative: None,
+                derivative: RefCell::new(None),
             })
         } else {
             Err(TensorError::InvalidTensor)
@@ -2043,13 +2043,13 @@ impl<'a> Tensor<'a> {
     }
 
     pub fn backward(&self, d: &'a Tensor) {
-        // self.derivative = Some(Box::new(d.clone_no_grad().unwrap()));
+        *self.derivative.borrow_mut() = Some(d.data.clone());
 
-        println!("create op: {:?}", self.create_op);
+        // println!("tensor: {:?}", self);
 
         match self.lhs_parent {
             Some(t) => {
-                println!("\ncalling backward on lhs tensor");
+                // println!("\ncalling backward on lhs tensor");
 
                 let d_lhs = match self.create_op {
                     Some(TensorOp::Add) => Tensor::new_no_grad(
@@ -2067,16 +2067,16 @@ impl<'a> Tensor<'a> {
                 .unwrap();
 
                 let d_lhs = &d_lhs * d;
-                println!("derivative: {:?}", d_lhs);
 
                 t.backward(&d_lhs);
             }
-            None => println!("Reached a leaf node for lhs tensor"),
+            // None => println!("Reached a leaf node for lhs tensor"),
+            None => (),
         }
 
         match self.rhs_parent {
             Some(t) => {
-                println!("\ncalling backward on rhs tensor");
+                // println!("\ncalling backward on rhs tensor");
                 let d_rhs = match self.create_op {
                     Some(TensorOp::Add) => Tensor::new(
                         vec![1.0; Tensor::calc_tensor_len_from_shape(&self.shape)],
@@ -2093,11 +2093,12 @@ impl<'a> Tensor<'a> {
                 .unwrap();
 
                 let d_rhs = &d_rhs * &d;
-                println!("derivative: {:?}", d_rhs);
+                // println!("derivative: {:?}", d_rhs);
 
                 t.backward(&d_rhs);
             }
-            None => println!("Reached a leaf node for rhs tensor"),
+            // None => println!("Reached a leaf node for rhs tensor"),
+            None => (),
         }
     }
 }
