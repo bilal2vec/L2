@@ -8,46 +8,12 @@
 
 ### Todo
 
--   autodiff
-    -   hold reference to parents
-        -   lhs and rhs?
-    -   hold gradient
-    -   accumulate gradients?
-    -   know grad functions for each op
-    -   notes
 -   impl == on tensors
-    -   account for creators
-    -   do tensor-tensor op without grad tracking for backend
-        -   use .clone?
-    -   will need to hold mutable references to creators
-    -   will need to be able to have more than one mutable ref to a tensor
-    -   rc and refcell on the heap
-    -   jax style functional backprop?
-        -   no
-    -   original tensor is a rc refcell and rc::clone on backprop?
-    -   own tensor instead of ref?
-
-```
-   a
-  / \
- *   *
-/     \
-b      c
-
-b and c created from a
-needs rc refcell
-```
-
-```
-b       c
- \     /
-  *   *
-   \ /
-    a
-
-a created from b and c
-doesn't need rc refcell
-```
+-   printing of tensors and graph
+-   combine 1,2,3,4d ops into one function
+-   compare to np and ndarray
+-   redo error handling
+-   const generics for compile time errors
 
 ### Done
 
@@ -144,6 +110,43 @@ doesn't need rc refcell
 -   clone
 -   normal
 -   uniform
+-   autodiff
+    -   accumulate gradients
+    -   hold reference to parents
+        -   lhs and rhs
+    -   hold gradient
+    -   know grad functions for each op
+    -   account for creators
+    -   do tensor-tensor op without grad tracking for backend
+    -   derivative is `RefCell<Option<Tensor>>`
+    -   `borrow_mut()` on derivative and assign to it
+    -   use `Rc::new(Tensor::new(Rc::clone(&t))),` so references can be to more than one tensor?
+    -   dont need to use option?
+        -   no
+    -   use a wrapper for grad tracking tensors?
+        -   save memory on normal tensors
+    -   mark nodes as evaluated?
+        -   prevent having to recurse through shared graph multiple times
+        -   topological sort
+            -   done
+        -   in backward mutate lhs and rhs parent's grad not own
+            -   works
+
+```
+   a
+  / \
+ *   *
+/     \
+b      c
+\     /
+ +   +
+  \ /
+   d
+
+da =  dd/db + dd/dc
+but this will recompute the backwards pass for all the graph above a
+topological sorting accumulates gradients for a before going further up the computation graph
+```
 
 ### wont do
 
@@ -154,6 +157,8 @@ doesn't need rc refcell
 -   use enum to store diff between two types of indices
     -   [start, end)
     -   -1
+-   prevent having to reallocate memory on each backwards pass
+    -   clear unneeded memory as soon as you can?
 
 ### Notes
 
@@ -192,6 +197,14 @@ doesn't need rc refcell
 -   https://github.com/mattjj/autodidact
 -   https://github.com/karpathy/recurrentjs
 -   https://github.com/karpathy/randomfun
+-   https://medium.com/@ralphmao95/simple-autograd-implementation-understand-automatic-differentiation-hand-by-hand-9e86f6d703ab
+-   https://evcu.github.io/ml/autograd/
+-   https://blog.paperspace.com/pytorch-101-understanding-graphs-and-automatic-differentiation/
+-   https://github.com/maciejkula/wyrm
+-   https://medium.com/@maciejkula/building-an-autodifferentiation-library-9ccf32c7a658
+-   https://github.com/evcu/numpy_autograd/blob/master/my_autograd.py#L147
+-   https://github.com/evcu/numpy_autograd/blob/master/Autograd.ipynb
+-   https://cs231n.github.io/optimization-2/
 
 ### Rust
 

@@ -9,28 +9,35 @@ fn main() -> Result<(), l2::errors::TensorError> {
 
     let z = Tensor::new(vec![-4.0], &[1])?;
 
-    let f = &q * &z;
+    let g = &q * &z;
 
-    let derivative = Tensor::new_no_grad(vec![1.0], &[1])?;
+    g.backward();
 
-    f.backward(&derivative);
+    println!("{:?}", g);
 
-    println!("{:?}", f);
+    // let a = Tensor::new(vec![2.0], &[1])?;
+    // let b = Tensor::new(vec![3.0], &[1])?;
+    // let c = Tensor::new(vec![4.0], &[1])?;
+
+    // let e = &a * &b;
+    // let f = &e * &c;
+
+    // let g = &a + &f;
+
+    // let h = Tensor::new(vec![5.0], &[1])?;
+    // let i = Tensor::new(vec![6.0], &[1])?;
+    // let j = Tensor::new(vec![7.0], &[1])?;
+
+    // let k = &g * &h;
+
+    // let m = &k * &i;
+    // let n = &m + &j;
+
+    // let o = &h + &n;
+
+    // o.backward();
+
+    // println!("{:?}", o);
 
     Ok(())
 }
-
-// Tensor { data: [-12.0], shape: [1], strides: [1], track_grad: true,
-//     lhs_parent: Some(Tensor { data: [3.0], shape: [1], strides: [1], track_grad: true,
-//             lhs_parent: Some(Tensor { data: [-2.0], shape: [1], strides: [1], track_grad: true, lhs_parent: None, rhs_parent: None, create_op: None,
-//                     derivative: RefCell { value: Some([-4.0]) } }),
-//             rhs_parent: Some(Tensor { data: [5.0], shape: [1], strides: [1], track_grad: true, lhs_parent: None, rhs_parent: None, create_op: None,
-//                     derivative: RefCell { value: Some([-4.0]) } }),
-//             create_op: Some(Add),
-//             derivative: RefCell { value: Some([-4.0]) }
-//     }),
-//     rhs_parent: Some(Tensor { data: [-4.0], shape: [1], strides: [1], track_grad: true, lhs_parent: None, rhs_parent: None, create_op: None,
-//          derivative: RefCell { value: Some([3.0]) }
-//     }),
-//     create_op: Some(Mul),
-//     derivative: RefCell { value: Some([1.0]) } }

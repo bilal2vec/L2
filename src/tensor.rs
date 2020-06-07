@@ -1,15 +1,13 @@
+use std::cell::RefCell;
+use std::cmp::Ordering;
 use std::f32::consts::E;
 use std::ops::{Add, Div, Mul, Sub};
-
-use std::cmp::Ordering;
 
 use rand::distributions::{Distribution, Uniform};
 use rand_distr::Normal;
 
 use crate::errors::TensorError;
 use crate::ops::{DimOp, TensorOp};
-
-use std::cell::RefCell;
 
 #[cfg(test)]
 mod tests {
@@ -25,7 +23,7 @@ mod tests {
             lhs_parent: None,
             rhs_parent: None,
             create_op: None,
-            derivative: RefCell::new(None),
+            derivative: RefCell::new(vec![0.0; 16]),
         };
     }
 
@@ -862,9 +860,7 @@ pub struct Tensor<'a> {
     lhs_parent: Option<&'a Tensor<'a>>,
     rhs_parent: Option<&'a Tensor<'a>>,
     create_op: Option<TensorOp>,
-    // derivative: Option<Rc<Tensor<'a>>>,
-    // derivative: Option<RefCell<Box<Vec<f32>>>>,
-    derivative: RefCell<Option<Vec<f32>>>,
+    derivative: RefCell<Vec<f32>>,
 }
 
 impl<'a> Tensor<'a> {
@@ -1775,7 +1771,7 @@ impl<'a> Tensor<'a> {
                 lhs_parent: Some(lhs_parent),
                 rhs_parent: Some(rhs_parent),
                 create_op: Some(op),
-                derivative: RefCell::new(None),
+                derivative: RefCell::new(vec![0.0; Tensor::calc_tensor_len_from_shape(shape)]),
             })
         } else {
             Err(TensorError::InvalidTensor)
@@ -1795,7 +1791,7 @@ impl<'a> Tensor<'a> {
                 lhs_parent: None,
                 rhs_parent: None,
                 create_op: None,
-                derivative: RefCell::new(None),
+                derivative: RefCell::new(vec![0.0; Tensor::calc_tensor_len_from_shape(shape)]),
             })
         } else {
             Err(TensorError::InvalidTensor)
@@ -1815,7 +1811,7 @@ impl<'a> Tensor<'a> {
                 lhs_parent: None,
                 rhs_parent: None,
                 create_op: None,
-                derivative: RefCell::new(None),
+                derivative: RefCell::new(vec![0.0; Tensor::calc_tensor_len_from_shape(shape)]),
             })
         } else {
             Err(TensorError::InvalidTensor)
@@ -2042,63 +2038,99 @@ impl<'a> Tensor<'a> {
         Tensor::new_no_grad(self.data.clone(), &self.shape)
     }
 
-    pub fn backward(&self, d: &'a Tensor) {
-        *self.derivative.borrow_mut() = Some(d.data.clone());
-
-        // println!("tensor: {:?}", self);
-
+    fn grad(&self) {
         match self.lhs_parent {
             Some(t) => {
-                // println!("\ncalling backward on lhs tensor");
-
                 let d_lhs = match self.create_op {
-                    Some(TensorOp::Add) => Tensor::new_no_grad(
-                        vec![1.0; Tensor::calc_tensor_len_from_shape(&self.shape)],
-                        &self.shape,
-                    ),
-                    Some(TensorOp::Sub) => Tensor::new_no_grad(
-                        vec![1.0; Tensor::calc_tensor_len_from_shape(&self.shape)],
-                        &self.shape,
-                    ),
-                    Some(TensorOp::Mul) => self.rhs_parent.unwrap().clone_no_grad(),
-                    Some(TensorOp::Div) => self.rhs_parent.unwrap().clone_no_grad(), //not correct
+                    Some(TensorOp::Add) => {
+                        Ok(vec![1.0; Tensor::calc_tensor_len_from_shape(&self.shape)])
+                    }
+                    Some(TensorOp::Sub) => {
+                        Ok(vec![1.0; Tensor::calc_tensor_len_from_shape(&self.shape)])
+                    }
+                    Some(TensorOp::Mul) => Ok(self.rhs_parent.unwrap().data.clone()),
+                    Some(TensorOp::Div) => Ok(self.rhs_parent.unwrap().data.clone()), //not correct
                     None => Err(TensorError::ShapeError),
                 }
                 .unwrap();
 
-                let d_lhs = &d_lhs * d;
+                let d_lhs: Vec<f32> = d_lhs
+                    .iter()
+                    .zip(self.derivative.borrow().clone())
+                    .map(|(a, b)| a * b)
+                    .collect();
 
-                t.backward(&d_lhs);
+                let d_lhs_prev = t.derivative.borrow().clone();
+                *t.derivative.borrow_mut() =
+                    d_lhs.iter().zip(&d_lhs_prev).map(|(a, b)| a + b).collect();
             }
-            // None => println!("Reached a leaf node for lhs tensor"),
             None => (),
         }
 
         match self.rhs_parent {
             Some(t) => {
-                // println!("\ncalling backward on rhs tensor");
                 let d_rhs = match self.create_op {
-                    Some(TensorOp::Add) => Tensor::new(
-                        vec![1.0; Tensor::calc_tensor_len_from_shape(&self.shape)],
-                        &self.shape,
-                    ),
-                    Some(TensorOp::Sub) => Tensor::new(
-                        vec![1.0; Tensor::calc_tensor_len_from_shape(&self.shape)],
-                        &self.shape,
-                    ),
-                    Some(TensorOp::Mul) => self.lhs_parent.unwrap().clone(),
-                    Some(TensorOp::Div) => self.lhs_parent.unwrap().clone(),
+                    Some(TensorOp::Add) => {
+                        Ok(vec![1.0; Tensor::calc_tensor_len_from_shape(&self.shape)])
+                    }
+                    Some(TensorOp::Sub) => {
+                        Ok(vec![1.0; Tensor::calc_tensor_len_from_shape(&self.shape)])
+                    }
+                    Some(TensorOp::Mul) => Ok(self.lhs_parent.unwrap().data.clone()),
+                    Some(TensorOp::Div) => Ok(self.lhs_parent.unwrap().data.clone()), //not correct
                     None => Err(TensorError::ShapeError),
                 }
                 .unwrap();
 
-                let d_rhs = &d_rhs * &d;
-                // println!("derivative: {:?}", d_rhs);
+                let d_rhs: Vec<f32> = d_rhs
+                    .iter()
+                    .zip(self.derivative.borrow().clone())
+                    .map(|(a, b)| a * b)
+                    .collect();
 
-                t.backward(&d_rhs);
+                let d_rhs_prev = t.derivative.borrow().clone();
+                *t.derivative.borrow_mut() =
+                    d_rhs.iter().zip(&d_rhs_prev).map(|(a, b)| a + b).collect();
             }
-            // None => println!("Reached a leaf node for rhs tensor"),
             None => (),
+        }
+    }
+
+    pub fn backward(&self) {
+        // from https://github.com/evcu/numpy_autograd/blob/master/my_autograd.py#L147
+        let mut seen: Vec<&Tensor> = Vec::new();
+        let mut sorted: Vec<&Tensor> = Vec::new();
+
+        fn topological_sort<'a>(
+            vr: &'a Tensor,
+            seen: &mut Vec<&Tensor<'a>>,
+            sorted: &mut Vec<&Tensor<'a>>,
+        ) {
+            if seen.contains(&vr) || (vr.lhs_parent.is_none() && vr.rhs_parent.is_none()) {
+                return;
+            } else {
+                seen.push(vr);
+
+                if vr.lhs_parent.is_some() {
+                    topological_sort(vr.lhs_parent.unwrap(), seen, sorted);
+                }
+                if vr.rhs_parent.is_some() {
+                    topological_sort(vr.rhs_parent.unwrap(), seen, sorted);
+                }
+
+                sorted.push(vr);
+            }
+        }
+
+        topological_sort(&self, &mut seen, &mut sorted);
+
+        sorted.reverse();
+
+        *sorted[0].derivative.borrow_mut() =
+            vec![1.0; Tensor::calc_tensor_len_from_shape(&sorted[0].shape)];
+
+        for t in sorted.iter() {
+            t.grad()
         }
     }
 }

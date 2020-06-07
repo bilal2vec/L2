@@ -407,36 +407,32 @@ mod tests {
     }
 
     #[bench]
-    fn bench_backwards(b: &mut Bencher) {
+    fn bench_forwards(b: &mut Bencher) {
         b.iter(|| {
-            let x = Tensor::normal(&[2, 2], 0.0, 1.0).unwrap();
-            let y = Tensor::normal(&[2, 2], 0.0, 1.0).unwrap();
+            let x = Tensor::new(vec![-2.0], &[1]).unwrap();
+            let y = Tensor::new(vec![5.0], &[1]).unwrap();
 
             let q = &x + &y;
 
-            let z = Tensor::normal(&[2, 2], 0.0, 1.0).unwrap();
+            let z = Tensor::new(vec![-4.0], &[1]).unwrap();
 
-            let f = &q * &z;
-
-            let derivative = Tensor::normal(&[2, 2], 0.0, 1.0).unwrap();
-
-            f.backward(&derivative);
+            let _f = &q * &z;
         })
     }
 
     #[bench]
-    fn bench_backwards_2(b: &mut Bencher) {
+    fn bench_backwards(b: &mut Bencher) {
+        let x = Tensor::new(vec![-2.0], &[1]).unwrap();
+        let y = Tensor::new(vec![5.0], &[1]).unwrap();
+
+        let q = &x + &y;
+
+        let z = Tensor::new(vec![-4.0], &[1]).unwrap();
+
+        let f = &q * &z;
+
         b.iter(|| {
-            let x = Tensor::normal(&[2, 2], 0.0, 1.0).unwrap();
-            let y = Tensor::normal(&[2, 2], 0.0, 1.0).unwrap();
-
-            let q = &x + &y;
-
-            let z = Tensor::normal(&[2, 2], 0.0, 1.0).unwrap();
-
-            let _f = &q * &z;
-
-            let _derivative = Tensor::normal(&[2, 2], 0.0, 1.0).unwrap();
+            f.backward();
         })
     }
 }
