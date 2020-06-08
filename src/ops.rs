@@ -20,4 +20,5 @@ pub enum DimOp {
 pub enum Ops {
     TensorOp(TensorOp),
     DimOp(DimOp),
+    Slice,
 }

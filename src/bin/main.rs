@@ -13,7 +13,7 @@ fn main() -> Result<(), l2::errors::TensorError> {
 
     g.backward();
 
-    println!("{:?}", g);
+    println!("{}", g);
 
     // let a = Tensor::new(vec![2.0], &[1])?;
     // let b = Tensor::new(vec![3.0], &[1])?;

@@ -1,6 +1,7 @@
 use std::cell::RefCell;
 use std::cmp::Ordering;
 use std::f32::consts::E;
+use std::fmt;
 use std::ops::{Add, Div, Mul, Sub};
 
 use rand::distributions::{Distribution, Uniform};
@@ -863,6 +864,43 @@ pub struct Tensor<'a> {
     derivative: RefCell<Vec<f32>>,
 }
 
+impl<'a> fmt::Display for Tensor<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        fn recurse(tensor: &Tensor, level: usize) -> String {
+            let indent = "\t".to_string().repeat(level);
+
+            let lhs = match tensor.lhs_parent {
+                Some(t) => recurse(t, level + 1),
+                None => "None".to_string(),
+            };
+
+            let rhs = match tensor.lhs_parent {
+                Some(t) => recurse(t, level + 1),
+                None => "None".to_string(),
+            };
+
+            format!(
+                "Shape: {:?} \n{}Lhs: {} \n{}Rhs: {} \n{}Op: {:?} \n{}TrackGrad: {:?} \n{}Derivative: {}",
+                tensor.shape,
+                indent,
+                lhs,
+                indent,
+                rhs,
+                indent,
+                tensor.create_op,
+                indent,
+                tensor.track_grad,
+                indent,
+                tensor.derivative.borrow().iter().sum::<f32>() / (tensor.derivative.borrow().len() as f32)
+            )
+        }
+
+        let graph = recurse(self, 0);
+
+        write!(f, "{}", graph)
+    }
+}
+
 impl<'a> Tensor<'a> {
     fn calc_tensor_len_from_shape(shape: &[usize]) -> usize {
         let mut length = 1;
@@ -1456,7 +1494,7 @@ impl<'a> Tensor<'a> {
         }?;
 
         if self.track_grad && other.track_grad {
-            Tensor::new_with_parents(new_data, &new_shape, self, other, op)
+            Tensor::new_with_parents(new_data, &new_shape, Some(self), Some(other), op)
         } else {
             Tensor::new_no_grad(new_data, &new_shape)
         }
@@ -1757,8 +1795,8 @@ impl<'a> Tensor<'a> {
     fn new_with_parents<'b>(
         data: Vec<f32>,
         shape: &[usize],
-        lhs_parent: &'b Tensor,
-        rhs_parent: &'b Tensor,
+        lhs_parent: Option<&'b Tensor>,
+        rhs_parent: Option<&'b Tensor>,
         op: Ops,
     ) -> Result<Tensor<'b>, TensorError> {
         if data.len() == Tensor::calc_tensor_len_from_shape(shape)
@@ -1770,8 +1808,8 @@ impl<'a> Tensor<'a> {
                 shape: shape.to_vec(),
                 strides: Tensor::calc_strides_from_shape(shape),
                 track_grad: true,
-                lhs_parent: Some(lhs_parent),
-                rhs_parent: Some(rhs_parent),
+                lhs_parent: lhs_parent,
+                rhs_parent: rhs_parent,
                 create_op: Some(op),
                 derivative: RefCell::new(vec![0.0; Tensor::calc_tensor_len_from_shape(shape)]),
             })
@@ -1851,7 +1889,7 @@ impl<'a> Tensor<'a> {
         Tensor::new(new_data, shape)
     }
 
-    pub fn slice(&self, logical_indices: &[[isize; 2]]) -> Result<Self, TensorError> {
+    pub fn slice(&'a self, logical_indices: &[[isize; 2]]) -> Result<Self, TensorError> {
         let logical_indices = self.process_indices(logical_indices);
 
         let logical_indices = self.validate_logical_indices(&logical_indices)?;
@@ -1868,7 +1906,7 @@ impl<'a> Tensor<'a> {
             _ => Err(TensorError::MaxDimsError),
         }?;
 
-        Tensor::new(new_data, &new_shape)
+        Tensor::new_with_parents(new_data, &new_shape, Some(self), None, Ops::Slice)
     }
 
     pub fn view(&self, shape: &[isize]) -> Result<Self, TensorError> {

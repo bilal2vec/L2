@@ -8,9 +8,36 @@
 
 ### Todo
 
--   impl == on tensors
 -   printing of tensors and graph
 -   combine 1,2,3,4d ops into one function
+-   impl == on tensors
+-   figure out macros and crates
+-   autograd
+    -   figure out if you want to use tensor ops in backward or vec ops
+        -   decide what to do with new_with_parents
+    -   tests
+    -   ops
+        -   slice
+        -   view
+        -   pow
+        -   sqrt
+        -   exp
+        -   log10
+        -   log
+        -   abs
+        -   sin
+        -   cos
+        -   tan
+        -   sum
+        -   mean
+        -   max
+        -   min
+        -   argmax
+        -   argmin
+        -   matmul
+        -   concat
+        -   transpose
+        -   div
 -   compare to np and ndarray
 -   redo error handling
 -   const generics for compile time errors
