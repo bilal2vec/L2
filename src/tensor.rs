@@ -950,66 +950,17 @@ impl<'a> Tensor<'a> {
         physical_idx
     }
 
-    fn one_dimension_slice(&self, logical_indices: &[[usize; 2]], slice_len: usize) -> Vec<f32> {
-        let mut new_data = Vec::with_capacity(slice_len);
-
-        for i in logical_indices[0][0]..logical_indices[0][1] {
-            new_data.push(self.data[Tensor::get_physical_idx(&[i], &self.strides)]);
-        }
-
-        new_data
-    }
-
-    fn two_dimension_slice(&self, logical_indices: &[[usize; 2]], slice_len: usize) -> Vec<f32> {
-        let mut new_data = Vec::with_capacity(slice_len);
-
-        for i in logical_indices[0][0]..logical_indices[0][1] {
-            for j in logical_indices[1][0]..logical_indices[1][1] {
-                new_data.push(self.data[Tensor::get_physical_idx(&[i, j], &self.strides)]);
-            }
-        }
-
-        new_data
-    }
-
-    fn three_dimension_slice(&self, logical_indices: &[[usize; 2]], slice_len: usize) -> Vec<f32> {
-        let mut new_data = Vec::with_capacity(slice_len);
-
-        for i in logical_indices[0][0]..logical_indices[0][1] {
-            for j in logical_indices[1][0]..logical_indices[1][1] {
-                for k in logical_indices[2][0]..logical_indices[2][1] {
-                    new_data.push(self.data[Tensor::get_physical_idx(&[i, j, k], &self.strides)]);
-                }
-            }
-        }
-
-        new_data
-    }
-
-    fn four_dimension_slice(&self, logical_indices: &[[usize; 2]], slice_len: usize) -> Vec<f32> {
-        let mut new_data = Vec::with_capacity(slice_len);
-
-        for i in logical_indices[0][0]..logical_indices[0][1] {
-            for j in logical_indices[1][0]..logical_indices[1][1] {
-                for k in logical_indices[2][0]..logical_indices[2][1] {
-                    for m in logical_indices[3][0]..logical_indices[3][1] {
-                        new_data.push(
-                            self.data[Tensor::get_physical_idx(&[i, j, k, m], &self.strides)],
-                        );
-                    }
-                }
-            }
-        }
-
-        new_data
-    }
-
     fn validate_logical_indices<'b>(
         &self,
         logical_indices: &'b [[usize; 2]],
     ) -> Result<&'b [[usize; 2]], TensorError> {
-        if logical_indices.len() != self.shape.len() {
+        if (logical_indices.len() != self.shape.len())
+            || (logical_indices.len() == 0)
+            || (logical_indices.len() > 4)
+        {
             Err(TensorError::SliceError)
+        } else if (logical_indices.len() == 0) || (logical_indices.len() > 4) {
+            Err(TensorError::MaxDimsError)
         } else {
             for i in 0..logical_indices.len() {
                 if logical_indices[i][0] >= logical_indices[i][1]
@@ -1125,118 +1076,6 @@ impl<'a> Tensor<'a> {
         }
     }
 
-    fn one_dimension_tensor_op(
-        &self,
-        other: &Tensor,
-        lhs_strides: &[usize],
-        rhs_strides: &[usize],
-        new_shape: &Vec<usize>,
-        op: &Ops,
-    ) -> Vec<f32> {
-        let mut new_data: Vec<f32> =
-            Vec::with_capacity(Tensor::calc_tensor_len_from_shape(new_shape));
-
-        for i in 0..new_shape[0] {
-            let op_result = Tensor::op(
-                &self.data[Tensor::get_physical_idx(&[i], &lhs_strides)],
-                &other.data[Tensor::get_physical_idx(&[i], &rhs_strides)],
-                &op,
-            )
-            .unwrap();
-
-            new_data.push(op_result);
-        }
-
-        new_data
-    }
-
-    fn two_dimension_tensor_op(
-        &self,
-        other: &Tensor,
-        lhs_strides: &[usize],
-        rhs_strides: &[usize],
-        new_shape: &Vec<usize>,
-        op: &Ops,
-    ) -> Vec<f32> {
-        let mut new_data: Vec<f32> =
-            Vec::with_capacity(Tensor::calc_tensor_len_from_shape(new_shape));
-
-        for i in 0..new_shape[0] {
-            for j in 0..new_shape[1] {
-                let op_result = Tensor::op(
-                    &self.data[Tensor::get_physical_idx(&[i, j], &lhs_strides)],
-                    &other.data[Tensor::get_physical_idx(&[i, j], &rhs_strides)],
-                    &op,
-                )
-                .unwrap();
-
-                new_data.push(op_result);
-            }
-        }
-
-        new_data
-    }
-
-    fn three_dimension_tensor_op(
-        &self,
-        other: &Tensor,
-        lhs_strides: &[usize],
-        rhs_strides: &[usize],
-        new_shape: &Vec<usize>,
-        op: &Ops,
-    ) -> Vec<f32> {
-        let mut new_data: Vec<f32> =
-            Vec::with_capacity(Tensor::calc_tensor_len_from_shape(new_shape));
-
-        for i in 0..new_shape[0] {
-            for j in 0..new_shape[1] {
-                for k in 0..new_shape[2] {
-                    let op_result = Tensor::op(
-                        &self.data[Tensor::get_physical_idx(&[i, j, k], &lhs_strides)],
-                        &other.data[Tensor::get_physical_idx(&[i, j, k], &rhs_strides)],
-                        &op,
-                    )
-                    .unwrap();
-
-                    new_data.push(op_result);
-                }
-            }
-        }
-
-        new_data
-    }
-
-    fn four_dimension_tensor_op(
-        &self,
-        other: &Tensor,
-        lhs_strides: &[usize],
-        rhs_strides: &[usize],
-        new_shape: &Vec<usize>,
-        op: &Ops,
-    ) -> Vec<f32> {
-        let mut new_data: Vec<f32> =
-            Vec::with_capacity(Tensor::calc_tensor_len_from_shape(new_shape));
-
-        for i in 0..new_shape[0] {
-            for j in 0..new_shape[1] {
-                for k in 0..new_shape[2] {
-                    for m in 0..new_shape[3] {
-                        let op_result = Tensor::op(
-                            &self.data[Tensor::get_physical_idx(&[i, j, k, m], &lhs_strides)],
-                            &other.data[Tensor::get_physical_idx(&[i, j, k, m], &rhs_strides)],
-                            &op,
-                        )
-                        .unwrap();
-
-                        new_data.push(op_result);
-                    }
-                }
-            }
-        }
-
-        new_data
-    }
-
     fn process_dims(
         idxs: &mut Vec<[isize; 2]>,
         dim: usize,
@@ -1313,120 +1152,6 @@ impl<'a> Tensor<'a> {
         }
     }
 
-    fn one_dimension_dimension_op(
-        &self,
-        new_dim: usize,
-        new_shape: &Vec<usize>,
-        op: &Ops,
-    ) -> Result<Vec<f32>, TensorError> {
-        let mut new_data: Vec<f32> =
-            Vec::with_capacity(Tensor::calc_tensor_len_from_shape(new_shape));
-
-        let mut idxs: Vec<[isize; 2]> = vec![[0, 0]; self.shape.len()];
-
-        let dim_zero_bounds = if new_dim == 0 { 1 } else { self.shape[0] };
-        for i in 0..dim_zero_bounds {
-            Tensor::process_dims(&mut idxs, new_dim, 0, i);
-
-            new_data.push(Tensor::dim_op(&self.slice(&idxs)?, op)?);
-        }
-
-        Ok(new_data)
-    }
-
-    fn two_dimension_dimension_op(
-        &self,
-        new_dim: usize,
-        new_shape: &Vec<usize>,
-        op: &Ops,
-    ) -> Result<Vec<f32>, TensorError> {
-        let mut new_data: Vec<f32> =
-            Vec::with_capacity(Tensor::calc_tensor_len_from_shape(new_shape));
-
-        let mut idxs: Vec<[isize; 2]> = vec![[0, 0]; self.shape.len()];
-
-        let dim_zero_bounds = if new_dim == 0 { 1 } else { self.shape[0] };
-        for i in 0..dim_zero_bounds {
-            Tensor::process_dims(&mut idxs, new_dim, 0, i);
-
-            let dim_one_bounds = if new_dim == 1 { 1 } else { self.shape[1] };
-            for j in 0..dim_one_bounds {
-                Tensor::process_dims(&mut idxs, new_dim, 1, j);
-
-                new_data.push(Tensor::dim_op(&self.slice(&idxs)?, op)?);
-            }
-        }
-
-        Ok(new_data)
-    }
-
-    fn three_dimension_dimension_op(
-        &self,
-        new_dim: usize,
-        new_shape: &Vec<usize>,
-        op: &Ops,
-    ) -> Result<Vec<f32>, TensorError> {
-        let mut new_data: Vec<f32> =
-            Vec::with_capacity(Tensor::calc_tensor_len_from_shape(new_shape));
-
-        let mut idxs: Vec<[isize; 2]> = vec![[0, 0]; self.shape.len()];
-
-        let dim_zero_bounds = if new_dim == 0 { 1 } else { self.shape[0] };
-        for i in 0..dim_zero_bounds {
-            Tensor::process_dims(&mut idxs, new_dim, 0, i);
-
-            let dim_one_bounds = if new_dim == 1 { 1 } else { self.shape[1] };
-            for j in 0..dim_one_bounds {
-                Tensor::process_dims(&mut idxs, new_dim, 1, j);
-
-                let dim_two_bounds = if new_dim == 2 { 1 } else { self.shape[2] };
-                for k in 0..dim_two_bounds {
-                    Tensor::process_dims(&mut idxs, new_dim, 2, k);
-
-                    new_data.push(Tensor::dim_op(&self.slice(&idxs)?, op)?);
-                }
-            }
-        }
-
-        Ok(new_data)
-    }
-
-    fn four_dimension_dimension_op(
-        &self,
-        new_dim: usize,
-        new_shape: &Vec<usize>,
-        op: &Ops,
-    ) -> Result<Vec<f32>, TensorError> {
-        let mut new_data: Vec<f32> =
-            Vec::with_capacity(Tensor::calc_tensor_len_from_shape(new_shape));
-
-        let mut idxs: Vec<[isize; 2]> = vec![[0, 0]; self.shape.len()];
-
-        let dim_zero_bounds = if new_dim == 0 { 1 } else { self.shape[0] };
-        for i in 0..dim_zero_bounds {
-            Tensor::process_dims(&mut idxs, new_dim, 0, i);
-
-            let dim_one_bounds = if new_dim == 1 { 1 } else { self.shape[1] };
-            for j in 0..dim_one_bounds {
-                Tensor::process_dims(&mut idxs, new_dim, 1, j);
-
-                let dim_two_bounds = if new_dim == 2 { 1 } else { self.shape[2] };
-                for k in 0..dim_two_bounds {
-                    Tensor::process_dims(&mut idxs, new_dim, 2, k);
-
-                    let dim_three_bounds = if new_dim == 3 { 1 } else { self.shape[3] };
-                    for m in 0..dim_three_bounds {
-                        Tensor::process_dims(&mut idxs, new_dim, 3, m);
-
-                        new_data.push(Tensor::dim_op(&self.slice(&idxs)?, op)?);
-                    }
-                }
-            }
-        }
-
-        Ok(new_data)
-    }
-
     fn dimension_op(&self, dim: isize, op: Ops) -> Result<Tensor, TensorError> {
         let new_dim = if dim == -1 {
             self.shape.len() - 1 as usize
@@ -1447,51 +1172,109 @@ impl<'a> Tensor<'a> {
             new_shape.push(1);
         }
 
-        let new_data = match self.shape.len() {
-            1 => self.one_dimension_dimension_op(new_dim, &new_shape, &op),
-            2 => self.two_dimension_dimension_op(new_dim, &new_shape, &op),
-            3 => self.three_dimension_dimension_op(new_dim, &new_shape, &op),
-            4 => self.four_dimension_dimension_op(new_dim, &new_shape, &op),
-            _ => Err(TensorError::MaxDimsError),
-        }?;
+        if (self.shape.len() == 0) || (self.shape.len() > 4) {
+            return Err(TensorError::MaxDimsError);
+        }
 
+        let mut new_data: Vec<f32> =
+            Vec::with_capacity(Tensor::calc_tensor_len_from_shape(&new_shape));
+
+        let mut idxs: Vec<[isize; 2]> = vec![[0, 0]; self.shape.len()];
+
+        let dim_zero_bounds = if new_dim == 0 { 1 } else { self.shape[0] };
+        for i in 0..dim_zero_bounds {
+            Tensor::process_dims(&mut idxs, new_dim, 0, i);
+
+            if self.shape.len() == 1 {
+                println!("{:?}", idxs);
+                new_data.push(Tensor::dim_op(&self.slice(&idxs)?, &op)?);
+            } else {
+                let dim_one_bounds = if new_dim == 1 { 1 } else { self.shape[1] };
+                for j in 0..dim_one_bounds {
+                    Tensor::process_dims(&mut idxs, new_dim, 1, j);
+
+                    if self.shape.len() == 2 {
+                        new_data.push(Tensor::dim_op(&self.slice(&idxs)?, &op)?);
+                    } else {
+                        let dim_two_bounds = if new_dim == 2 { 1 } else { self.shape[2] };
+                        for k in 0..dim_two_bounds {
+                            Tensor::process_dims(&mut idxs, new_dim, 2, k);
+
+                            if self.shape.len() == 3 {
+                                new_data.push(Tensor::dim_op(&self.slice(&idxs)?, &op)?);
+                            } else {
+                                let dim_three_bounds = if new_dim == 3 { 1 } else { self.shape[3] };
+                                for m in 0..dim_three_bounds {
+                                    Tensor::process_dims(&mut idxs, new_dim, 3, m);
+
+                                    new_data.push(Tensor::dim_op(&self.slice(&idxs)?, &op)?);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
         Tensor::new(new_data, &new_shape)
     }
 
     fn tensor_op<'b>(&'b self, other: &'b Tensor, op: Ops) -> Result<Tensor<'b>, TensorError> {
         let (new_shape, lhs_strides, rhs_strides) = Tensor::broadcast(&self.shape, &other.shape)?;
 
-        let new_data = match new_shape.len() {
-            1 => Ok(self.one_dimension_tensor_op(
-                &other,
-                &lhs_strides,
-                &rhs_strides,
-                &new_shape,
-                &op,
-            )),
-            2 => Ok(self.two_dimension_tensor_op(
-                &other,
-                &lhs_strides,
-                &rhs_strides,
-                &new_shape,
-                &op,
-            )),
-            3 => Ok(self.three_dimension_tensor_op(
-                &other,
-                &lhs_strides,
-                &rhs_strides,
-                &new_shape,
-                &op,
-            )),
-            4 => Ok(self.four_dimension_tensor_op(
-                &other,
-                &lhs_strides,
-                &rhs_strides,
-                &new_shape,
-                &op,
-            )),
-            _ => Err(TensorError::MaxDimsError),
-        }?;
+        if (new_shape.len() == 0) || (new_shape.len() > 4) {
+            return Err(TensorError::MaxDimsError);
+        }
+
+        let mut new_data: Vec<f32> =
+            Vec::with_capacity(Tensor::calc_tensor_len_from_shape(&new_shape));
+
+        for i in 0..new_shape[0] {
+            if new_shape.len() == 1 {
+                let op_result = Tensor::op(
+                    &self.data[Tensor::get_physical_idx(&[i], &lhs_strides)],
+                    &other.data[Tensor::get_physical_idx(&[i], &rhs_strides)],
+                    &op,
+                )?;
+
+                new_data.push(op_result);
+            } else {
+                for j in 0..new_shape[1] {
+                    if new_shape.len() == 2 {
+                        let op_result = Tensor::op(
+                            &self.data[Tensor::get_physical_idx(&[i, j], &lhs_strides)],
+                            &other.data[Tensor::get_physical_idx(&[i, j], &rhs_strides)],
+                            &op,
+                        )?;
+
+                        new_data.push(op_result);
+                    } else {
+                        for k in 0..new_shape[2] {
+                            if new_shape.len() == 3 {
+                                let op_result = Tensor::op(
+                                    &self.data[Tensor::get_physical_idx(&[i, j, k], &lhs_strides)],
+                                    &other.data[Tensor::get_physical_idx(&[i, j, k], &rhs_strides)],
+                                    &op,
+                                )?;
+
+                                new_data.push(op_result);
+                            } else {
+                                for m in 0..new_shape[3] {
+                                    let op_result = Tensor::op(
+                                        &self.data
+                                            [Tensor::get_physical_idx(&[i, j, k, m], &lhs_strides)],
+                                        &other.data
+                                            [Tensor::get_physical_idx(&[i, j, k, m], &rhs_strides)],
+                                        &op,
+                                    )?;
+
+                                    new_data.push(op_result);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         if self.track_grad && other.track_grad {
             Tensor::new_with_parents(new_data, &new_shape, Some(self), Some(other), op)
@@ -1516,280 +1299,16 @@ impl<'a> Tensor<'a> {
         }
     }
 
-    fn two_dimension_matmul(
-        lhs: &Tensor,
-        rhs: &Tensor,
-        dim: usize,
-    ) -> Result<Vec<f32>, TensorError> {
-        let mut new_data: Vec<f32> = Vec::new();
-
+    fn two_dimension_matmul(lhs: &Tensor, rhs: &Tensor, dim: usize, out: &mut Vec<f32>) {
         for i in 0..dim as isize {
-            let a = lhs.slice(&[[i, i + 1], [0, -1]])?;
-            let a = a.view(&[-1, 1])?;
+            let a = lhs.slice(&[[i, i + 1], [0, -1]]).unwrap();
+            let a = a.view(&[-1, 1]).unwrap();
 
             let c: Tensor = &a * rhs;
-            let d = c.sum(0)?;
+            let mut d = c.sum(0).unwrap();
 
-            new_data.append(&mut d.data.clone());
+            out.append(&mut d.data);
         }
-
-        Ok(new_data)
-    }
-
-    fn three_dimension_matmul(
-        &self,
-        rhs: &Tensor,
-        dim: usize,
-        dims: &Vec<usize>,
-    ) -> Result<Vec<f32>, TensorError> {
-        let mut idxs: Vec<[isize; 2]> = vec![[0, -1]; 3];
-
-        let lhs_shape: Vec<isize> = self.shape[self.shape.len() - 2..]
-            .to_vec()
-            .iter()
-            .map(|&val| val as isize)
-            .collect();
-        let rhs_shape: Vec<isize> = rhs.shape[rhs.shape.len() - 2..]
-            .to_vec()
-            .iter()
-            .map(|&val| val as isize)
-            .collect();
-
-        let mut new_data: Vec<f32> = Vec::new();
-
-        for i in 0..dims[0] {
-            idxs[0] = [i as isize, i as isize + 1];
-
-            let mut temp = Tensor::two_dimension_matmul(
-                &self.slice(&idxs)?.view(&lhs_shape)?,
-                &rhs.slice(&idxs)?.view(&rhs_shape)?,
-                dim,
-            )?;
-            new_data.append(&mut temp);
-        }
-
-        Ok(new_data)
-    }
-
-    fn four_dimension_matmul(
-        &self,
-        rhs: &Tensor,
-        dim: usize,
-        dims: &Vec<usize>,
-    ) -> Result<Vec<f32>, TensorError> {
-        let mut idxs: Vec<[isize; 2]> = vec![[0, -1]; 4];
-
-        let lhs_shape: Vec<isize> = self.shape[self.shape.len() - 2..]
-            .to_vec()
-            .iter()
-            .map(|&val| val as isize)
-            .collect();
-        let rhs_shape: Vec<isize> = rhs.shape[rhs.shape.len() - 2..]
-            .to_vec()
-            .iter()
-            .map(|&val| val as isize)
-            .collect();
-
-        let mut new_data: Vec<f32> = Vec::new();
-
-        for i in 0..dims[0] {
-            idxs[0] = [i as isize, i as isize + 1];
-
-            for j in 0..dims[1] {
-                idxs[1] = [j as isize, j as isize + 1];
-
-                let mut temp = Tensor::two_dimension_matmul(
-                    &self.slice(&idxs)?.view(&lhs_shape)?,
-                    &rhs.slice(&idxs)?.view(&rhs_shape)?,
-                    dim,
-                )?;
-                new_data.append(&mut temp);
-            }
-        }
-
-        Ok(new_data)
-    }
-
-    fn one_dimension_concat(
-        &self,
-        rhs: &Tensor,
-        dim: usize,
-        shape: &Vec<usize>,
-    ) -> Result<Vec<f32>, TensorError> {
-        let mut new_data: Vec<f32> = Vec::with_capacity(Tensor::calc_tensor_len_from_shape(shape));
-
-        let mut idxs: Vec<[isize; 2]> = vec![[0, 0]; self.shape.len()];
-
-        let dim_zero_bounds = if dim == 0 { 1 } else { self.shape[0] };
-        for i in 0..dim_zero_bounds {
-            Tensor::process_dims(&mut idxs, dim, 0, i);
-
-            new_data.extend(self.slice(&idxs)?.data);
-            new_data.extend(rhs.slice(&idxs)?.data);
-        }
-
-        Ok(new_data)
-    }
-
-    fn two_dimension_concat(
-        &self,
-        rhs: &Tensor,
-        dim: usize,
-        shape: &Vec<usize>,
-    ) -> Result<Vec<f32>, TensorError> {
-        let mut new_data: Vec<f32> = Vec::with_capacity(Tensor::calc_tensor_len_from_shape(shape));
-
-        let mut idxs: Vec<[isize; 2]> = vec![[0, 0]; self.shape.len()];
-
-        let dim_zero_bounds = if dim == 0 { 1 } else { self.shape[0] };
-        for i in 0..dim_zero_bounds {
-            Tensor::process_dims(&mut idxs, dim, 0, i);
-
-            let dim_one_bounds = if dim == 1 { 1 } else { self.shape[1] };
-            for j in 0..dim_one_bounds {
-                Tensor::process_dims(&mut idxs, dim, 1, j);
-
-                new_data.extend(self.slice(&idxs)?.data);
-                new_data.extend(rhs.slice(&idxs)?.data);
-            }
-        }
-
-        Ok(new_data)
-    }
-
-    fn three_dimension_concat(
-        &self,
-        rhs: &Tensor,
-        dim: usize,
-        shape: &Vec<usize>,
-    ) -> Result<Vec<f32>, TensorError> {
-        let mut new_data: Vec<f32> = Vec::with_capacity(Tensor::calc_tensor_len_from_shape(shape));
-
-        let mut idxs: Vec<[isize; 2]> = vec![[0, 0]; self.shape.len()];
-
-        let dim_zero_bounds = if dim == 0 { 1 } else { self.shape[0] };
-        for i in 0..dim_zero_bounds {
-            Tensor::process_dims(&mut idxs, dim, 0, i);
-
-            let dim_one_bounds = if dim == 1 { 1 } else { self.shape[1] };
-            for j in 0..dim_one_bounds {
-                Tensor::process_dims(&mut idxs, dim, 1, j);
-
-                let dim_two_bounds = if dim == 2 { 1 } else { self.shape[2] };
-                for k in 0..dim_two_bounds {
-                    Tensor::process_dims(&mut idxs, dim, 2, k);
-
-                    new_data.extend(self.slice(&idxs)?.data);
-                    new_data.extend(rhs.slice(&idxs)?.data);
-                }
-            }
-        }
-
-        Ok(new_data)
-    }
-
-    fn four_dimension_concat(
-        &self,
-        rhs: &Tensor,
-        dim: usize,
-        shape: &Vec<usize>,
-    ) -> Result<Vec<f32>, TensorError> {
-        let mut new_data: Vec<f32> = Vec::with_capacity(Tensor::calc_tensor_len_from_shape(shape));
-
-        let mut idxs: Vec<[isize; 2]> = vec![[0, 0]; self.shape.len()];
-
-        let dim_zero_bounds = if dim == 0 { 1 } else { self.shape[0] };
-        for i in 0..dim_zero_bounds {
-            Tensor::process_dims(&mut idxs, dim, 0, i);
-
-            let dim_one_bounds = if dim == 1 { 1 } else { self.shape[1] };
-            for j in 0..dim_one_bounds {
-                Tensor::process_dims(&mut idxs, dim, 1, j);
-
-                let dim_two_bounds = if dim == 2 { 1 } else { self.shape[2] };
-                for k in 0..dim_two_bounds {
-                    Tensor::process_dims(&mut idxs, dim, 2, k);
-
-                    let dim_three_bounds = if dim == 3 { 1 } else { self.shape[3] };
-                    for m in 0..dim_three_bounds {
-                        Tensor::process_dims(&mut idxs, dim, 3, m);
-
-                        new_data.extend(self.slice(&idxs)?.data);
-                        new_data.extend(rhs.slice(&idxs)?.data);
-                    }
-                }
-            }
-        }
-
-        Ok(new_data)
-    }
-
-    fn one_dimension_transpose(
-        &self,
-        shape: &Vec<usize>,
-        strides: &Vec<usize>,
-    ) -> Result<Vec<f32>, TensorError> {
-        let mut new_data: Vec<f32> = Vec::with_capacity(Tensor::calc_tensor_len_from_shape(shape));
-
-        for i in 0..self.shape[0] {
-            new_data.push(self.data[Tensor::get_physical_idx(&[i], strides)]);
-        }
-
-        Ok(new_data)
-    }
-
-    fn two_dimension_transpose(
-        &self,
-        shape: &Vec<usize>,
-        strides: &Vec<usize>,
-    ) -> Result<Vec<f32>, TensorError> {
-        let mut new_data: Vec<f32> = Vec::with_capacity(Tensor::calc_tensor_len_from_shape(shape));
-
-        for i in 0..shape[0] {
-            for j in 0..shape[1] {
-                new_data.push(self.data[Tensor::get_physical_idx(&[i, j], strides)]);
-            }
-        }
-
-        Ok(new_data)
-    }
-
-    fn three_dimension_transpose(
-        &self,
-        shape: &Vec<usize>,
-        strides: &Vec<usize>,
-    ) -> Result<Vec<f32>, TensorError> {
-        let mut new_data: Vec<f32> = Vec::with_capacity(Tensor::calc_tensor_len_from_shape(shape));
-
-        for i in 0..shape[0] {
-            for j in 0..shape[1] {
-                for k in 0..shape[2] {
-                    new_data.push(self.data[Tensor::get_physical_idx(&[i, j, k], strides)]);
-                }
-            }
-        }
-
-        Ok(new_data)
-    }
-
-    fn four_dimension_transpose(
-        &self,
-        shape: &Vec<usize>,
-        strides: &Vec<usize>,
-    ) -> Result<Vec<f32>, TensorError> {
-        let mut new_data: Vec<f32> = Vec::with_capacity(Tensor::calc_tensor_len_from_shape(shape));
-
-        for i in 0..shape[0] {
-            for j in 0..shape[1] {
-                for k in 0..shape[2] {
-                    for m in 0..shape[3] {
-                        new_data.push(self.data[Tensor::get_physical_idx(&[i, j, k, m], strides)]);
-                    }
-                }
-            }
-        }
-
-        Ok(new_data)
     }
 
     fn new_with_parents<'b>(
@@ -1898,13 +1417,36 @@ impl<'a> Tensor<'a> {
         let new_shape = Tensor::calc_shape_from_slice(logical_indices);
         let slice_len = Tensor::calc_tensor_len_from_shape(&new_shape);
 
-        let new_data = match logical_indices.len() {
-            1 => Ok(self.one_dimension_slice(logical_indices, slice_len)),
-            2 => Ok(self.two_dimension_slice(logical_indices, slice_len)),
-            3 => Ok(self.three_dimension_slice(logical_indices, slice_len)),
-            4 => Ok(self.four_dimension_slice(logical_indices, slice_len)),
-            _ => Err(TensorError::MaxDimsError),
-        }?;
+        let mut new_data = Vec::with_capacity(slice_len);
+
+        for i in logical_indices[0][0]..logical_indices[0][1] {
+            if logical_indices.len() == 1 {
+                new_data.push(self.data[Tensor::get_physical_idx(&[i], &self.strides)]);
+            } else {
+                for j in logical_indices[1][0]..logical_indices[1][1] {
+                    if logical_indices.len() == 2 {
+                        new_data.push(self.data[Tensor::get_physical_idx(&[i, j], &self.strides)]);
+                    } else {
+                        for k in logical_indices[2][0]..logical_indices[2][1] {
+                            if logical_indices.len() == 3 {
+                                new_data.push(
+                                    self.data[Tensor::get_physical_idx(&[i, j, k], &self.strides)],
+                                );
+                            } else {
+                                for m in logical_indices[3][0]..logical_indices[3][1] {
+                                    new_data.push(
+                                        self.data[Tensor::get_physical_idx(
+                                            &[i, j, k, m],
+                                            &self.strides,
+                                        )],
+                                    );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         Tensor::new_with_parents(new_data, &new_shape, Some(self), None, Ops::Slice)
     }
@@ -2005,13 +1547,52 @@ impl<'a> Tensor<'a> {
 
         let matmul_dim = new_shape[new_shape.len() - 2];
 
-        let new_data = match new_shape.len() {
-            1 => Err(TensorError::MatmulShapeError),
-            2 => Tensor::two_dimension_matmul(&self, &rhs, matmul_dim),
-            3 => self.three_dimension_matmul(&rhs, matmul_dim, &batch_dims),
-            4 => self.four_dimension_matmul(&rhs, matmul_dim, &batch_dims),
-            _ => Err(TensorError::MaxDimsError),
-        }?;
+        if (new_shape.len() <= 1) || (new_shape.len() > 4) {
+            return Err(TensorError::MaxDimsError);
+        }
+
+        let mut new_data = Vec::with_capacity(Tensor::calc_tensor_len_from_shape(&new_shape));
+
+        if new_shape.len() == 2 {
+            Tensor::two_dimension_matmul(&self, rhs, matmul_dim, &mut new_data)
+        } else {
+            let mut idxs: Vec<[isize; 2]> = vec![[0, -1]; new_shape.len()];
+
+            let lhs_shape: Vec<isize> = self.shape[self.shape.len() - 2..]
+                .to_vec()
+                .iter()
+                .map(|&val| val as isize)
+                .collect();
+            let rhs_shape: Vec<isize> = rhs.shape[rhs.shape.len() - 2..]
+                .to_vec()
+                .iter()
+                .map(|&val| val as isize)
+                .collect();
+
+            for i in 0..batch_dims[0] {
+                idxs[0] = [i as isize, i as isize + 1];
+
+                if new_shape.len() == 4 {
+                    for j in 0..batch_dims[1] {
+                        idxs[1] = [j as isize, j as isize + 1];
+
+                        Tensor::two_dimension_matmul(
+                            &self.slice(&idxs)?.view(&lhs_shape)?,
+                            &rhs.slice(&idxs)?.view(&rhs_shape)?,
+                            matmul_dim,
+                            &mut new_data,
+                        );
+                    }
+                } else {
+                    Tensor::two_dimension_matmul(
+                        &self.slice(&idxs)?.view(&lhs_shape)?,
+                        &rhs.slice(&idxs)?.view(&rhs_shape)?,
+                        matmul_dim,
+                        &mut new_data,
+                    );
+                }
+            }
+        }
 
         Tensor::new(new_data, &new_shape)
     }
@@ -2041,13 +1622,53 @@ impl<'a> Tensor<'a> {
             }
         }
 
-        let new_data = match self.shape.len() {
-            1 => self.one_dimension_concat(&rhs, concat_dim, &new_shape),
-            2 => self.two_dimension_concat(&rhs, concat_dim, &new_shape),
-            3 => self.three_dimension_concat(&rhs, concat_dim, &new_shape),
-            4 => self.four_dimension_concat(&rhs, concat_dim, &new_shape),
-            _ => Err(TensorError::MaxDimsError),
-        }?;
+        if (new_shape.len() == 0) || (new_shape.len() > 4) {
+            return Err(TensorError::MaxDimsError);
+        }
+
+        let mut new_data: Vec<f32> =
+            Vec::with_capacity(Tensor::calc_tensor_len_from_shape(&new_shape));
+
+        let mut idxs: Vec<[isize; 2]> = vec![[0, 0]; self.shape.len()];
+
+        let dim_zero_bounds = if concat_dim == 0 { 1 } else { self.shape[0] };
+        for i in 0..dim_zero_bounds {
+            Tensor::process_dims(&mut idxs, concat_dim, 0, i);
+
+            if self.shape.len() == 1 {
+                new_data.extend(self.slice(&idxs)?.data);
+                new_data.extend(rhs.slice(&idxs)?.data);
+            } else {
+                let dim_one_bounds = if concat_dim == 1 { 1 } else { self.shape[1] };
+                for j in 0..dim_one_bounds {
+                    Tensor::process_dims(&mut idxs, concat_dim, 1, j);
+
+                    if self.shape.len() == 2 {
+                        new_data.extend(self.slice(&idxs)?.data);
+                        new_data.extend(rhs.slice(&idxs)?.data);
+                    } else {
+                        let dim_two_bounds = if concat_dim == 2 { 1 } else { self.shape[2] };
+                        for k in 0..dim_two_bounds {
+                            Tensor::process_dims(&mut idxs, concat_dim, 2, k);
+
+                            if self.shape.len() == 3 {
+                                new_data.extend(self.slice(&idxs)?.data);
+                                new_data.extend(rhs.slice(&idxs)?.data);
+                            } else {
+                                let dim_three_bounds =
+                                    if concat_dim == 3 { 1 } else { self.shape[3] };
+                                for m in 0..dim_three_bounds {
+                                    Tensor::process_dims(&mut idxs, concat_dim, 3, m);
+
+                                    new_data.extend(self.slice(&idxs)?.data);
+                                    new_data.extend(rhs.slice(&idxs)?.data);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         Tensor::new(new_data, &new_shape)
     }
@@ -2059,13 +1680,40 @@ impl<'a> Tensor<'a> {
         transposed_shape.reverse();
         transposed_strides.reverse();
 
-        let new_data = match self.shape.len() {
-            1 => self.one_dimension_transpose(&transposed_shape, &transposed_strides),
-            2 => self.two_dimension_transpose(&transposed_shape, &transposed_strides),
-            3 => self.three_dimension_transpose(&transposed_shape, &transposed_strides),
-            4 => self.four_dimension_transpose(&transposed_shape, &transposed_strides),
-            _ => Err(TensorError::MaxDimsError),
-        }?;
+        let mut new_data: Vec<f32> =
+            Vec::with_capacity(Tensor::calc_tensor_len_from_shape(&transposed_shape));
+
+        for i in 0..transposed_shape[0] {
+            if transposed_shape.len() == 1 {
+                new_data.push(self.data[Tensor::get_physical_idx(&[i], &transposed_strides)]);
+            } else {
+                for j in 0..transposed_shape[1] {
+                    if transposed_shape.len() == 2 {
+                        new_data.push(
+                            self.data[Tensor::get_physical_idx(&[i, j], &transposed_strides)],
+                        );
+                    } else {
+                        for k in 0..transposed_shape[2] {
+                            if transposed_shape.len() == 3 {
+                                new_data.push(
+                                    self.data
+                                        [Tensor::get_physical_idx(&[i, j, k], &transposed_strides)],
+                                );
+                            } else {
+                                for m in 0..transposed_shape[3] {
+                                    new_data.push(
+                                        self.data[Tensor::get_physical_idx(
+                                            &[i, j, k, m],
+                                            &transposed_strides,
+                                        )],
+                                    );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         Tensor::new(new_data, &transposed_shape)
     }

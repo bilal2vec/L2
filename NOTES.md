@@ -8,8 +8,6 @@
 
 ### Todo
 
--   printing of tensors and graph
--   combine 1,2,3,4d ops into one function
 -   impl == on tensors
 -   figure out macros and crates
 -   autograd
@@ -174,6 +172,9 @@ da =  dd/db + dd/dc
 but this will recompute the backwards pass for all the graph above a
 topological sorting accumulates gradients for a before going further up the computation graph
 ```
+
+-   printing of tensors and graph
+-   combine 1,2,3,4d ops into one function
 
 ### wont do
 

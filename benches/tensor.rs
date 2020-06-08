@@ -315,6 +315,8 @@ mod tests {
             let _y = x.mean(-1).unwrap();
         })
     }
+
+    // 6ms
     #[bench]
     fn bench_matmul_2d(b: &mut Bencher) {
         let x = Tensor::zeros(&[64, 64]).unwrap();
@@ -325,6 +327,7 @@ mod tests {
         })
     }
 
+    // 12ms
     #[bench]
     fn bench_matmul_3d(b: &mut Bencher) {
         let x = Tensor::zeros(&[2, 64, 64]).unwrap();
