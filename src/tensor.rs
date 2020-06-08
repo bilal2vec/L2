@@ -7,7 +7,7 @@ use rand::distributions::{Distribution, Uniform};
 use rand_distr::Normal;
 
 use crate::errors::TensorError;
-use crate::ops::{DimOp, TensorOp};
+use crate::ops::{DimOp, Ops, TensorOp};
 
 #[cfg(test)]
 mod tests {
@@ -859,7 +859,7 @@ pub struct Tensor<'a> {
 
     lhs_parent: Option<&'a Tensor<'a>>,
     rhs_parent: Option<&'a Tensor<'a>>,
-    create_op: Option<TensorOp>,
+    create_op: Option<Ops>,
     derivative: RefCell<Vec<f32>>,
 }
 
@@ -1077,12 +1077,13 @@ impl<'a> Tensor<'a> {
         ))
     }
 
-    fn op(lhs: &f32, rhs: &f32, op: &TensorOp) -> Result<f32, TensorError> {
+    fn op(lhs: &f32, rhs: &f32, op: &Ops) -> Result<f32, TensorError> {
         match op {
-            TensorOp::Add => Ok(lhs + rhs),
-            TensorOp::Sub => Ok(lhs - rhs),
-            TensorOp::Mul => Ok(lhs * rhs),
-            TensorOp::Div => Ok(lhs / rhs),
+            Ops::TensorOp(TensorOp::Add) => Ok(lhs + rhs),
+            Ops::TensorOp(TensorOp::Sub) => Ok(lhs - rhs),
+            Ops::TensorOp(TensorOp::Mul) => Ok(lhs * rhs),
+            Ops::TensorOp(TensorOp::Div) => Ok(lhs / rhs),
+            _ => Err(TensorError::OpError),
         }
     }
 
@@ -1092,7 +1093,7 @@ impl<'a> Tensor<'a> {
         lhs_strides: &[usize],
         rhs_strides: &[usize],
         new_shape: &Vec<usize>,
-        op: &TensorOp,
+        op: &Ops,
     ) -> Vec<f32> {
         let mut new_data: Vec<f32> =
             Vec::with_capacity(Tensor::calc_tensor_len_from_shape(new_shape));
@@ -1117,7 +1118,7 @@ impl<'a> Tensor<'a> {
         lhs_strides: &[usize],
         rhs_strides: &[usize],
         new_shape: &Vec<usize>,
-        op: &TensorOp,
+        op: &Ops,
     ) -> Vec<f32> {
         let mut new_data: Vec<f32> =
             Vec::with_capacity(Tensor::calc_tensor_len_from_shape(new_shape));
@@ -1144,7 +1145,7 @@ impl<'a> Tensor<'a> {
         lhs_strides: &[usize],
         rhs_strides: &[usize],
         new_shape: &Vec<usize>,
-        op: &TensorOp,
+        op: &Ops,
     ) -> Vec<f32> {
         let mut new_data: Vec<f32> =
             Vec::with_capacity(Tensor::calc_tensor_len_from_shape(new_shape));
@@ -1173,7 +1174,7 @@ impl<'a> Tensor<'a> {
         lhs_strides: &[usize],
         rhs_strides: &[usize],
         new_shape: &Vec<usize>,
-        op: &TensorOp,
+        op: &Ops,
     ) -> Vec<f32> {
         let mut new_data: Vec<f32> =
             Vec::with_capacity(Tensor::calc_tensor_len_from_shape(new_shape));
@@ -1211,14 +1212,14 @@ impl<'a> Tensor<'a> {
         }
     }
 
-    fn dim_op(lhs: &Tensor, op: &DimOp) -> Result<f32, TensorError> {
+    fn dim_op(lhs: &Tensor, op: &Ops) -> Result<f32, TensorError> {
         match op {
-            DimOp::Sum => Ok(lhs.data.iter().sum()),
-            DimOp::Mean => {
+            Ops::DimOp(DimOp::Sum) => Ok(lhs.data.iter().sum()),
+            Ops::DimOp(DimOp::Mean) => {
                 let sum: f32 = lhs.data.iter().sum();
                 Ok(sum / lhs.data.len() as f32)
             }
-            DimOp::Max => {
+            Ops::DimOp(DimOp::Max) => {
                 let max = lhs
                     .data
                     .iter()
@@ -1231,7 +1232,7 @@ impl<'a> Tensor<'a> {
                     None => Err(TensorError::OpError),
                 }
             }
-            DimOp::Min => {
+            Ops::DimOp(DimOp::Min) => {
                 let min = lhs
                     .data
                     .iter()
@@ -1244,7 +1245,7 @@ impl<'a> Tensor<'a> {
                     None => Err(TensorError::OpError),
                 }
             }
-            DimOp::Argmax => {
+            Ops::DimOp(DimOp::Argmax) => {
                 let argmax = lhs
                     .data
                     .iter()
@@ -1257,7 +1258,7 @@ impl<'a> Tensor<'a> {
                     None => Err(TensorError::OpError),
                 }
             }
-            DimOp::Argmin => {
+            Ops::DimOp(DimOp::Argmin) => {
                 let argmin = lhs
                     .data
                     .iter()
@@ -1270,6 +1271,7 @@ impl<'a> Tensor<'a> {
                     None => Err(TensorError::OpError),
                 }
             }
+            _ => Err(TensorError::OpError),
         }
     }
 
@@ -1277,7 +1279,7 @@ impl<'a> Tensor<'a> {
         &self,
         new_dim: usize,
         new_shape: &Vec<usize>,
-        op: &DimOp,
+        op: &Ops,
     ) -> Result<Vec<f32>, TensorError> {
         let mut new_data: Vec<f32> =
             Vec::with_capacity(Tensor::calc_tensor_len_from_shape(new_shape));
@@ -1298,7 +1300,7 @@ impl<'a> Tensor<'a> {
         &self,
         new_dim: usize,
         new_shape: &Vec<usize>,
-        op: &DimOp,
+        op: &Ops,
     ) -> Result<Vec<f32>, TensorError> {
         let mut new_data: Vec<f32> =
             Vec::with_capacity(Tensor::calc_tensor_len_from_shape(new_shape));
@@ -1324,7 +1326,7 @@ impl<'a> Tensor<'a> {
         &self,
         new_dim: usize,
         new_shape: &Vec<usize>,
-        op: &DimOp,
+        op: &Ops,
     ) -> Result<Vec<f32>, TensorError> {
         let mut new_data: Vec<f32> =
             Vec::with_capacity(Tensor::calc_tensor_len_from_shape(new_shape));
@@ -1355,7 +1357,7 @@ impl<'a> Tensor<'a> {
         &self,
         new_dim: usize,
         new_shape: &Vec<usize>,
-        op: &DimOp,
+        op: &Ops,
     ) -> Result<Vec<f32>, TensorError> {
         let mut new_data: Vec<f32> =
             Vec::with_capacity(Tensor::calc_tensor_len_from_shape(new_shape));
@@ -1387,7 +1389,7 @@ impl<'a> Tensor<'a> {
         Ok(new_data)
     }
 
-    fn dimension_op(&self, dim: isize, op: DimOp) -> Result<Tensor, TensorError> {
+    fn dimension_op(&self, dim: isize, op: Ops) -> Result<Tensor, TensorError> {
         let new_dim = if dim == -1 {
             self.shape.len() - 1 as usize
         } else if (dim >= 0) && (dim < self.shape.len() as isize) {
@@ -1418,7 +1420,7 @@ impl<'a> Tensor<'a> {
         Tensor::new(new_data, &new_shape)
     }
 
-    fn tensor_op<'b>(&'b self, other: &'b Tensor, op: TensorOp) -> Result<Tensor<'b>, TensorError> {
+    fn tensor_op<'b>(&'b self, other: &'b Tensor, op: Ops) -> Result<Tensor<'b>, TensorError> {
         let (new_shape, lhs_strides, rhs_strides) = Tensor::broadcast(&self.shape, &other.shape)?;
 
         let new_data = match new_shape.len() {
@@ -1757,7 +1759,7 @@ impl<'a> Tensor<'a> {
         shape: &[usize],
         lhs_parent: &'b Tensor,
         rhs_parent: &'b Tensor,
-        op: TensorOp,
+        op: Ops,
     ) -> Result<Tensor<'b>, TensorError> {
         if data.len() == Tensor::calc_tensor_len_from_shape(shape)
             && shape.len() > 0
@@ -1935,27 +1937,27 @@ impl<'a> Tensor<'a> {
     }
 
     pub fn sum(&self, dim: isize) -> Result<Tensor, TensorError> {
-        self.dimension_op(dim, DimOp::Sum)
+        self.dimension_op(dim, Ops::DimOp(DimOp::Sum))
     }
 
     pub fn mean(&self, dim: isize) -> Result<Tensor, TensorError> {
-        self.dimension_op(dim, DimOp::Mean)
+        self.dimension_op(dim, Ops::DimOp(DimOp::Mean))
     }
 
     pub fn max(&self, dim: isize) -> Result<Tensor, TensorError> {
-        self.dimension_op(dim, DimOp::Max)
+        self.dimension_op(dim, Ops::DimOp(DimOp::Max))
     }
 
     pub fn min(&self, dim: isize) -> Result<Tensor, TensorError> {
-        self.dimension_op(dim, DimOp::Min)
+        self.dimension_op(dim, Ops::DimOp(DimOp::Min))
     }
 
     pub fn argmax(&self, dim: isize) -> Result<Tensor, TensorError> {
-        self.dimension_op(dim, DimOp::Argmax)
+        self.dimension_op(dim, Ops::DimOp(DimOp::Argmax))
     }
 
     pub fn argmin(&self, dim: isize) -> Result<Tensor, TensorError> {
-        self.dimension_op(dim, DimOp::Argmin)
+        self.dimension_op(dim, Ops::DimOp(DimOp::Argmin))
     }
 
     pub fn matmul(&self, rhs: &Tensor) -> Result<Tensor, TensorError> {
@@ -2042,15 +2044,14 @@ impl<'a> Tensor<'a> {
         match self.lhs_parent {
             Some(t) => {
                 let d_lhs = match self.create_op {
-                    Some(TensorOp::Add) => {
+                    Some(Ops::TensorOp(TensorOp::Add)) => {
                         Ok(vec![1.0; Tensor::calc_tensor_len_from_shape(&self.shape)])
                     }
-                    Some(TensorOp::Sub) => {
+                    Some(Ops::TensorOp(TensorOp::Sub)) => {
                         Ok(vec![1.0; Tensor::calc_tensor_len_from_shape(&self.shape)])
                     }
-                    Some(TensorOp::Mul) => Ok(self.rhs_parent.unwrap().data.clone()),
-                    Some(TensorOp::Div) => Ok(self.rhs_parent.unwrap().data.clone()), //not correct
-                    None => Err(TensorError::ShapeError),
+                    Some(Ops::TensorOp(TensorOp::Mul)) => Ok(self.rhs_parent.unwrap().data.clone()),
+                    _ => Err(TensorError::ShapeError),
                 }
                 .unwrap();
 
@@ -2070,15 +2071,14 @@ impl<'a> Tensor<'a> {
         match self.rhs_parent {
             Some(t) => {
                 let d_rhs = match self.create_op {
-                    Some(TensorOp::Add) => {
+                    Some(Ops::TensorOp(TensorOp::Add)) => {
                         Ok(vec![1.0; Tensor::calc_tensor_len_from_shape(&self.shape)])
                     }
-                    Some(TensorOp::Sub) => {
+                    Some(Ops::TensorOp(TensorOp::Sub)) => {
                         Ok(vec![1.0; Tensor::calc_tensor_len_from_shape(&self.shape)])
                     }
-                    Some(TensorOp::Mul) => Ok(self.lhs_parent.unwrap().data.clone()),
-                    Some(TensorOp::Div) => Ok(self.lhs_parent.unwrap().data.clone()), //not correct
-                    None => Err(TensorError::ShapeError),
+                    Some(Ops::TensorOp(TensorOp::Mul)) => Ok(self.lhs_parent.unwrap().data.clone()),
+                    _ => Err(TensorError::ShapeError),
                 }
                 .unwrap();
 
@@ -2139,7 +2139,7 @@ impl<'a> Add for &'a Tensor<'a> {
     type Output = Tensor<'a>;
 
     fn add(self, other: &'a Tensor) -> Tensor<'a> {
-        match self.tensor_op(other, TensorOp::Add) {
+        match self.tensor_op(other, Ops::TensorOp(TensorOp::Add)) {
             Ok(t) => t,
             Err(e) => panic!("{}", e),
         }
@@ -2150,7 +2150,7 @@ impl<'a> Sub for &'a Tensor<'a> {
     type Output = Tensor<'a>;
 
     fn sub(self, other: &'a Tensor) -> Tensor<'a> {
-        match self.tensor_op(other, TensorOp::Sub) {
+        match self.tensor_op(other, Ops::TensorOp(TensorOp::Sub)) {
             Ok(t) => t,
             Err(e) => panic!("{}", e),
         }
@@ -2161,7 +2161,7 @@ impl<'a> Mul for &'a Tensor<'a> {
     type Output = Tensor<'a>;
 
     fn mul(self, other: &'a Tensor) -> Tensor<'a> {
-        match self.tensor_op(other, TensorOp::Mul) {
+        match self.tensor_op(other, Ops::TensorOp(TensorOp::Mul)) {
             Ok(t) => t,
             Err(e) => panic!("{}", e),
         }
@@ -2172,7 +2172,7 @@ impl<'a> Div for &'a Tensor<'a> {
     type Output = Tensor<'a>;
 
     fn div(self, other: &'a Tensor) -> Tensor<'a> {
-        match self.tensor_op(other, TensorOp::Div) {
+        match self.tensor_op(other, Ops::TensorOp(TensorOp::Div)) {
             Ok(t) => t,
             Err(e) => panic!("{}", e),
         }

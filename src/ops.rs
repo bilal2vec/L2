@@ -6,6 +6,7 @@ pub enum TensorOp {
     Div,
 }
 
+#[derive(Debug, PartialEq)]
 pub enum DimOp {
     Sum,
     Mean,
@@ -13,4 +14,10 @@ pub enum DimOp {
     Min,
     Argmax,
     Argmin,
+}
+
+#[derive(Debug, PartialEq)]
+pub enum Ops {
+    TensorOp(TensorOp),
+    DimOp(DimOp),
 }
