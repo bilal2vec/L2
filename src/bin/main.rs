@@ -37,7 +37,7 @@ fn main() -> Result<(), l2::errors::TensorError> {
 
     // o.backward();
 
-    // println!("{:?}", o);
+    // println!("{}", o);
 
     Ok(())
 }

@@ -867,14 +867,14 @@ pub struct Tensor<'a> {
 impl<'a> fmt::Display for Tensor<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         fn recurse(tensor: &Tensor, level: usize) -> String {
-            let indent = "\t".to_string().repeat(level);
+            let indent = "  ".to_string().repeat(level);
 
             let lhs = match tensor.lhs_parent {
                 Some(t) => recurse(t, level + 1),
                 None => "None".to_string(),
             };
 
-            let rhs = match tensor.lhs_parent {
+            let rhs = match tensor.rhs_parent {
                 Some(t) => recurse(t, level + 1),
                 None => "None".to_string(),
             };
