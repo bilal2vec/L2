@@ -58,7 +58,7 @@ mod tests {
 
         let x = t.slice(&[[0, -1], [0, 1]]).unwrap();
 
-        assert!((x.data == vec![1.0, 3.0]) && (x.shape == &[2]));
+        assert!((x.data == vec![1.0, 3.0]) && (*x.shape == [2]));
     }
 
     #[test]
@@ -163,7 +163,7 @@ mod tests {
 
         assert!(
             (x.data == vec![1.0, 3.0, 5.0, 7.0])
-                && (x.shape == &[2, 2])
+                && (*x.shape == [2, 2])
                 && (x.strides == vec![2, 1])
         )
     }
@@ -262,7 +262,7 @@ mod tests {
 
         assert!(
             (x.data == vec![1.0, 5.0, 9.0, 13.0])
-                && (x.shape == &[2, 2])
+                && (*x.shape == [2, 2])
                 && (x.strides == vec![2, 1])
         )
     }
@@ -844,7 +844,7 @@ mod tests {
         )
         .unwrap();
 
-        let y = x.clone().unwrap();
+        let y = x.clone();
 
         assert!((x.data == y.data) && (x.shape == y.shape))
     }
@@ -901,6 +901,12 @@ impl<'a> fmt::Display for Tensor<'a> {
     }
 }
 
+impl<'a> Clone for Tensor<'a> {
+    fn clone(&self) -> Self {
+        Tensor::new(self.data.clone(), &self.shape).unwrap()
+    }
+}
+
 impl<'a> Tensor<'a> {
     fn calc_tensor_len_from_shape(shape: &[usize]) -> usize {
         let mut length = 1;
@@ -933,7 +939,7 @@ impl<'a> Tensor<'a> {
             }
         }
 
-        if slice_shape.len() == 0 {
+        if slice_shape.is_empty() {
             slice_shape.push(1);
         }
 
@@ -955,17 +961,15 @@ impl<'a> Tensor<'a> {
         logical_indices: &'b [[usize; 2]],
     ) -> Result<&'b [[usize; 2]], TensorError> {
         if (logical_indices.len() != self.shape.len())
-            || (logical_indices.len() == 0)
+            || logical_indices.is_empty()
             || (logical_indices.len() > 4)
         {
             Err(TensorError::SliceError)
-        } else if (logical_indices.len() == 0) || (logical_indices.len() > 4) {
+        } else if logical_indices.is_empty() || (logical_indices.len() > 4) {
             Err(TensorError::MaxDimsError)
         } else {
-            for i in 0..logical_indices.len() {
-                if logical_indices[i][0] >= logical_indices[i][1]
-                    || logical_indices[i][1] > self.shape[i]
-                {
+            for (i, logical_index) in logical_indices.iter().enumerate() {
+                if logical_index[0] >= logical_index[1] || logical_index[1] > self.shape[i] {
                     return Err(TensorError::SliceError);
                 }
             }
@@ -984,12 +988,12 @@ impl<'a> Tensor<'a> {
             }
         }
 
-        for i in 0..indices.len() {
-            let start: usize = indices[i][0] as usize;
-            let stop: usize = if indices[i][1] == -1 {
+        for (i, idx) in indices.iter().enumerate() {
+            let start: usize = idx[0] as usize;
+            let stop: usize = if idx[1] == -1 {
                 self.shape[i]
             } else {
-                indices[i][1] as usize
+                idx[1] as usize
             };
 
             processed_indices.push([start, stop]);
@@ -1168,11 +1172,11 @@ impl<'a> Tensor<'a> {
             }
         }
 
-        if new_shape.len() == 0 {
+        if new_shape.is_empty() {
             new_shape.push(1);
         }
 
-        if (self.shape.len() == 0) || (self.shape.len() > 4) {
+        if self.shape.is_empty() || (self.shape.len() > 4) {
             return Err(TensorError::MaxDimsError);
         }
 
@@ -1221,7 +1225,7 @@ impl<'a> Tensor<'a> {
     fn tensor_op<'b>(&'b self, other: &'b Tensor, op: Ops) -> Result<Tensor<'b>, TensorError> {
         let (new_shape, lhs_strides, rhs_strides) = Tensor::broadcast(&self.shape, &other.shape)?;
 
-        if (new_shape.len() == 0) || (new_shape.len() > 4) {
+        if new_shape.is_empty() || (new_shape.len() > 4) {
             return Err(TensorError::MaxDimsError);
         }
 
@@ -1319,7 +1323,7 @@ impl<'a> Tensor<'a> {
         op: Ops,
     ) -> Result<Tensor<'b>, TensorError> {
         if data.len() == Tensor::calc_tensor_len_from_shape(shape)
-            && shape.len() > 0
+            && !shape.is_empty()
             && shape.len() < 5
         {
             Ok(Tensor {
@@ -1327,8 +1331,8 @@ impl<'a> Tensor<'a> {
                 shape: shape.to_vec(),
                 strides: Tensor::calc_strides_from_shape(shape),
                 track_grad: true,
-                lhs_parent: lhs_parent,
-                rhs_parent: rhs_parent,
+                lhs_parent,
+                rhs_parent,
                 create_op: Some(op),
                 derivative: RefCell::new(vec![0.0; Tensor::calc_tensor_len_from_shape(shape)]),
             })
@@ -1339,7 +1343,7 @@ impl<'a> Tensor<'a> {
 
     pub fn new<'b>(data: Vec<f32>, shape: &[usize]) -> Result<Tensor<'b>, TensorError> {
         if data.len() == Tensor::calc_tensor_len_from_shape(shape)
-            && shape.len() > 0
+            && !shape.is_empty()
             && shape.len() < 5
         {
             Ok(Tensor {
@@ -1359,7 +1363,7 @@ impl<'a> Tensor<'a> {
 
     pub fn new_no_grad<'b>(data: Vec<f32>, shape: &[usize]) -> Result<Tensor<'b>, TensorError> {
         if data.len() == Tensor::calc_tensor_len_from_shape(shape)
-            && shape.len() > 0
+            && !shape.is_empty()
             && shape.len() < 5
         {
             Ok(Tensor {
@@ -1622,7 +1626,7 @@ impl<'a> Tensor<'a> {
             }
         }
 
-        if (new_shape.len() == 0) || (new_shape.len() > 4) {
+        if new_shape.is_empty() || (new_shape.len() > 4) {
             return Err(TensorError::MaxDimsError);
         }
 
@@ -1718,10 +1722,6 @@ impl<'a> Tensor<'a> {
         Tensor::new(new_data, &transposed_shape)
     }
 
-    pub fn clone(&self) -> Result<Tensor, TensorError> {
-        Tensor::new(self.data.clone(), &self.shape)
-    }
-
     pub fn clone_no_grad(&self) -> Result<Tensor, TensorError> {
         Tensor::new_no_grad(self.data.clone(), &self.shape)
     }
@@ -1792,9 +1792,7 @@ impl<'a> Tensor<'a> {
             seen: &mut Vec<&Tensor<'a>>,
             sorted: &mut Vec<&Tensor<'a>>,
         ) {
-            if seen.contains(&vr) || (vr.lhs_parent.is_none() && vr.rhs_parent.is_none()) {
-                return;
-            } else {
+            if !seen.contains(&vr) && vr.lhs_parent.is_some() && vr.rhs_parent.is_some() {
                 seen.push(vr);
 
                 if vr.lhs_parent.is_some() {

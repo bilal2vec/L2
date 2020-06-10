@@ -1,4 +1,4 @@
-use l2;
+// use l2;
 use l2::tensor::*;
 
 fn main() -> Result<(), l2::errors::TensorError> {
@@ -9,11 +9,11 @@ fn main() -> Result<(), l2::errors::TensorError> {
 
     let z = Tensor::new(vec![-4.0], &[1])?;
 
-    let g = &q * &z;
+    let out = &q * &z;
 
-    g.backward();
+    out.backward();
 
-    println!("{}", g);
+    println!("{}", out);
 
     // let a = Tensor::new(vec![2.0], &[1])?;
     // let b = Tensor::new(vec![3.0], &[1])?;

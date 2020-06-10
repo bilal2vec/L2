@@ -8,7 +8,6 @@
 
 ### Todo
 
--   impl == on tensors
 -   figure out macros and crates
 -   autograd
     -   figure out if you want to use tensor ops in backward or vec ops
@@ -187,6 +186,7 @@ topological sorting accumulates gradients for a before going further up the comp
     -   -1
 -   prevent having to reallocate memory on each backwards pass
     -   clear unneeded memory as soon as you can?
+-   impl == on tensors
 
 ### Notes
 

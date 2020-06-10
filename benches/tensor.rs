@@ -391,7 +391,7 @@ mod tests {
         let x = Tensor::zeros(&[256, 256]).unwrap();
 
         b.iter(|| {
-            let _z = x.clone().unwrap();
+            let _z = x.clone();
         })
     }
 
@@ -417,9 +417,9 @@ mod tests {
 
             let q = &x + &y;
 
-            let z = Tensor::new(vec![-4.0], &[1]).unwrap();
+            let out = Tensor::new(vec![-4.0], &[1]).unwrap();
 
-            let _f = &q * &z;
+            let loss = &q * &out;
         })
     }
 
@@ -430,12 +430,12 @@ mod tests {
 
         let q = &x + &y;
 
-        let z = Tensor::new(vec![-4.0], &[1]).unwrap();
+        let out = Tensor::new(vec![-4.0], &[1]).unwrap();
 
-        let f = &q * &z;
+        let loss = &q * &out;
 
         b.iter(|| {
-            f.backward();
+            loss.backward();
         })
     }
 }
