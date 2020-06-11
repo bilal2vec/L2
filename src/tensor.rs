@@ -848,6 +848,50 @@ mod tests {
 
         assert!((x.data == y.data) && (x.shape == y.shape))
     }
+
+    #[test]
+    fn backwards() {
+        let x = Tensor::new(vec![-2.0], &[1]).unwrap();
+        let y = Tensor::new(vec![5.0], &[1]).unwrap();
+
+        let q = &x + &y;
+
+        let z = Tensor::new(vec![-4.0], &[1]).unwrap();
+
+        let out = &q * &z;
+
+        out.backward();
+
+        assert!(
+            (out.derivative == RefCell::new(vec![1.0])
+                && (z.derivative == RefCell::new(vec![3.0]))
+                && (q.derivative == RefCell::new(vec![-4.0]))
+                && (x.derivative == RefCell::new(vec![-4.0]))
+                && (y.derivative == RefCell::new(vec![-4.0])))
+        )
+    }
+
+    #[allow(clippy::many_single_char_names)]
+    #[test]
+    fn backwards_shared_tensor() {
+        let a = Tensor::new(vec![2.0], &[1]).unwrap();
+        let b = Tensor::new(vec![3.0], &[1]).unwrap();
+        let c = Tensor::new(vec![4.0], &[1]).unwrap();
+
+        let e = &a * &b;
+        let f = &e * &c;
+
+        let out = &a + &f;
+
+        out.backward();
+
+        assert!(
+            (out.derivative == RefCell::new(vec![1.0]))
+                && (a.derivative == RefCell::new(vec![13.0]))
+                && (b.derivative == RefCell::new(vec![8.0]))
+                && (c.derivative == RefCell::new(vec![6.0]))
+        )
+    }
 }
 
 #[derive(Debug, PartialEq)]

@@ -8,11 +8,10 @@
 
 ### Todo
 
--   figure out macros and crates
 -   autograd
     -   figure out if you want to use tensor ops in backward or vec ops
         -   decide what to do with new_with_parents
-    -   tests
+    -   tests and benchmarks
     -   ops
         -   slice
         -   view
@@ -174,6 +173,7 @@ topological sorting accumulates gradients for a before going further up the comp
 
 -   printing of tensors and graph
 -   combine 1,2,3,4d ops into one function
+-   figure out macros and crates
 
 ### wont do
 

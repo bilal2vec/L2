@@ -1,6 +1,7 @@
 // use l2;
 use l2::tensor::*;
 
+#[allow(clippy::many_single_char_names)]
 fn main() -> Result<(), l2::errors::TensorError> {
     let x = Tensor::new(vec![-2.0], &[1])?;
     let y = Tensor::new(vec![5.0], &[1])?;
@@ -22,7 +23,11 @@ fn main() -> Result<(), l2::errors::TensorError> {
     // let e = &a * &b;
     // let f = &e * &c;
 
-    // let g = &a + &f;
+    // let out = &a + &f;
+
+    // out.backward();
+
+    // println!("{}", out);
 
     // let h = Tensor::new(vec![5.0], &[1])?;
     // let i = Tensor::new(vec![6.0], &[1])?;
