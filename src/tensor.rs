@@ -1772,52 +1772,80 @@ impl<'a> Tensor<'a> {
     }
 
     fn grad(&self) {
+        let d = Tensor::new(self.derivative.borrow().clone(), &self.shape).unwrap();
+
         if let Some(t) = self.lhs_parent {
             let d_lhs = match self.create_op {
-                Some(Ops::TensorOp(TensorOp::Add)) => {
-                    Ok(vec![1.0; Tensor::calc_tensor_len_from_shape(&self.shape)])
-                }
-                Some(Ops::TensorOp(TensorOp::Sub)) => {
-                    Ok(vec![1.0; Tensor::calc_tensor_len_from_shape(&self.shape)])
-                }
-                Some(Ops::TensorOp(TensorOp::Mul)) => Ok(self.rhs_parent.unwrap().data.clone()),
+                Some(Ops::TensorOp(TensorOp::Add)) => Tensor::new(
+                    vec![1.0; Tensor::calc_tensor_len_from_shape(&self.shape)],
+                    &self.shape,
+                ),
+                Some(Ops::TensorOp(TensorOp::Sub)) => Tensor::new(
+                    vec![1.0; Tensor::calc_tensor_len_from_shape(&self.shape)],
+                    &self.shape,
+                ),
+                Some(Ops::TensorOp(TensorOp::Mul)) => Ok(self.rhs_parent.unwrap().clone()),
                 _ => Err(TensorError::ShapeError),
             }
             .unwrap();
 
-            let d_lhs: Vec<f32> = d_lhs
-                .iter()
-                .zip(self.derivative.borrow().clone())
-                .map(|(a, b)| a * b)
-                .collect();
+            // let d_lhs: Vec<f32> = d_lhs
+            //     .iter()
+            //     .zip(self.derivative.borrow().clone())
+            //     .map(|(a, b)| a * b)
+            //     .collect();
+            // *t.derivative.borrow_mut() =
+            //     d_lhs.iter().zip(&d_lhs_prev).map(|(a, b)| a + b).collect();
 
-            let d_lhs_prev = t.derivative.borrow().clone();
-            *t.derivative.borrow_mut() =
-                d_lhs.iter().zip(&d_lhs_prev).map(|(a, b)| a + b).collect();
+            let d_lhs = &d_lhs * &d;
+
+            let d_lhs_prev = Tensor::new(t.derivative.borrow().clone(), &t.shape).unwrap();
+            let d_lhs = &d_lhs + &d_lhs_prev;
+            *t.derivative.borrow_mut() = d_lhs.data;
         }
 
         if let Some(t) = self.rhs_parent {
+            // let d_rhs = match self.create_op {
+            //     Some(Ops::TensorOp(TensorOp::Add)) => {
+            //         Ok(vec![1.0; Tensor::calc_tensor_len_from_shape(&self.shape)])
+            //     }
+            //     Some(Ops::TensorOp(TensorOp::Sub)) => {
+            //         Ok(vec![1.0; Tensor::calc_tensor_len_from_shape(&self.shape)])
+            //     }
+            //     Some(Ops::TensorOp(TensorOp::Mul)) => Ok(self.lhs_parent.unwrap().data.clone()),
+            //     _ => Err(TensorError::ShapeError),
+            // }
+            // .unwrap();
+
             let d_rhs = match self.create_op {
-                Some(Ops::TensorOp(TensorOp::Add)) => {
-                    Ok(vec![1.0; Tensor::calc_tensor_len_from_shape(&self.shape)])
-                }
-                Some(Ops::TensorOp(TensorOp::Sub)) => {
-                    Ok(vec![1.0; Tensor::calc_tensor_len_from_shape(&self.shape)])
-                }
-                Some(Ops::TensorOp(TensorOp::Mul)) => Ok(self.lhs_parent.unwrap().data.clone()),
+                Some(Ops::TensorOp(TensorOp::Add)) => Tensor::new(
+                    vec![1.0; Tensor::calc_tensor_len_from_shape(&self.shape)],
+                    &self.shape,
+                ),
+                Some(Ops::TensorOp(TensorOp::Sub)) => Tensor::new(
+                    vec![1.0; Tensor::calc_tensor_len_from_shape(&self.shape)],
+                    &self.shape,
+                ),
+                Some(Ops::TensorOp(TensorOp::Mul)) => Ok(self.lhs_parent.unwrap().clone()),
                 _ => Err(TensorError::ShapeError),
             }
             .unwrap();
 
-            let d_rhs: Vec<f32> = d_rhs
-                .iter()
-                .zip(self.derivative.borrow().clone())
-                .map(|(a, b)| a * b)
-                .collect();
+            // let d_rhs: Vec<f32> = d_rhs
+            //     .iter()
+            //     .zip(self.derivative.borrow().clone())
+            //     .map(|(a, b)| a * b)
+            //     .collect();
 
-            let d_rhs_prev = t.derivative.borrow().clone();
-            *t.derivative.borrow_mut() =
-                d_rhs.iter().zip(&d_rhs_prev).map(|(a, b)| a + b).collect();
+            // let d_rhs_prev = t.derivative.borrow().clone();
+            // *t.derivative.borrow_mut() =
+            //     d_rhs.iter().zip(&d_rhs_prev).map(|(a, b)| a + b).collect();
+
+            let d_rhs = &d_rhs * &d;
+
+            let d_rhs_prev = Tensor::new(t.derivative.borrow().clone(), &t.shape).unwrap();
+            let d_rhs = &d_rhs + &d_rhs_prev;
+            *t.derivative.borrow_mut() = d_rhs.data;
         }
     }
 
