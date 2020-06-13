@@ -3,9 +3,9 @@ use l2::tensor::*;
 
 #[allow(clippy::many_single_char_names)]
 fn main() -> Result<(), l2::errors::TensorError> {
-    let x = Tensor::new(vec![-3.0], &[1])?;
+    let x = Tensor::new(vec![3.0], &[1])?;
 
-    let y = x.pow(2)?;
+    let y = x.log()?;
 
     y.backward();
 

@@ -53,7 +53,7 @@ mod tests {
     fn test_pow() {
         let a = Tensor::new(vec![2.0, 3.0], &[2]).unwrap();
 
-        let c = pow(&a, 2).unwrap();
+        let c = pow(&a, 2.0).unwrap();
 
         assert!((c.data == vec![4.0, 9.0]) && (c.shape == vec![2]))
     }
@@ -185,7 +185,7 @@ pub fn div<'a>(lhs: &'a Tensor, rhs: &'a Tensor) -> Tensor<'a> {
     lhs / rhs
 }
 
-pub fn pow<'a>(lhs: &'a Tensor, exp: isize) -> Result<Tensor<'a>, TensorError> {
+pub fn pow<'a>(lhs: &'a Tensor, exp: f32) -> Result<Tensor<'a>, TensorError> {
     lhs.pow(exp)
 }
 

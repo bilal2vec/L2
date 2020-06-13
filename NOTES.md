@@ -15,6 +15,7 @@
     -   ops
         -   div
         -   pow
+        -   sqrt
         -   exp
         -   log10
         -   log
@@ -22,18 +23,17 @@
         -   sin
         -   cos
         -   tan
+        -   matmul
         -   slice
         -   view
-        -   sqrt
+        -   concat
+        -   transpose
         -   sum
         -   mean
         -   max
         -   min
         -   argmax
         -   argmin
-        -   matmul
-        -   concat
-        -   transpose
 -   compare to np and ndarray
 -   redo error handling
 -   const generics for compile time errors

@@ -189,7 +189,7 @@ mod tests {
         let x = Tensor::zeros(&[256, 256]).unwrap();
 
         b.iter(|| {
-            let _y = x.pow(2).unwrap();
+            let _y = x.pow(2.0).unwrap();
         })
     }
 

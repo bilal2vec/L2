@@ -411,7 +411,7 @@ mod tests {
     fn pow() {
         let a = Tensor::new(vec![2.0, 3.0, 4.0, 5.0], &[4]).unwrap();
 
-        let b = a.pow(2).unwrap();
+        let b = a.pow(2.0).unwrap();
 
         assert!((b.data == vec![4.0, 9.0, 16.0, 25.0]) && (b.shape == vec![4]))
     }
@@ -961,12 +961,68 @@ mod tests {
     fn backwards_pow() {
         let a = Tensor::new(vec![-3.0], &[1]).unwrap();
 
-        let b = a.pow(2).unwrap();
+        let b = a.pow(2.0).unwrap();
 
         b.backward();
 
         assert!(
             (b.derivative == RefCell::new(vec![1.0]) && (a.derivative == RefCell::new(vec![-6.0])))
+        )
+    }
+
+    #[test]
+    fn backwards_sqrt() {
+        let a = Tensor::new(vec![3.0], &[1]).unwrap();
+
+        let b = a.sqrt().unwrap();
+
+        b.backward();
+
+        assert!(
+            (b.derivative == RefCell::new(vec![1.0])
+                && (a.derivative == RefCell::new(vec![0.5 * ((3.0 as f32).powf(-0.5))])))
+        )
+    }
+
+    #[test]
+    fn backwards_exp() {
+        let a = Tensor::new(vec![3.0], &[1]).unwrap();
+
+        let b = a.exp().unwrap();
+
+        b.backward();
+
+        assert!(
+            (b.derivative == RefCell::new(vec![1.0])
+                && (a.derivative == RefCell::new(vec![(3.0 as f32).exp()])))
+        )
+    }
+
+    #[test]
+    fn backwards_log10() {
+        let a = Tensor::new(vec![3.0], &[1]).unwrap();
+
+        let b = a.log10().unwrap();
+
+        b.backward();
+
+        assert!(
+            (b.derivative == RefCell::new(vec![1.0])
+                && (a.derivative == RefCell::new(vec![1.0 / (3.0 * (10.0 as f32).log(E))])))
+        )
+    }
+
+    #[test]
+    fn backwards_log() {
+        let a = Tensor::new(vec![3.0], &[1]).unwrap();
+
+        let b = a.log().unwrap();
+
+        b.backward();
+
+        assert!(
+            (b.derivative == RefCell::new(vec![1.0])
+                && (a.derivative == RefCell::new(vec![1.0 / 3.0])))
         )
     }
 }
@@ -1588,8 +1644,8 @@ impl<'a> Tensor<'a> {
         }
     }
 
-    pub fn pow(&self, exp: isize) -> Result<Tensor, TensorError> {
-        let new_data = self.data.iter().map(|val| val.powi(exp as i32)).collect();
+    pub fn pow(&self, exp: f32) -> Result<Tensor, TensorError> {
+        let new_data = self.data.iter().map(|val| val.powf(exp)).collect();
 
         Tensor::new_with_parents(new_data, &self.shape, Some(&self), None, Ops::Pow(exp))
     }
@@ -1597,25 +1653,25 @@ impl<'a> Tensor<'a> {
     pub fn sqrt(&self) -> Result<Tensor, TensorError> {
         let new_data = self.data.iter().map(|val| val.sqrt()).collect();
 
-        Tensor::new(new_data, &self.shape)
+        Tensor::new_with_parents(new_data, &self.shape, Some(&self), None, Ops::Sqrt)
     }
 
     pub fn exp(&self) -> Result<Tensor, TensorError> {
         let new_data = self.data.iter().map(|val| val.exp()).collect();
 
-        Tensor::new(new_data, &self.shape)
+        Tensor::new_with_parents(new_data, &self.shape, Some(&self), None, Ops::Exp)
     }
 
     pub fn log10(&self) -> Result<Tensor, TensorError> {
         let new_data = self.data.iter().map(|val| val.log10()).collect();
 
-        Tensor::new(new_data, &self.shape)
+        Tensor::new_with_parents(new_data, &self.shape, Some(&self), None, Ops::Log10)
     }
 
     pub fn log(&self) -> Result<Tensor, TensorError> {
         let new_data = self.data.iter().map(|val| val.log(E)).collect();
 
-        Tensor::new(new_data, &self.shape)
+        Tensor::new_with_parents(new_data, &self.shape, Some(&self), None, Ops::Log)
     }
 
     pub fn abs(&self) -> Result<Tensor, TensorError> {
@@ -1863,15 +1919,40 @@ impl<'a> Tensor<'a> {
                 ),
                 Some(Ops::TensorOp(TensorOp::Mul)) => Ok(self.rhs_parent.unwrap().clone()),
                 Some(Ops::TensorOp(TensorOp::Div)) => {
-                    let temp = self.rhs_parent.unwrap().pow(-1).unwrap();
+                    let temp = self.rhs_parent.unwrap().pow(-1.0).unwrap();
 
                     Tensor::new(temp.data.clone(), &temp.shape)
                 }
                 Some(Ops::Pow(exp)) => {
                     let n = Tensor::new(vec![exp as f32], &[1]).unwrap();
 
-                    let temp = t.pow(exp - 1).unwrap();
+                    let temp = t.pow(exp - 1.0).unwrap();
                     let temp = &n * &temp;
+
+                    Tensor::new(temp.data, &temp.shape)
+                }
+                Some(Ops::Sqrt) => {
+                    let one_half = Tensor::new(vec![0.5], &[1]).unwrap();
+
+                    let temp = t.pow(-0.5).unwrap();
+                    let temp = &one_half * &temp;
+
+                    Tensor::new(temp.data, &temp.shape)
+                }
+                Some(Ops::Exp) => Ok(self.clone()),
+                Some(Ops::Log10) => {
+                    let one = Tensor::new(vec![1.0], &[1]).unwrap();
+                    let lna = Tensor::new(vec![(10.0 as f32).log(E)], &[1]).unwrap();
+
+                    let temp = t * &lna;
+                    let temp = &one / &temp;
+
+                    Tensor::new(temp.data, &temp.shape)
+                }
+                Some(Ops::Log) => {
+                    let one = Tensor::new(vec![1.0], &[1]).unwrap();
+
+                    let temp = &one / t;
 
                     Tensor::new(temp.data, &temp.shape)
                 }
@@ -1899,7 +1980,7 @@ impl<'a> Tensor<'a> {
                 Some(Ops::TensorOp(TensorOp::Mul)) => Ok(self.lhs_parent.unwrap().clone()),
                 Some(Ops::TensorOp(TensorOp::Div)) => {
                     let neg1 = Tensor::new(vec![-1.0], &[1]).unwrap();
-                    let t_powed = t.pow(-2).unwrap();
+                    let t_powed = t.pow(-2.0).unwrap();
 
                     let temp = &neg1 * &self.lhs_parent.unwrap();
                     let temp = &temp * &t_powed;

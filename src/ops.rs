@@ -20,6 +20,10 @@ pub enum DimOp {
 pub enum Ops {
     TensorOp(TensorOp),
     DimOp(DimOp),
-    Pow(isize),
+    Pow(f32),
+    Sqrt,
+    Exp,
+    Log10,
+    Log,
     Slice,
 }
