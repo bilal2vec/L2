@@ -3,18 +3,21 @@ use l2::tensor::*;
 
 #[allow(clippy::many_single_char_names)]
 fn main() -> Result<(), l2::errors::TensorError> {
-    let x = Tensor::new(vec![-2.0], &[1])?;
-    let y = Tensor::new(vec![5.0], &[1])?;
+    let x = Tensor::new(vec![-3.0], &[1])?;
 
-    let q = &x + &y;
+    let y = x.pow(2)?;
 
-    let z = Tensor::new(vec![-4.0], &[1])?;
+    y.backward();
 
-    let out = &q * &z;
+    println!("{:#?}", y);
 
-    out.backward();
+    // let z = Tensor::new(vec![-4.0], &[1])?;
 
-    println!("{}", out);
+    // let out = &q * &z;
+
+    // out.backward();
+
+    // println!("{}", out);
 
     // let a = Tensor::new(vec![2.0], &[1])?;
     // let b = Tensor::new(vec![3.0], &[1])?;

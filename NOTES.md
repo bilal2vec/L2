@@ -13,10 +13,8 @@
         -   decide what to do with new_with_parents
     -   tests and benchmarks
     -   ops
-        -   slice
-        -   view
+        -   div
         -   pow
-        -   sqrt
         -   exp
         -   log10
         -   log
@@ -24,6 +22,9 @@
         -   sin
         -   cos
         -   tan
+        -   slice
+        -   view
+        -   sqrt
         -   sum
         -   mean
         -   max
@@ -33,7 +34,6 @@
         -   matmul
         -   concat
         -   transpose
-        -   div
 -   compare to np and ndarray
 -   redo error handling
 -   const generics for compile time errors

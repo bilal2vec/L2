@@ -185,7 +185,7 @@ pub fn div<'a>(lhs: &'a Tensor, rhs: &'a Tensor) -> Tensor<'a> {
     lhs / rhs
 }
 
-pub fn pow<'a>(lhs: &'a Tensor, exp: usize) -> Result<Tensor<'a>, TensorError> {
+pub fn pow<'a>(lhs: &'a Tensor, exp: isize) -> Result<Tensor<'a>, TensorError> {
     lhs.pow(exp)
 }
 

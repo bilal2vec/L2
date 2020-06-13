@@ -892,6 +892,83 @@ mod tests {
                 && (c.derivative == RefCell::new(vec![6.0]))
         )
     }
+
+    #[test]
+    fn backwards_add() {
+        let a = Tensor::new(vec![2.0], &[1]).unwrap();
+        let b = Tensor::new(vec![3.0], &[1]).unwrap();
+
+        let c = &a + &b;
+
+        c.backward();
+
+        assert!(
+            (c.derivative == RefCell::new(vec![1.0]))
+                && (a.derivative == RefCell::new(vec![1.0]))
+                && (b.derivative == RefCell::new(vec![1.0]))
+        );
+    }
+
+    #[test]
+    fn backwards_subtract() {
+        let a = Tensor::new(vec![2.0], &[1]).unwrap();
+        let b = Tensor::new(vec![3.0], &[1]).unwrap();
+
+        let c = &a - &b;
+
+        c.backward();
+
+        assert!(
+            (c.derivative == RefCell::new(vec![1.0]))
+                && (a.derivative == RefCell::new(vec![1.0]))
+                && (b.derivative == RefCell::new(vec![1.0]))
+        );
+    }
+
+    #[test]
+    fn backwards_multiply() {
+        let a = Tensor::new(vec![2.0], &[1]).unwrap();
+        let b = Tensor::new(vec![3.0], &[1]).unwrap();
+
+        let c = &a * &b;
+
+        c.backward();
+
+        assert!(
+            (c.derivative == RefCell::new(vec![1.0]))
+                && (a.derivative == RefCell::new(vec![3.0]))
+                && (b.derivative == RefCell::new(vec![2.0]))
+        );
+    }
+
+    #[test]
+    fn backwards_divide() {
+        let a = Tensor::new(vec![2.0], &[1]).unwrap();
+        let b = Tensor::new(vec![3.0], &[1]).unwrap();
+
+        let c = &a / &b;
+
+        c.backward();
+
+        assert!(
+            (c.derivative == RefCell::new(vec![1.0]))
+                && (a.derivative == RefCell::new(vec![1.0 / 3.0]))
+                && (b.derivative == RefCell::new(vec![-1.0 * 2.0 * ((3.0 as f32).powi(-2))]))
+        );
+    }
+
+    #[test]
+    fn backwards_pow() {
+        let a = Tensor::new(vec![-3.0], &[1]).unwrap();
+
+        let b = a.pow(2).unwrap();
+
+        b.backward();
+
+        assert!(
+            (b.derivative == RefCell::new(vec![1.0]) && (a.derivative == RefCell::new(vec![-6.0])))
+        )
+    }
 }
 
 #[derive(Debug, PartialEq)]
@@ -1511,10 +1588,10 @@ impl<'a> Tensor<'a> {
         }
     }
 
-    pub fn pow(&self, exp: usize) -> Result<Tensor, TensorError> {
+    pub fn pow(&self, exp: isize) -> Result<Tensor, TensorError> {
         let new_data = self.data.iter().map(|val| val.powi(exp as i32)).collect();
 
-        Tensor::new(new_data, &self.shape)
+        Tensor::new_with_parents(new_data, &self.shape, Some(&self), None, Ops::Pow(exp))
     }
 
     pub fn sqrt(&self) -> Result<Tensor, TensorError> {
@@ -1785,17 +1862,22 @@ impl<'a> Tensor<'a> {
                     &self.shape,
                 ),
                 Some(Ops::TensorOp(TensorOp::Mul)) => Ok(self.rhs_parent.unwrap().clone()),
+                Some(Ops::TensorOp(TensorOp::Div)) => {
+                    let temp = self.rhs_parent.unwrap().pow(-1).unwrap();
+
+                    Tensor::new(temp.data.clone(), &temp.shape)
+                }
+                Some(Ops::Pow(exp)) => {
+                    let n = Tensor::new(vec![exp as f32], &[1]).unwrap();
+
+                    let temp = t.pow(exp - 1).unwrap();
+                    let temp = &n * &temp;
+
+                    Tensor::new(temp.data, &temp.shape)
+                }
                 _ => Err(TensorError::ShapeError),
             }
             .unwrap();
-
-            // let d_lhs: Vec<f32> = d_lhs
-            //     .iter()
-            //     .zip(self.derivative.borrow().clone())
-            //     .map(|(a, b)| a * b)
-            //     .collect();
-            // *t.derivative.borrow_mut() =
-            //     d_lhs.iter().zip(&d_lhs_prev).map(|(a, b)| a + b).collect();
 
             let d_lhs = &d_lhs * &d;
 
@@ -1805,18 +1887,6 @@ impl<'a> Tensor<'a> {
         }
 
         if let Some(t) = self.rhs_parent {
-            // let d_rhs = match self.create_op {
-            //     Some(Ops::TensorOp(TensorOp::Add)) => {
-            //         Ok(vec![1.0; Tensor::calc_tensor_len_from_shape(&self.shape)])
-            //     }
-            //     Some(Ops::TensorOp(TensorOp::Sub)) => {
-            //         Ok(vec![1.0; Tensor::calc_tensor_len_from_shape(&self.shape)])
-            //     }
-            //     Some(Ops::TensorOp(TensorOp::Mul)) => Ok(self.lhs_parent.unwrap().data.clone()),
-            //     _ => Err(TensorError::ShapeError),
-            // }
-            // .unwrap();
-
             let d_rhs = match self.create_op {
                 Some(Ops::TensorOp(TensorOp::Add)) => Tensor::new(
                     vec![1.0; Tensor::calc_tensor_len_from_shape(&self.shape)],
@@ -1827,19 +1897,18 @@ impl<'a> Tensor<'a> {
                     &self.shape,
                 ),
                 Some(Ops::TensorOp(TensorOp::Mul)) => Ok(self.lhs_parent.unwrap().clone()),
+                Some(Ops::TensorOp(TensorOp::Div)) => {
+                    let neg1 = Tensor::new(vec![-1.0], &[1]).unwrap();
+                    let t_powed = t.pow(-2).unwrap();
+
+                    let temp = &neg1 * &self.lhs_parent.unwrap();
+                    let temp = &temp * &t_powed;
+
+                    Tensor::new(temp.data.clone(), &temp.shape)
+                }
                 _ => Err(TensorError::ShapeError),
             }
             .unwrap();
-
-            // let d_rhs: Vec<f32> = d_rhs
-            //     .iter()
-            //     .zip(self.derivative.borrow().clone())
-            //     .map(|(a, b)| a * b)
-            //     .collect();
-
-            // let d_rhs_prev = t.derivative.borrow().clone();
-            // *t.derivative.borrow_mut() =
-            //     d_rhs.iter().zip(&d_rhs_prev).map(|(a, b)| a + b).collect();
 
             let d_rhs = &d_rhs * &d;
 
@@ -1859,7 +1928,7 @@ impl<'a> Tensor<'a> {
             seen: &mut Vec<&Tensor<'a>>,
             sorted: &mut Vec<&Tensor<'a>>,
         ) {
-            if !seen.contains(&vr) && vr.lhs_parent.is_some() && vr.rhs_parent.is_some() {
+            if !seen.contains(&vr) && (vr.lhs_parent.is_some() || vr.rhs_parent.is_some()) {
                 seen.push(vr);
 
                 if vr.lhs_parent.is_some() {
