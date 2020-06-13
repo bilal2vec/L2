@@ -1025,6 +1025,103 @@ mod tests {
                 && (a.derivative == RefCell::new(vec![1.0 / 3.0])))
         )
     }
+
+    #[test]
+    fn backwards_abs_pos() {
+        let a = Tensor::new(vec![3.0], &[1]).unwrap();
+
+        let b = a.abs().unwrap();
+
+        b.backward();
+
+        assert!(
+            (b.derivative == RefCell::new(vec![1.0]) && (a.derivative == RefCell::new(vec![1.0])))
+        )
+    }
+
+    #[test]
+    fn backwards_abs_neg() {
+        let a = Tensor::new(vec![-3.0], &[1]).unwrap();
+
+        let b = a.abs().unwrap();
+
+        b.backward();
+
+        assert!(
+            (b.derivative == RefCell::new(vec![1.0]) && (a.derivative == RefCell::new(vec![-1.0])))
+        )
+    }
+
+    #[test]
+    fn backwards_abs_zero() {
+        let a = Tensor::new(vec![0.0], &[1]).unwrap();
+
+        let b = a.abs().unwrap();
+
+        b.backward();
+
+        assert!(
+            (b.derivative == RefCell::new(vec![1.0]) && (a.derivative == RefCell::new(vec![0.0])))
+        )
+    }
+
+    #[test]
+    fn backwards_sin() {
+        let a = Tensor::new(vec![2.0], &[1]).unwrap();
+
+        let b = a.sin().unwrap();
+
+        b.backward();
+
+        assert!(
+            (b.derivative == RefCell::new(vec![1.0])
+                && (a.derivative == RefCell::new(vec![(2.0 as f32).cos()])))
+        )
+    }
+
+    #[test]
+    fn backwards_cos() {
+        let a = Tensor::new(vec![2.0], &[1]).unwrap();
+
+        let b = a.cos().unwrap();
+
+        b.backward();
+
+        assert!(
+            (b.derivative == RefCell::new(vec![1.0])
+                && (a.derivative == RefCell::new(vec![-1.0 * (2.0 as f32).sin()])))
+        )
+    }
+
+    #[test]
+    fn backwards_tan() {
+        let a = Tensor::new(vec![2.0], &[1]).unwrap();
+
+        let b = a.tan().unwrap();
+
+        b.backward();
+
+        assert!(
+            (b.derivative == RefCell::new(vec![1.0])
+                && (a.derivative == RefCell::new(vec![1.0 / (2.0 as f32).cos().powi(2)])))
+        )
+    }
+
+    #[test]
+    fn backwards_matmul() {
+        let a = Tensor::new(vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0], &[2, 3]).unwrap();
+        let b = Tensor::new(vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0], &[3, 2]).unwrap();
+
+        let c = a.matmul(&b).unwrap();
+
+        c.backward();
+
+        assert!(
+            (c.derivative == RefCell::new(vec![1.0, 1.0, 1.0, 1.0]))
+                && (a.derivative == RefCell::new(vec![3.0, 7.0, 11.0, 3.0, 7.0, 11.0]))
+                && (b.derivative == RefCell::new(vec![5.0, 5.0, 7.0, 7.0, 9.0, 9.0]))
+        )
+    }
 }
 
 #[derive(Debug, PartialEq)]
@@ -1677,25 +1774,25 @@ impl<'a> Tensor<'a> {
     pub fn abs(&self) -> Result<Tensor, TensorError> {
         let new_data = self.data.iter().map(|val| val.abs()).collect();
 
-        Tensor::new(new_data, &self.shape)
+        Tensor::new_with_parents(new_data, &self.shape, Some(&self), None, Ops::Abs)
     }
 
     pub fn sin(&self) -> Result<Tensor, TensorError> {
         let new_data = self.data.iter().map(|val| val.sin()).collect();
 
-        Tensor::new(new_data, &self.shape)
+        Tensor::new_with_parents(new_data, &self.shape, Some(&self), None, Ops::Sin)
     }
 
     pub fn cos(&self) -> Result<Tensor, TensorError> {
         let new_data = self.data.iter().map(|val| val.cos()).collect();
 
-        Tensor::new(new_data, &self.shape)
+        Tensor::new_with_parents(new_data, &self.shape, Some(&self), None, Ops::Cos)
     }
 
     pub fn tan(&self) -> Result<Tensor, TensorError> {
         let new_data = self.data.iter().map(|val| val.tan()).collect();
 
-        Tensor::new(new_data, &self.shape)
+        Tensor::new_with_parents(new_data, &self.shape, Some(&self), None, Ops::Tan)
     }
 
     pub fn sum(&self, dim: isize) -> Result<Tensor, TensorError> {
@@ -1722,7 +1819,7 @@ impl<'a> Tensor<'a> {
         self.dimension_op(dim, Ops::DimOp(DimOp::Argmin))
     }
 
-    pub fn matmul(&self, rhs: &Tensor) -> Result<Tensor, TensorError> {
+    pub fn matmul(&'a self, rhs: &'a Tensor) -> Result<Tensor, TensorError> {
         let new_shape = Tensor::validate_tensors(self, &rhs)?;
 
         let batch_dims = new_shape[0..new_shape.len() - 2].to_vec();
@@ -1776,7 +1873,7 @@ impl<'a> Tensor<'a> {
             }
         }
 
-        Tensor::new(new_data, &new_shape)
+        Tensor::new_with_parents(new_data, &new_shape, Some(&self), Some(&rhs), Ops::Matmul)
     }
 
     pub fn concat(&self, rhs: &Tensor, dim: isize) -> Result<Tensor, TensorError> {
@@ -1956,11 +2053,53 @@ impl<'a> Tensor<'a> {
 
                     Tensor::new(temp.data, &temp.shape)
                 }
+                Some(Ops::Abs) => {
+                    let temp = t
+                        .data
+                        .iter()
+                        .map(|val| {
+                            if *val > 0.0 {
+                                1.0
+                            } else if *val < 0.0 {
+                                -1.0
+                            } else {
+                                0.0
+                            }
+                        })
+                        .collect();
+
+                    Tensor::new(temp, &t.shape)
+                }
+                Some(Ops::Sin) => t.cos(),
+                Some(Ops::Cos) => {
+                    let neg1 = Tensor::new(vec![-1.0], &[1]).unwrap();
+
+                    let temp = t.sin().unwrap();
+                    let temp = &neg1 * &temp;
+
+                    Tensor::new(temp.data, &temp.shape)
+                }
+                Some(Ops::Tan) => {
+                    let one = Tensor::new(vec![1.0], &[1]).unwrap();
+
+                    let temp = t.cos().unwrap();
+                    let temp = temp.pow(2.0).unwrap();
+                    let temp = &one / &temp;
+
+                    Tensor::new(temp.data, &temp.shape)
+                }
+                Some(Ops::Matmul) => self.rhs_parent.unwrap().transpose(),
                 _ => Err(TensorError::ShapeError),
             }
             .unwrap();
 
-            let d_lhs = &d_lhs * &d;
+            println!("{:?}", d.shape);
+            println!("{:?}", d_lhs.shape);
+
+            let d_lhs = match self.create_op {
+                Some(Ops::Matmul) => d.matmul(&d_lhs).unwrap(),
+                _ => &d_lhs * &d,
+            };
 
             let d_lhs_prev = Tensor::new(t.derivative.borrow().clone(), &t.shape).unwrap();
             let d_lhs = &d_lhs + &d_lhs_prev;
@@ -1987,11 +2126,18 @@ impl<'a> Tensor<'a> {
 
                     Tensor::new(temp.data.clone(), &temp.shape)
                 }
+                Some(Ops::Matmul) => self.lhs_parent.unwrap().transpose(),
                 _ => Err(TensorError::ShapeError),
             }
             .unwrap();
 
-            let d_rhs = &d_rhs * &d;
+            println!("{:?}", d_rhs.shape);
+            println!("{:?}", d.shape);
+
+            let d_rhs = match self.create_op {
+                Some(Ops::Matmul) => d_rhs.matmul(&d).unwrap(),
+                _ => &d_rhs * &d,
+            };
 
             let d_rhs_prev = Tensor::new(t.derivative.borrow().clone(), &t.shape).unwrap();
             let d_rhs = &d_rhs + &d_rhs_prev;

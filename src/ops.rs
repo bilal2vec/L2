@@ -25,5 +25,10 @@ pub enum Ops {
     Exp,
     Log10,
     Log,
+    Abs,
+    Sin,
+    Cos,
+    Tan,
+    Matmul,
     Slice,
 }

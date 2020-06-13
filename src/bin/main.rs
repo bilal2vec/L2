@@ -3,13 +3,14 @@ use l2::tensor::*;
 
 #[allow(clippy::many_single_char_names)]
 fn main() -> Result<(), l2::errors::TensorError> {
-    let x = Tensor::new(vec![3.0], &[1])?;
+    let a = Tensor::new(vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0], &[2, 3]).unwrap();
+    let b = Tensor::new(vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0], &[3, 2]).unwrap();
 
-    let y = x.log()?;
+    let c = a.matmul(&b).unwrap();
 
-    y.backward();
+    c.backward();
 
-    println!("{:#?}", y);
+    println!("{:?}", c);
 
     // let z = Tensor::new(vec![-4.0], &[1])?;
 

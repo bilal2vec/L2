@@ -13,17 +13,8 @@
         -   decide what to do with new_with_parents
     -   tests and benchmarks
     -   ops
-        -   div
-        -   pow
-        -   sqrt
-        -   exp
-        -   log10
-        -   log
-        -   abs
-        -   sin
-        -   cos
-        -   tan
         -   matmul
+            -   3 and 4d backwards don't work yet because transpose should only work on two dims
         -   slice
         -   view
         -   concat
@@ -174,6 +165,17 @@ topological sorting accumulates gradients for a before going further up the comp
 -   printing of tensors and graph
 -   combine 1,2,3,4d ops into one function
 -   figure out macros and crates
+-   ops
+    -   div
+    -   pow
+    -   sqrt
+    -   exp
+    -   log10
+    -   log
+    -   abs
+    -   sin
+    -   cos
+    -   tan
 
 ### wont do
 
