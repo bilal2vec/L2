@@ -16,6 +16,7 @@
         -   matmul
             -   3 and 4d backwards don't work yet because transpose should only work on two dims
         -   slice
+            -   allocates a small (1 element) tensor to satisfy match arms
         -   view
         -   concat
         -   transpose
@@ -25,6 +26,7 @@
         -   min
         -   argmax
         -   argmin
+    -   fix transpose
 -   compare to np and ndarray
 -   redo error handling
 -   const generics for compile time errors

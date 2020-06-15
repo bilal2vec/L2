@@ -30,5 +30,5 @@ pub enum Ops {
     Cos,
     Tan,
     Matmul,
-    Slice,
+    Slice(Vec<[usize; 2]>),
 }
