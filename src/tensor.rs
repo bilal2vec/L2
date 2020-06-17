@@ -1195,6 +1195,21 @@ impl<'a> Tensor<'a> {
             t.grad()
         }
     }
+
+    pub fn clear(&self) {
+        *(self.derivative.borrow_mut()) =
+            vec![0.0; Tensor::calc_tensor_len_from_shape(&self.shape)];
+
+        match self.lhs_parent {
+            Some(t) => t.clear(),
+            None => (),
+        }
+
+        match self.rhs_parent {
+            Some(t) => t.clear(),
+            None => (),
+        }
+    }
 }
 
 impl<'a> Add for &'a Tensor<'a> {
@@ -2488,5 +2503,22 @@ mod tests {
         y.backward();
 
         assert!((x.derivative == RefCell::new(vec![0.5, 0.5, 0.5, 0.5, 0.5, 0.5])))
+    }
+
+    #[test]
+    fn backwards_clear() {
+        let x = Tensor::new(vec![-2.0], &[1]).unwrap();
+        let y = Tensor::new(vec![5.0], &[1]).unwrap();
+
+        let q = &x + &y;
+
+        q.backward();
+        q.clear();
+
+        assert!(
+            (q.derivative == RefCell::new(vec![0.0]))
+                && (x.derivative == RefCell::new(vec![0.0]))
+                && (y.derivative == RefCell::new(vec![0.0]))
+        )
     }
 }

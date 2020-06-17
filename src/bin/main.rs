@@ -3,24 +3,22 @@ use l2::tensor::*;
 
 #[allow(clippy::many_single_char_names)]
 fn main() -> Result<(), l2::errors::TensorError> {
-    // let x = Tensor::new(vec![-2.0], &[1]).unwrap();
-    // let y = Tensor::new(vec![5.0], &[1]).unwrap();
+    let x = Tensor::new(vec![-2.0], &[1]).unwrap();
+    let y = Tensor::new(vec![5.0], &[1]).unwrap();
 
-    // let q = &x + &y;
+    let q = &x + &y;
 
-    // let out = Tensor::new(vec![-4.0], &[1]).unwrap();
+    let out = Tensor::new(vec![-4.0], &[1]).unwrap();
 
-    // let loss = &q * &out;
+    let loss = &q * &out;
 
-    // loss.backward();
+    loss.backward();
 
-    // println!("{}", loss);
+    println!("{}\n", loss);
 
-    let x = Tensor::new(vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.9], &[2, 3])?;
+    loss.clear();
 
-    let y = x.slice(&[[0, 3], [0, -1]])?;
-
-    println!("{}", y);
+    println!("{}", loss);
 
     // let z = Tensor::new(vec![-4.0], &[1])?;
 

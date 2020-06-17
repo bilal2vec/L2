@@ -11,9 +11,6 @@
 -   autograd
     -   benchmarks for each operator
 -   compare to np and ndarray
--   redo error handling
--   const generics for compile time errors
--   clear gradient
 -   cargo.rs
 
 ### Done
@@ -174,6 +171,7 @@ topological sorting accumulates gradients for a before going further up the comp
 -   figure out if you want to use tensor ops in backward or vec ops
     -   decide what to do with new_with_parents
     -   used tensor ops
+-   clear gradient
 
 ### wont do
 
@@ -197,6 +195,8 @@ topological sorting accumulates gradients for a before going further up the comp
     -   argmax
     -   argmin
 -   fix transpose
+-   redo error handling
+-   const generics for compile time errors
 
 ### Notes
 
