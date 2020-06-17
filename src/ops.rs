@@ -8,12 +8,12 @@ pub enum TensorOp {
 
 #[derive(Debug, PartialEq)]
 pub enum DimOp {
-    Sum,
-    Mean,
-    Max,
-    Min,
-    Argmax,
-    Argmin,
+    Sum(isize),
+    Mean(isize),
+    Max(isize),
+    Min(isize),
+    Argmax(isize),
+    Argmin(isize),
 }
 
 #[derive(Debug, PartialEq)]

@@ -256,12 +256,12 @@ impl<'a> Tensor<'a> {
 
     fn dim_op(lhs: &Tensor, op: &Ops) -> Result<f32, TensorError> {
         match op {
-            Ops::DimOp(DimOp::Sum) => Ok(lhs.data.iter().sum()),
-            Ops::DimOp(DimOp::Mean) => {
+            Ops::DimOp(DimOp::Sum(_dim)) => Ok(lhs.data.iter().sum()),
+            Ops::DimOp(DimOp::Mean(_dim)) => {
                 let sum: f32 = lhs.data.iter().sum();
                 Ok(sum / lhs.data.len() as f32)
             }
-            Ops::DimOp(DimOp::Max) => {
+            Ops::DimOp(DimOp::Max(_dim)) => {
                 let max = lhs
                     .data
                     .iter()
@@ -274,7 +274,7 @@ impl<'a> Tensor<'a> {
                     None => Err(TensorError::OpError),
                 }
             }
-            Ops::DimOp(DimOp::Min) => {
+            Ops::DimOp(DimOp::Min(_dim)) => {
                 let min = lhs
                     .data
                     .iter()
@@ -287,7 +287,7 @@ impl<'a> Tensor<'a> {
                     None => Err(TensorError::OpError),
                 }
             }
-            Ops::DimOp(DimOp::Argmax) => {
+            Ops::DimOp(DimOp::Argmax(_dim)) => {
                 let argmax = lhs
                     .data
                     .iter()
@@ -300,7 +300,7 @@ impl<'a> Tensor<'a> {
                     None => Err(TensorError::OpError),
                 }
             }
-            Ops::DimOp(DimOp::Argmin) => {
+            Ops::DimOp(DimOp::Argmin(_dim)) => {
                 let argmin = lhs
                     .data
                     .iter()
@@ -379,7 +379,8 @@ impl<'a> Tensor<'a> {
                 }
             }
         }
-        Tensor::new(new_data, &new_shape)
+
+        Tensor::new_with_parents(new_data, &new_shape, Some(&self), None, op)
     }
 
     fn tensor_op<'b>(&'b self, other: &'b Tensor, op: Ops) -> Result<Tensor<'b>, TensorError> {
@@ -689,27 +690,27 @@ impl<'a> Tensor<'a> {
     }
 
     pub fn sum(&self, dim: isize) -> Result<Tensor, TensorError> {
-        self.dimension_op(dim, Ops::DimOp(DimOp::Sum))
+        self.dimension_op(dim, Ops::DimOp(DimOp::Sum(dim)))
     }
 
     pub fn mean(&self, dim: isize) -> Result<Tensor, TensorError> {
-        self.dimension_op(dim, Ops::DimOp(DimOp::Mean))
+        self.dimension_op(dim, Ops::DimOp(DimOp::Mean(dim)))
     }
 
     pub fn max(&self, dim: isize) -> Result<Tensor, TensorError> {
-        self.dimension_op(dim, Ops::DimOp(DimOp::Max))
+        self.dimension_op(dim, Ops::DimOp(DimOp::Max(dim)))
     }
 
     pub fn min(&self, dim: isize) -> Result<Tensor, TensorError> {
-        self.dimension_op(dim, Ops::DimOp(DimOp::Min))
+        self.dimension_op(dim, Ops::DimOp(DimOp::Min(dim)))
     }
 
     pub fn argmax(&self, dim: isize) -> Result<Tensor, TensorError> {
-        self.dimension_op(dim, Ops::DimOp(DimOp::Argmax))
+        self.dimension_op(dim, Ops::DimOp(DimOp::Argmax(dim)))
     }
 
     pub fn argmin(&self, dim: isize) -> Result<Tensor, TensorError> {
-        self.dimension_op(dim, Ops::DimOp(DimOp::Argmin))
+        self.dimension_op(dim, Ops::DimOp(DimOp::Argmin(dim)))
     }
 
     pub fn matmul(&'a self, rhs: &'a Tensor) -> Result<Tensor, TensorError> {
@@ -998,6 +999,16 @@ impl<'a> Tensor<'a> {
                 Some(Ops::Transpose) => Tensor::zeros(&[1]),    // this is never used
                 Some(Ops::View) => Tensor::zeros(&[1]),         // this is never used
                 Some(Ops::Concat((_concat_dim, _concat_dim_size))) => Tensor::zeros(&[1]), // this is never used
+                Some(Ops::DimOp(DimOp::Sum(_dim))) => Tensor::new(vec![1.0], &[1]),
+                Some(Ops::DimOp(DimOp::Mean(dim))) => {
+                    let dim = if *dim == -1 {
+                        t.shape.len() - 1
+                    } else {
+                        *dim as usize
+                    };
+
+                    Tensor::new(vec![1.0 / t.shape[dim] as f32], &[1])
+                }
                 _ => Err(TensorError::ShapeError),
             }
             .unwrap();
@@ -1052,6 +1063,42 @@ impl<'a> Tensor<'a> {
                     idxs[*concat_dim] = [0, *concat_dim_size as isize];
 
                     d.slice(&idxs).unwrap()
+                }
+                Some(Ops::DimOp(DimOp::Sum(dim))) => {
+                    let mut new_shape: Vec<isize> =
+                        d.shape.clone().iter().map(|val| *val as isize).collect();
+
+                    let temp;
+                    if *dim == -1 {
+                        temp = new_shape.len() as isize;
+                    } else {
+                        temp = *dim;
+                    }
+
+                    new_shape.insert(temp as usize, 1);
+
+                    let temp = &d_lhs * &d;
+                    let temp = temp.view(&new_shape).unwrap();
+
+                    Tensor::new(temp.data, &temp.shape).unwrap()
+                }
+                Some(Ops::DimOp(DimOp::Mean(dim))) => {
+                    let mut new_shape: Vec<isize> =
+                        d.shape.clone().iter().map(|val| *val as isize).collect();
+
+                    let temp;
+                    if *dim == -1 {
+                        temp = new_shape.len() as isize;
+                    } else {
+                        temp = *dim;
+                    }
+
+                    new_shape.insert(temp as usize, 1);
+
+                    let temp = &d_lhs * &d;
+                    let temp = temp.view(&new_shape).unwrap();
+
+                    Tensor::new(temp.data, &temp.shape).unwrap()
                 }
                 _ => &d_lhs * &d,
             };
@@ -2409,5 +2456,30 @@ mod tests {
             (x.derivative == RefCell::new(vec![1.0, 1.0, 1.0, 1.0, 1.0, 1.0]))
                 && (y.derivative == RefCell::new(vec![2.0, 2.0, 2.0, 2.0, 2.0, 2.0]))
         )
+    }
+
+    #[test]
+    fn backwards_sum() {
+        let x = Tensor::new(vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0], &[3, 2]).unwrap();
+
+        let y = x.sum(-1).unwrap();
+
+        y.backward();
+
+        assert!(
+            (x.derivative == RefCell::new(vec![1.0, 1.0, 1.0, 1.0, 1.0, 1.0]))
+                && (y.derivative == RefCell::new(vec![1.0, 1.0, 1.0]))
+        )
+    }
+
+    #[test]
+    fn backwards_mean() {
+        let x = Tensor::new(vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0], &[2, 3]).unwrap();
+
+        let y = x.mean(0).unwrap();
+
+        y.backward();
+
+        assert!((x.derivative == RefCell::new(vec![0.5, 0.5, 0.5, 0.5, 0.5, 0.5])))
     }
 }

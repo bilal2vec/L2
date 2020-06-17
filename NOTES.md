@@ -9,19 +9,7 @@
 ### Todo
 
 -   autograd
-    -   derivative vec for broadcasted mul to a one-element tensor is 6 elements long
-        -   problem with derivatives when broadcasting
-    -   tests and benchmarks
-    -   ops
-        -   matmul
-            -   3 and 4d backwards don't work yet because transpose should only work on two dims
-        -   sum
-        -   mean
-        -   max
-        -   min
-        -   argmax
-        -   argmin
-    -   fix transpose
+    -   benchmarks
 -   compare to np and ndarray
 -   redo error handling
 -   const generics for compile time errors
@@ -179,6 +167,8 @@ topological sorting accumulates gradients for a before going further up the comp
         -   allocates a small (1 element) tensor to satisfy match arms
     -   view
     -   concat
+    -   sum
+    -   mean
 -   figure out if you want to use tensor ops in backward or vec ops
     -   decide what to do with new_with_parents
     -   used tensor ops
@@ -195,6 +185,16 @@ topological sorting accumulates gradients for a before going further up the comp
 -   prevent having to reallocate memory on each backwards pass
     -   clear unneeded memory as soon as you can?
 -   impl == on tensors
+-   derivative vec for broadcasted mul to a one-element tensor is 6 elements long
+    -   problem with derivatives when broadcasting
+-   ops
+    -   matmul
+        -   3 and 4d backwards don't work yet because transpose should only work on two dims
+    -   max
+    -   min
+    -   argmax
+    -   argmin
+-   fix transpose
 
 ### Notes
 
