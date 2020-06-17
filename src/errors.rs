@@ -12,6 +12,7 @@ pub enum TensorError {
     DimError,
     MatmulShapeError,
     ShapeError,
+    GradError,
 }
 
 impl fmt::Display for TensorError {
@@ -29,6 +30,7 @@ impl fmt::Display for TensorError {
                 "Tensors must have at least two dimensions and have same shape in all dims except the last dimension"
             ),
             TensorError::ShapeError => write!(f, "Tensors must have the same shape in all dims except the last dimension"),
+            TensorError::GradError => write!(f, "Error while computing .backward()"),
         }
     }
 }

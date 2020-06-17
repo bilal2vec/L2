@@ -98,8 +98,7 @@ impl<'a> Tensor<'a> {
     }
 
     fn calc_shape_from_slice(slice: &[[usize; 2]]) -> Vec<usize> {
-        // can't preallocate vec length because we don't know its length at compile time
-        let mut slice_shape = Vec::new();
+        let mut slice_shape = Vec::with_capacity(slice.len());
 
         for idx in slice {
             if idx[1] - idx[0] > 1 {
@@ -1017,7 +1016,7 @@ impl<'a> Tensor<'a> {
 
                     Tensor::new(vec![1.0 / t.shape[dim] as f32], &[1])
                 }
-                _ => Err(TensorError::ShapeError),
+                _ => Err(TensorError::GradError),
             }
             .unwrap();
 
@@ -1139,7 +1138,7 @@ impl<'a> Tensor<'a> {
                 }
                 Some(Ops::Matmul) => self.lhs_parent.unwrap().transpose(),
                 Some(Ops::Concat((_concat_dim, _concat_dim_size))) => Tensor::zeros(&[1]), // this is never used
-                _ => Err(TensorError::ShapeError),
+                _ => Err(TensorError::GradError),
             }
             .unwrap();
 

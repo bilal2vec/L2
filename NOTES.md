@@ -14,6 +14,7 @@
 -   redo error handling
 -   const generics for compile time errors
 -   clear gradient
+-   cargo.rs
 
 ### Done
 
