@@ -31,4 +31,7 @@ pub enum Ops {
     Tan,
     Matmul,
     Slice(Vec<[usize; 2]>),
+    Transpose,
+    View,
+    Concat((usize, usize)),
 }

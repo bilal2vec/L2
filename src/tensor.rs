@@ -351,7 +351,6 @@ impl<'a> Tensor<'a> {
             Tensor::process_dims(&mut idxs, new_dim, 0, i);
 
             if self.shape.len() == 1 {
-                println!("{:?}", idxs);
                 new_data.push(Tensor::dim_op(&self.slice(&idxs)?, &op)?);
             } else {
                 let dim_one_bounds = if new_dim == 1 { 1 } else { self.shape[1] };
@@ -622,13 +621,15 @@ impl<'a> Tensor<'a> {
         )
     }
 
-    pub fn view(&self, shape: &[isize]) -> Result<Self, TensorError> {
+    pub fn view(&'a self, shape: &[isize]) -> Result<Self, TensorError> {
         let shape = self.process_view(shape)?;
 
         match Tensor::calc_tensor_len_from_shape(&self.shape)
             == Tensor::calc_tensor_len_from_shape(&shape)
         {
-            true => Tensor::new(self.data.clone(), &shape),
+            true => {
+                Tensor::new_with_parents(self.data.clone(), &shape, Some(&self), None, Ops::View)
+            }
             false => Err(TensorError::ViewError),
         }
     }
@@ -768,7 +769,7 @@ impl<'a> Tensor<'a> {
         Tensor::new_with_parents(new_data, &new_shape, Some(&self), Some(&rhs), Ops::Matmul)
     }
 
-    pub fn concat(&self, rhs: &Tensor, dim: isize) -> Result<Tensor, TensorError> {
+    pub fn concat(&self, rhs: &'a Tensor, dim: isize) -> Result<Tensor, TensorError> {
         let concat_dim = if dim == -1 {
             self.shape.len() - 1 as usize
         } else if (dim >= 0) && (dim < self.shape.len() as isize) {
@@ -841,7 +842,13 @@ impl<'a> Tensor<'a> {
             }
         }
 
-        Tensor::new(new_data, &new_shape)
+        Tensor::new_with_parents(
+            new_data,
+            &new_shape,
+            Some(&self),
+            Some(rhs),
+            Ops::Concat((concat_dim, self.shape[concat_dim])),
+        )
     }
 
     pub fn transpose(&self) -> Result<Tensor, TensorError> {
@@ -886,7 +893,13 @@ impl<'a> Tensor<'a> {
             }
         }
 
-        Tensor::new(new_data, &transposed_shape)
+        Tensor::new_with_parents(
+            new_data,
+            &transposed_shape,
+            Some(&self),
+            None,
+            Ops::Transpose,
+        )
     }
 
     pub fn clone_no_grad(&self) -> Result<Tensor, TensorError> {
@@ -982,6 +995,9 @@ impl<'a> Tensor<'a> {
                 }
                 Some(Ops::Matmul) => self.rhs_parent.unwrap().transpose(),
                 Some(Ops::Slice(_idxs)) => Tensor::zeros(&[1]), // this is never used
+                Some(Ops::Transpose) => Tensor::zeros(&[1]),    // this is never used
+                Some(Ops::View) => Tensor::zeros(&[1]),         // this is never used
+                Some(Ops::Concat((_concat_dim, _concat_dim_size))) => Tensor::zeros(&[1]), // this is never used
                 _ => Err(TensorError::ShapeError),
             }
             .unwrap();
@@ -1025,10 +1041,23 @@ impl<'a> Tensor<'a> {
 
                     Tensor::new(t_grad, &t.shape).unwrap()
                 }
+                Some(Ops::Transpose) => d.transpose().unwrap(),
+                Some(Ops::View) => {
+                    let new_shape: Vec<isize> = t.shape.iter().map(|val| *val as isize).collect();
+
+                    d.view(&new_shape).unwrap()
+                }
+                Some(Ops::Concat((concat_dim, concat_dim_size))) => {
+                    let mut idxs = vec![[0, -1]; d.shape.len()];
+                    idxs[*concat_dim] = [0, *concat_dim_size as isize];
+
+                    d.slice(&idxs).unwrap()
+                }
                 _ => &d_lhs * &d,
             };
 
             let d_lhs_prev = Tensor::new(t.derivative.borrow().clone(), &t.shape).unwrap();
+
             let d_lhs = &d_lhs + &d_lhs_prev;
             *t.derivative.borrow_mut() = d_lhs.data;
         }
@@ -1048,21 +1077,26 @@ impl<'a> Tensor<'a> {
                     let neg1 = Tensor::new(vec![-1.0], &[1]).unwrap();
                     let t_powed = t.pow(-2.0).unwrap();
 
-                    let temp = &neg1 * &self.lhs_parent.unwrap();
+                    let temp = &neg1 * self.lhs_parent.unwrap();
                     let temp = &temp * &t_powed;
 
                     Tensor::new(temp.data.clone(), &temp.shape)
                 }
                 Some(Ops::Matmul) => self.lhs_parent.unwrap().transpose(),
+                Some(Ops::Concat((_concat_dim, _concat_dim_size))) => Tensor::zeros(&[1]), // this is never used
                 _ => Err(TensorError::ShapeError),
             }
             .unwrap();
 
-            println!("{:?}", d_rhs.shape);
-            println!("{:?}", d.shape);
-
-            let d_rhs = match self.create_op {
+            let d_rhs = match &self.create_op {
                 Some(Ops::Matmul) => d_rhs.matmul(&d).unwrap(),
+                Some(Ops::Concat((concat_dim, concat_dim_size))) => {
+                    let mut idxs = vec![[0, -1]; d.shape.len()];
+                    idxs[*concat_dim] = [*concat_dim_size as isize, -1];
+
+                    d.slice(&idxs).unwrap()
+                }
+
                 _ => &d_rhs * &d,
             };
 
@@ -2319,6 +2353,61 @@ mod tests {
         assert!(
             (b.derivative == RefCell::new(vec![1.0, 1.0, 1.0, 1.0]))
                 && (a.derivative == RefCell::new(vec![1.0, 1.0, 0.0, 1.0, 1.0, 0.0]))
+        )
+    }
+
+    #[test]
+    fn backwards_transpose() {
+        let x = Tensor::new(vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0], &[3, 2]).unwrap();
+        let y = Tensor::new(vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0], &[3, 2]).unwrap();
+
+        let temp = x.transpose().unwrap();
+
+        let z = temp.matmul(&y).unwrap();
+
+        z.backward();
+
+        assert!(
+            (x.derivative == RefCell::new(vec![3.0, 3.0, 7.0, 7.0, 11.0, 11.0]))
+                && (y.derivative == RefCell::new(vec![3.0, 3.0, 7.0, 7.0, 11.0, 11.0]))
+        )
+    }
+
+    #[test]
+    fn backwards_view() {
+        let x = Tensor::new(vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0], &[3, 2]).unwrap();
+        let y = Tensor::new(vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0], &[3, 2]).unwrap();
+
+        let temp = x.view(&[2, 3]).unwrap();
+
+        let z = temp.matmul(&y).unwrap();
+
+        z.backward();
+
+        assert!(
+            (x.derivative == RefCell::new(vec![3.0, 7.0, 11.0, 3.0, 7.0, 11.0]))
+                && (y.derivative == RefCell::new(vec![5.0, 5.0, 7.0, 7.0, 9.0, 9.0]))
+        )
+    }
+
+    #[test]
+    fn backwards_concat() {
+        let x = Tensor::new(vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0], &[3, 2]).unwrap();
+        let y = Tensor::new(vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0], &[3, 2]).unwrap();
+
+        let one = Tensor::new(vec![1.0], &[1]).unwrap();
+        let two = Tensor::new(vec![2.0], &[1]).unwrap();
+
+        let xx = &one * &x;
+        let yy = &two * &y;
+
+        let z = xx.concat(&yy, -1).unwrap();
+
+        z.backward();
+
+        assert!(
+            (x.derivative == RefCell::new(vec![1.0, 1.0, 1.0, 1.0, 1.0, 1.0]))
+                && (y.derivative == RefCell::new(vec![2.0, 2.0, 2.0, 2.0, 2.0, 2.0]))
         )
     }
 }

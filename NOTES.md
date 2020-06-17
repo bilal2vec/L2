@@ -9,17 +9,12 @@
 ### Todo
 
 -   autograd
-    -   figure out if you want to use tensor ops in backward or vec ops
-        -   decide what to do with new_with_parents
+    -   derivative vec for broadcasted mul to a one-element tensor is 6 elements long
+        -   problem with derivatives when broadcasting
     -   tests and benchmarks
     -   ops
         -   matmul
             -   3 and 4d backwards don't work yet because transpose should only work on two dims
-        -   slice
-            -   allocates a small (1 element) tensor to satisfy match arms
-        -   view
-        -   concat
-        -   transpose
         -   sum
         -   mean
         -   max
@@ -178,6 +173,15 @@ topological sorting accumulates gradients for a before going further up the comp
     -   sin
     -   cos
     -   tan
+    -   slice
+        -   allocates a small (1 element) tensor to satisfy match arms
+    -   transpose
+        -   allocates a small (1 element) tensor to satisfy match arms
+    -   view
+    -   concat
+-   figure out if you want to use tensor ops in backward or vec ops
+    -   decide what to do with new_with_parents
+    -   used tensor ops
 
 ### wont do
 
