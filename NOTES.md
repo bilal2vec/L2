@@ -9,10 +9,11 @@
 ### Todo
 
 -   autograd
-    -   benchmarks
+    -   benchmarks for each operator
 -   compare to np and ndarray
 -   redo error handling
 -   const generics for compile time errors
+-   clear gradient
 
 ### Done
 

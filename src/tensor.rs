@@ -40,7 +40,10 @@ impl<'a> fmt::Display for Tensor<'a> {
             };
 
             format!(
-                "Shape: {:?} \n{}Lhs: {} \n{}Rhs: {} \n{}Op: {:?} \n{}TrackGrad: {:?} \n{}Derivative: {}",
+                "\n{}Value: {:?} \n{}Shape: {:?} \n{}Lhs: {} \n{}Rhs: {} \n{}Op: {:?} \n{}TrackGrad: {:?} \n{}Derivative: {:?}",
+                indent,
+                tensor.data,
+                indent,
                 tensor.shape,
                 indent,
                 lhs,
@@ -51,7 +54,7 @@ impl<'a> fmt::Display for Tensor<'a> {
                 indent,
                 tensor.track_grad,
                 indent,
-                tensor.derivative.borrow().iter().sum::<f32>() / (tensor.derivative.borrow().len() as f32)
+                *(tensor.derivative.borrow())
             )
         }
 
