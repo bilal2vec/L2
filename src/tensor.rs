@@ -39,8 +39,13 @@ impl<'a> fmt::Display for Tensor<'a> {
                 None => "None".to_string(),
             };
 
+            let op = match &tensor.create_op {
+                Some(t) => format!("{}", t),
+                None => format!("None"),
+            };
+
             format!(
-                "\n{}Value: {:?} \n{}Shape: {:?} \n{}Lhs: {} \n{}Rhs: {} \n{}Op: {:?} \n{}TrackGrad: {:?} \n{}Derivative: {:?}",
+                "\n{}Value: {:?} \n{}Shape: {:?} \n{}Lhs: {} \n{}Rhs: {} \n{}Op: {} \n{}TrackGrad: {:?} \n{}Derivative: {:?}",
                 indent,
                 tensor.data,
                 indent,
@@ -50,7 +55,7 @@ impl<'a> fmt::Display for Tensor<'a> {
                 indent,
                 rhs,
                 indent,
-                tensor.create_op,
+                op,
                 indent,
                 tensor.track_grad,
                 indent,
