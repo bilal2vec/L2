@@ -9,3 +9,5 @@ edition = "2018"
 [dependencies]
 rand = "0.7.3"
 rand_distr = "0.2.2"
+blas = "0.20.0"
+accelerate-src = "0.3.2"

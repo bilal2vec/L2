@@ -4,6 +4,9 @@ use std::f32::consts::E;
 use std::fmt;
 use std::ops::{Add, Div, Mul, Sub};
 
+extern crate accelerate_src;
+use blas::*;
+
 use rand::distributions::{Distribution, Uniform};
 use rand_distr::Normal;
 
@@ -471,16 +474,35 @@ impl<'a> Tensor<'a> {
         }
     }
 
-    fn two_dimension_matmul(lhs: &Tensor, rhs: &Tensor, dim: usize, out: &mut Vec<f32>) {
-        for i in 0..dim as isize {
-            let a = lhs.slice(&[[i, i + 1], [0, -1]]).unwrap();
-            let a = a.view(&[-1, 1]).unwrap();
+    // lots of transposing since blas expects data in col-major order; can be cleaned up a lot
+    #[allow(clippy::many_single_char_names)]
+    fn two_dimension_matmul(lhs: &Tensor, rhs: &Tensor, out: &mut Vec<f32>) {
+        let lhs = lhs.transpose().unwrap();
+        let rhs = rhs.transpose().unwrap();
 
-            let c: Tensor = &a * rhs;
-            let mut d = c.sum(0).unwrap();
+        let a: Vec<f64> = lhs.data.iter().map(|val| *val as f64).collect();
+        let b: Vec<f64> = rhs.data.iter().map(|val| *val as f64).collect();
 
-            out.append(&mut d.data);
+        let mut c: Vec<f64> =
+            vec![0.0; Tensor::calc_tensor_len_from_shape(&[lhs.shape[1], rhs.shape[0]])];
+
+        let (m, n, k) = (
+            lhs.shape[1] as i32,
+            rhs.shape[0] as i32,
+            lhs.shape[0] as i32,
+        );
+
+        unsafe {
+            dgemm(b'N', b'N', m, n, k, 1.0, &a, m, &b, k, 1.0, &mut c, m);
         }
+
+        let c = c.iter().map(|val| *val as f32).collect();
+        let c = Tensor::new(c, &[rhs.shape[0], lhs.shape[1]]).unwrap();
+        let c = c.transpose().unwrap();
+
+        let mut c = c.data;
+
+        out.append(&mut c);
     }
 
     fn new_with_parents<'b>(
@@ -725,8 +747,6 @@ impl<'a> Tensor<'a> {
 
         let batch_dims = new_shape[0..new_shape.len() - 2].to_vec();
 
-        let matmul_dim = new_shape[new_shape.len() - 2];
-
         if (new_shape.len() <= 1) || (new_shape.len() > 4) {
             return Err(TensorError::MaxDimsError);
         }
@@ -734,7 +754,7 @@ impl<'a> Tensor<'a> {
         let mut new_data = Vec::with_capacity(Tensor::calc_tensor_len_from_shape(&new_shape));
 
         if new_shape.len() == 2 {
-            Tensor::two_dimension_matmul(&self, rhs, matmul_dim, &mut new_data)
+            Tensor::two_dimension_matmul(&self, rhs, &mut new_data)
         } else {
             let mut idxs: Vec<[isize; 2]> = vec![[0, -1]; new_shape.len()];
 
@@ -759,7 +779,6 @@ impl<'a> Tensor<'a> {
                         Tensor::two_dimension_matmul(
                             &self.slice(&idxs)?.view(&lhs_shape)?,
                             &rhs.slice(&idxs)?.view(&rhs_shape)?,
-                            matmul_dim,
                             &mut new_data,
                         );
                     }
@@ -767,7 +786,6 @@ impl<'a> Tensor<'a> {
                     Tensor::two_dimension_matmul(
                         &self.slice(&idxs)?.view(&lhs_shape)?,
                         &rhs.slice(&idxs)?.view(&rhs_shape)?,
-                        matmul_dim,
                         &mut new_data,
                     );
                 }
@@ -1777,26 +1795,12 @@ mod tests {
 
     #[test]
     fn matmul_2d() {
-        let x = Tensor::new(
-            vec![
-                1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0,
-                16.0,
-            ],
-            &[2, 8],
-        )
-        .unwrap();
-        let y = Tensor::new(
-            vec![
-                1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0,
-                16.0,
-            ],
-            &[8, 2],
-        )
-        .unwrap();
+        let x = Tensor::new(vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0], &[2, 3]).unwrap();
+        let y = Tensor::new(vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0], &[3, 3]).unwrap();
 
         let z = x.matmul(&y).unwrap();
 
-        assert!((z.data == vec![372.0, 408.0, 884.0, 984.0]) && (z.shape == vec![2, 2]))
+        assert!((z.data == vec![30.0, 36.0, 42.0, 66.0, 81.0, 96.0]) && (z.shape == vec![2, 3]))
     }
 
     #[test]

@@ -316,7 +316,7 @@ mod tests {
         })
     }
 
-    // 6ms
+    // 6ms -> 50us
     #[bench]
     fn bench_matmul_2d(b: &mut Bencher) {
         let x = Tensor::zeros(&[64, 64]).unwrap();
@@ -327,7 +327,7 @@ mod tests {
         })
     }
 
-    // 12ms
+    // 12ms -> 151us
     #[bench]
     fn bench_matmul_3d(b: &mut Bencher) {
         let x = Tensor::zeros(&[2, 64, 64]).unwrap();
@@ -410,6 +410,7 @@ mod tests {
     }
 
     #[bench]
+    #[allow(clippy::many_single_char_names)]
     fn bench_forwards(b: &mut Bencher) {
         b.iter(|| {
             let x = Tensor::new(vec![-2.0], &[1]).unwrap();
@@ -417,25 +418,253 @@ mod tests {
 
             let q = &x + &y;
 
-            let out = Tensor::new(vec![-4.0], &[1]).unwrap();
+            let z = Tensor::new(vec![-4.0], &[1]).unwrap();
 
-            let _loss = &q * &out;
+            let _out = &q * &z;
         })
     }
 
     #[bench]
+    #[allow(clippy::many_single_char_names)]
     fn bench_backwards(b: &mut Bencher) {
         let x = Tensor::new(vec![-2.0], &[1]).unwrap();
         let y = Tensor::new(vec![5.0], &[1]).unwrap();
 
         let q = &x + &y;
 
-        let out = Tensor::new(vec![-4.0], &[1]).unwrap();
+        let z = Tensor::new(vec![-4.0], &[1]).unwrap();
 
-        let loss = &q * &out;
+        let out = &q * &z;
 
         b.iter(|| {
-            loss.backward();
+            out.backward();
         })
+    }
+
+    #[bench]
+    #[allow(clippy::many_single_char_names)]
+    fn bench_forwards_shared_tensor(b: &mut Bencher) {
+        b.iter(|| {
+            let a = Tensor::new(vec![2.0], &[1]).unwrap();
+            let b = Tensor::new(vec![3.0], &[1]).unwrap();
+            let c = Tensor::new(vec![4.0], &[1]).unwrap();
+
+            let e = &a * &b;
+            let f = &e * &c;
+
+            let _out = &a + &f;
+        })
+    }
+
+    #[bench]
+    #[allow(clippy::many_single_char_names)]
+    fn bench_backwards_shared_tensor(b: &mut Bencher) {
+        let a = Tensor::new(vec![2.0], &[1]).unwrap();
+        let x = Tensor::new(vec![3.0], &[1]).unwrap();
+        let c = Tensor::new(vec![4.0], &[1]).unwrap();
+
+        let e = &a * &x;
+        let f = &e * &c;
+
+        let out = &a + &f;
+
+        b.iter(|| {
+            out.backward();
+        })
+    }
+
+    #[bench]
+    #[allow(clippy::many_single_char_names)]
+    fn bench_forwards_add(b: &mut Bencher) {
+        b.iter(|| {
+            let a = Tensor::new(vec![2.0], &[1]).unwrap();
+            let b = Tensor::new(vec![3.0], &[1]).unwrap();
+
+            let _c = &a + &b;
+        })
+    }
+
+    #[bench]
+    #[allow(clippy::many_single_char_names)]
+    fn bench_backwards_add(b: &mut Bencher) {
+        let a = Tensor::new(vec![2.0], &[1]).unwrap();
+        let x = Tensor::new(vec![3.0], &[1]).unwrap();
+
+        let c = &a + &x;
+
+        b.iter(|| {
+            c.backward();
+        })
+    }
+
+    #[bench]
+    #[allow(clippy::many_single_char_names)]
+    fn bench_forwards_mul(b: &mut Bencher) {
+        b.iter(|| {
+            let a = Tensor::new(vec![2.0], &[1]).unwrap();
+            let b = Tensor::new(vec![3.0], &[1]).unwrap();
+
+            let _c = &a * &b;
+        })
+    }
+
+    #[bench]
+    #[allow(clippy::many_single_char_names)]
+    fn bench_backwards_mul(b: &mut Bencher) {
+        let a = Tensor::new(vec![2.0], &[1]).unwrap();
+        let x = Tensor::new(vec![3.0], &[1]).unwrap();
+
+        let c = &a * &x;
+
+        b.iter(|| {
+            c.backward();
+        })
+    }
+
+    #[bench]
+    #[allow(clippy::many_single_char_names)]
+    fn bench_forwards_pow(b: &mut Bencher) {
+        b.iter(|| {
+            let a = Tensor::new(vec![-3.0], &[1]).unwrap();
+
+            let _x = a.pow(2.0).unwrap();
+        })
+    }
+
+    #[bench]
+    #[allow(clippy::many_single_char_names)]
+    fn bench_backwards_pow(b: &mut Bencher) {
+        let a = Tensor::new(vec![-3.0], &[1]).unwrap();
+
+        let x = a.pow(2.0).unwrap();
+
+        b.iter(|| {
+            x.backward();
+        })
+    }
+
+    #[bench]
+    #[allow(clippy::many_single_char_names)]
+    fn bench_forwards_matmul(b: &mut Bencher) {
+        b.iter(|| {
+            let x = Tensor::zeros(&[64, 64]).unwrap();
+            let y = Tensor::zeros(&[64, 64]).unwrap();
+
+            let _z = x.matmul(&y).unwrap();
+        })
+    }
+
+    #[bench]
+    #[allow(clippy::many_single_char_names)]
+    fn bench_backwards_matmul(b: &mut Bencher) {
+        let x = Tensor::zeros(&[64, 64]).unwrap();
+        let y = Tensor::zeros(&[64, 64]).unwrap();
+
+        let z = x.matmul(&y).unwrap();
+
+        b.iter(|| {
+            z.backward();
+        })
+    }
+
+    #[bench]
+    #[allow(clippy::many_single_char_names)]
+    fn bench_forwards_slice(b: &mut Bencher) {
+        b.iter(|| {
+            let x = Tensor::new(vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0], &[2, 3]).unwrap();
+
+            let _y = x.slice(&[[0, 1], [0, 1]]).unwrap();
+        })
+    }
+
+    #[bench]
+    #[allow(clippy::many_single_char_names)]
+    fn bench_backwards_slice(b: &mut Bencher) {
+        let x = Tensor::new(vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0], &[2, 3]).unwrap();
+
+        let y = x.slice(&[[0, 1], [0, 1]]).unwrap();
+
+        b.iter(|| {
+            y.backward();
+        })
+    }
+
+    #[bench]
+    #[allow(clippy::many_single_char_names)]
+    fn bench_forwards_view(b: &mut Bencher) {
+        b.iter(|| {
+            let x = Tensor::zeros(&[64, 64]).unwrap();
+
+            let _y = x.view(&[-1]).unwrap();
+        })
+    }
+
+    #[bench]
+    #[allow(clippy::many_single_char_names)]
+    fn bench_backwards_view(b: &mut Bencher) {
+        let x = Tensor::zeros(&[64, 64]).unwrap();
+
+        let y = x.view(&[-1]).unwrap();
+
+        b.iter(|| {
+            y.backward();
+        })
+    }
+
+    #[bench]
+    #[allow(clippy::many_single_char_names)]
+    fn bench_forwards_concat(b: &mut Bencher) {
+        b.iter(|| {
+            let x = Tensor::zeros(&[64, 64]).unwrap();
+            let y = Tensor::zeros(&[64, 64]).unwrap();
+
+            let _z = x.concat(&y, -1).unwrap();
+        })
+    }
+
+    #[bench]
+    #[allow(clippy::many_single_char_names)]
+    fn bench_backwards_concat(b: &mut Bencher) {
+        let x = Tensor::zeros(&[64, 64]).unwrap();
+        let y = Tensor::zeros(&[64, 64]).unwrap();
+
+        let z = x.concat(&y, -1).unwrap();
+
+        b.iter(|| {
+            z.backward();
+        })
+    }
+
+    #[bench]
+    #[allow(clippy::many_single_char_names)]
+    fn bench_forwards_sum(b: &mut Bencher) {
+        b.iter(|| {
+            let x = Tensor::zeros(&[64, 64]).unwrap();
+
+            let _y = x.sum(-1).unwrap();
+        })
+    }
+
+    #[bench]
+    #[allow(clippy::many_single_char_names)]
+    fn bench_backwards_sum(b: &mut Bencher) {
+        let x = Tensor::zeros(&[64, 64]).unwrap();
+
+        let y = x.sum(-1).unwrap();
+
+        b.iter(|| {
+            y.backward();
+        })
+    }
+
+    #[bench]
+    #[allow(clippy::many_single_char_names)]
+    fn bench_backwards_clear(b: &mut Bencher) {
+        let x = Tensor::zeros(&[64, 64]).unwrap();
+
+        let y = x.sum(-1).unwrap();
+        y.backward();
+
+        b.iter(|| y.clear())
     }
 }

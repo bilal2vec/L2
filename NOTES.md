@@ -10,8 +10,11 @@
 
 -   autograd
     -   benchmarks for each operator
--   compare to np and ndarray
+        -   use correct shapes
+        -   compare to pytorch and ndarray
+    -   only 100s of ns used for topo sort, rest is calling backwards
 -   cargo.rs
+-   blas
 
 ### Done
 
