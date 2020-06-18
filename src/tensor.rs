@@ -4,7 +4,7 @@ use std::f32::consts::E;
 use std::fmt;
 use std::ops::{Add, Div, Mul, Sub};
 
-extern crate accelerate_src;
+extern crate blas_src;
 use blas::*;
 
 use rand::distributions::{Distribution, Uniform};

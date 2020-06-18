@@ -14,7 +14,6 @@
         -   compare to pytorch and ndarray
     -   only 100s of ns used for topo sort, rest is calling backwards
 -   cargo.rs
--   blas
 
 ### Done
 
@@ -175,6 +174,7 @@ topological sorting accumulates gradients for a before going further up the comp
     -   decide what to do with new_with_parents
     -   used tensor ops
 -   clear gradient
+-   blas
 
 ### wont do
 
@@ -200,6 +200,7 @@ topological sorting accumulates gradients for a before going further up the comp
 -   fix transpose
 -   redo error handling
 -   const generics for compile time errors
+-   fix blas ci
 
 ### Notes
 

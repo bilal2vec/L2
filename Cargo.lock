@@ -24,6 +24,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "blas-src"
+version = "0.6.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a25f136d1bcc6fc28330077511a0646aaf75bc894e5532b1a33a93d814272328"
+dependencies = [
+ "accelerate-src",
+]
+
+[[package]]
 name = "blas-sys"
 version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -53,8 +62,8 @@ dependencies = [
 name = "l2"
 version = "0.1.0"
 dependencies = [
- "accelerate-src",
  "blas",
+ "blas-src",
  "rand",
  "rand_distr",
 ]
