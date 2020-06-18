@@ -7,6 +7,9 @@ mod tests {
     use test::Bencher;
 
     use l2::tensor::*;
+
+    // Pytorch: 3.8us
+    // L2: 748ns
     #[bench]
     fn bench_allocate_1d_tensor(b: &mut Bencher) {
         b.iter(|| {
@@ -15,18 +18,29 @@ mod tests {
     }
 
     #[bench]
+    fn bench_allocate_2d_tensor(b: &mut Bencher) {
+        b.iter(|| {
+            let _t = Tensor::zeros(&[64, 64]).unwrap();
+        });
+    }
+
+    //Pytorch: 29us
+    //L2: 43us
+    #[bench]
+    fn bench_allocate_3d_tensor(b: &mut Bencher) {
+        b.iter(|| {
+            let _t = Tensor::zeros(&[64, 64, 64]).unwrap();
+        });
+    }
+
+    // Pytorch: 1.06us
+    // L2: 2.86us
+    #[bench]
     fn bench_slice_1d_tensor_chunk(b: &mut Bencher) {
         let t = Tensor::zeros(&[64 * 64]).unwrap();
         b.iter(|| {
             let _x = t.slice(&[[0, 64]]).unwrap();
         })
-    }
-
-    #[bench]
-    fn bench_allocate_2d_tensor(b: &mut Bencher) {
-        b.iter(|| {
-            let _t = Tensor::zeros(&[64, 64]).unwrap();
-        });
     }
 
     #[bench]
@@ -52,6 +66,7 @@ mod tests {
             let _x = t.slice(&[[0, -1], [0, 1]]).unwrap();
         })
     }
+
     #[bench]
     fn bench_slice_2d_tensor_chunk(b: &mut Bencher) {
         let t = Tensor::zeros(&[64, 64]).unwrap();
@@ -59,12 +74,9 @@ mod tests {
             let _x = t.slice(&[[0, 16], [0, 16]]).unwrap();
         })
     }
-    #[bench]
-    fn bench_allocate_3d_tensor(b: &mut Bencher) {
-        b.iter(|| {
-            let _t = Tensor::zeros(&[64, 64, 64]).unwrap();
-        });
-    }
+
+    //Pytorch: 3us
+    //L2: 1us
     #[bench]
     fn bench_slice_3d_tensor_row(b: &mut Bencher) {
         let t = Tensor::zeros(&[64, 64, 64]).unwrap();
@@ -105,6 +117,8 @@ mod tests {
         })
     }
 
+    //Pytorch: 9us
+    //L2: 10us
     #[bench]
     fn bench_slice_3d_tensor_chunk(b: &mut Bencher) {
         let t = Tensor::zeros(&[64, 64, 64]).unwrap();
@@ -113,12 +127,6 @@ mod tests {
         })
     }
 
-    #[bench]
-    fn bench_allocate_4d_tensor_small(b: &mut Bencher) {
-        b.iter(|| {
-            let _t = Tensor::zeros(&[16, 16, 16, 16]).unwrap();
-        });
-    }
     #[bench]
     fn bench_slice_4d_tensor_row(b: &mut Bencher) {
         let t = Tensor::zeros(&[64, 64, 64, 64]).unwrap();
@@ -159,6 +167,8 @@ mod tests {
         })
     }
 
+    //Pytorch: 3us
+    //L2: ius
     #[bench]
     fn bench_view_2d_to_1d(b: &mut Bencher) {
         let t = Tensor::zeros(&[64, 64]).unwrap();
@@ -175,6 +185,8 @@ mod tests {
         })
     }
 
+    //Pytorch: 19us
+    //L2: 326us
     #[bench]
     fn bench_add(b: &mut Bencher) {
         let x = Tensor::zeros(&[256, 256]).unwrap();
@@ -184,6 +196,8 @@ mod tests {
         })
     }
 
+    //Pytorch: 16us
+    //L2: 283us
     #[bench]
     fn bench_pow(b: &mut Bencher) {
         let x = Tensor::zeros(&[256, 256]).unwrap();
@@ -228,6 +242,7 @@ mod tests {
             let _y = x.log10().unwrap();
         })
     }
+
     #[bench]
     fn bench_abs(b: &mut Bencher) {
         let x = Tensor::zeros(&[256, 256]).unwrap();
@@ -245,6 +260,7 @@ mod tests {
             let _y = x.sin().unwrap();
         })
     }
+
     #[bench]
     fn bench_cos(b: &mut Bencher) {
         let x = Tensor::zeros(&[256, 256]).unwrap();
@@ -263,6 +279,8 @@ mod tests {
         })
     }
 
+    //Pytorch: 10us
+    //L2: 442us
     #[bench]
     fn bench_sum(b: &mut Bencher) {
         let x = Tensor::zeros(&[256, 256]).unwrap();
@@ -298,6 +316,7 @@ mod tests {
             let _y = x.min(-1).unwrap();
         })
     }
+
     #[bench]
     fn bench_argmax(b: &mut Bencher) {
         let x = Tensor::zeros(&[256, 256]).unwrap();
@@ -317,6 +336,8 @@ mod tests {
     }
 
     // 6ms -> 50us
+    //Pytorch: 15us
+    //L2: 50us
     #[bench]
     fn bench_matmul_2d(b: &mut Bencher) {
         let x = Tensor::zeros(&[64, 64]).unwrap();
@@ -328,6 +349,8 @@ mod tests {
     }
 
     // 12ms -> 151us
+    //Pytorch: 39us
+    //L2: 153us
     #[bench]
     fn bench_matmul_3d(b: &mut Bencher) {
         let x = Tensor::zeros(&[2, 64, 64]).unwrap();
@@ -338,6 +361,8 @@ mod tests {
         })
     }
 
+    //Pytorch: 52us
+    //L2: 462us
     #[bench]
     fn bench_matmul_4d(b: &mut Bencher) {
         let x = Tensor::zeros(&[3, 2, 64, 64]).unwrap();
@@ -348,6 +373,8 @@ mod tests {
         })
     }
 
+    //Pytorch: 24us
+    //L2: 322us
     #[bench]
     fn bench_concat_1d(b: &mut Bencher) {
         let x = Tensor::zeros(&[256 * 256]).unwrap();
@@ -368,6 +395,8 @@ mod tests {
         })
     }
 
+    //Pytorch: 253us
+    //L2: 8ms
     #[bench]
     fn bench_concat_3d(b: &mut Bencher) {
         let x = Tensor::zeros(&[64, 64, 64]).unwrap();
@@ -377,6 +406,9 @@ mod tests {
             let _z = x.concat(&y, -1).unwrap();
         })
     }
+
+    //Pytorch: 3us
+    //L2: 200us
     #[bench]
     fn bench_transpose(b: &mut Bencher) {
         let x = Tensor::zeros(&[256, 256]).unwrap();
@@ -395,6 +427,8 @@ mod tests {
         })
     }
 
+    //Pytorch: 344us
+    //L2: 658us
     #[bench]
     fn bench_normal(b: &mut Bencher) {
         b.iter(|| {
@@ -409,35 +443,30 @@ mod tests {
         })
     }
 
+    //Pytorch: 43us
+    //L2: 234us
     #[bench]
     #[allow(clippy::many_single_char_names)]
     fn bench_forwards(b: &mut Bencher) {
         b.iter(|| {
-            let x = Tensor::new(vec![-2.0], &[1]).unwrap();
-            let y = Tensor::new(vec![5.0], &[1]).unwrap();
+            let x = Tensor::zeros(&[64, 128]).unwrap();
+            let y = Tensor::zeros(&[128, 256]).unwrap();
 
-            let q = &x + &y;
-
-            let z = Tensor::new(vec![-4.0], &[1]).unwrap();
-
-            let _out = &q * &z;
+            let _z = l2::matmul(&x, &y).unwrap();
         })
     }
 
+    //Pytorch: 148us
+    //L2: 932us
     #[bench]
     #[allow(clippy::many_single_char_names)]
     fn bench_backwards(b: &mut Bencher) {
-        let x = Tensor::new(vec![-2.0], &[1]).unwrap();
-        let y = Tensor::new(vec![5.0], &[1]).unwrap();
+        let x = Tensor::zeros(&[64, 128]).unwrap();
+        let y = Tensor::zeros(&[128, 256]).unwrap();
 
-        let q = &x + &y;
-
-        let z = Tensor::new(vec![-4.0], &[1]).unwrap();
-
-        let out = &q * &z;
-
+        let z = l2::matmul(&x, &y).unwrap();
         b.iter(|| {
-            out.backward();
+            z.backward();
         })
     }
 

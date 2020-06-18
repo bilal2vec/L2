@@ -1,3 +1,20 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+-   [Notes](#notes)
+    -   [Tensor](#tensor)
+        -   [Todo](#todo)
+        -   [Done](#done)
+        -   [wont do](#wont-do)
+        -   [Notes](#notes-1)
+    -   [Resources](#resources)
+        -   [backprop](#backprop)
+        -   [Autodiff](#autodiff)
+        -   [Rust](#rust)
+        -   [SIMD](#simd)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Notes
 
 -   no ints or primitive types in generic parameters
@@ -7,13 +24,6 @@
 ## Tensor
 
 ### Todo
-
--   autograd
-    -   benchmarks for each operator
-        -   use correct shapes
-        -   compare to pytorch and ndarray
-    -   only 100s of ns used for topo sort, rest is calling backwards
--   cargo.rs
 
 ### Done
 
@@ -175,6 +185,12 @@ topological sorting accumulates gradients for a before going further up the comp
     -   used tensor ops
 -   clear gradient
 -   blas
+-   autograd
+    -   benchmarks for each operator
+        -   use correct shapes
+        -   compare to pytorch and ndarray
+    -   only 100s of ns used for topo sort, rest is calling backwards
+-   cargo.rs
 
 ### wont do
 
@@ -216,6 +232,7 @@ topological sorting accumulates gradients for a before going further up the comp
 -   https://docs.rs/rayon/1.3.0/rayon/
 -   https://www.google.com/search?q=rust+ndarray+simd&oq=rust+ndarray+simd&aqs=chrome..69i57.3773j0j7&sourceid=chrome&ie=UTF-8
 -   https://stackoverflow.com/questions/39477684/should-i-avoid-unwrap-in-production-application/39478185#39478185
+-   https://medium.com/@GolDDranks/things-rust-doesnt-let-you-do-draft-f596a3c740a5
 
 ### backprop
 
