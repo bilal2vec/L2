@@ -7,7 +7,8 @@
 			"command": "cargo",
 			"args": ["build"],
 			"group": {
-				"kind": "build"
+				"kind": "build",
+				"isDefault": true
 			}
 		},
 		{

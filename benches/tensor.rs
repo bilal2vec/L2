@@ -419,7 +419,7 @@ mod tests {
 
             let out = Tensor::new(vec![-4.0], &[1]).unwrap();
 
-            let loss = &q * &out;
+            let _loss = &q * &out;
         })
     }
 

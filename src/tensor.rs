@@ -41,7 +41,7 @@ impl<'a> fmt::Display for Tensor<'a> {
 
             let op = match &tensor.create_op {
                 Some(t) => format!("{}", t),
-                None => format!("None"),
+                None => "None".to_string(),
             };
 
             format!(
@@ -1200,14 +1200,12 @@ impl<'a> Tensor<'a> {
         *(self.derivative.borrow_mut()) =
             vec![0.0; Tensor::calc_tensor_len_from_shape(&self.shape)];
 
-        match self.lhs_parent {
-            Some(t) => t.clear(),
-            None => (),
+        if let Some(t) = self.lhs_parent {
+            t.clear();
         }
 
-        match self.rhs_parent {
-            Some(t) => t.clear(),
-            None => (),
+        if let Some(t) = self.rhs_parent {
+            t.clear();
         }
     }
 }
