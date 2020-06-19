@@ -1,11 +1,12 @@
 [package]
 name = "l2"
 description = "L2 is a Pytorch-style Tensor+Autograd library written in Rust"
-version = "1.0.0"
+version = "1.0.2"
 authors = ["Bilal Khan <bkkaggle@gmail.com>"]
 edition = "2018"
 license = "MIT"
 homepage = "https://github.com/bkkaggle/L2"
+documentation = "https://docs.rs/l2"
 repository = "https://github.com/bkkaggle/L2"
 readme = "README.md"
 
@@ -14,3 +15,6 @@ rand = "0.7.3"
 rand_distr = "0.2.2"
 blas = "0.20.0"
 blas-src = { version = "0.6", features = ["accelerate"] }
+
+[package.metadata.docs.rs]
+targets = ["x86_64-apple-darwin"]

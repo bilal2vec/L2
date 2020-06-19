@@ -1,20 +1,23 @@
 <h1 align='center'>
-    L2 • 🤖
+    l2 • 🤖
 </h1>
 
 <h4 align='center'>
-    A n-dimensional array and deep learning library implemented from scratch in C++
+    A Pytorch-style Tensor+Autograd library written in Rust
 </h4>
 
 <p align='center'>
     <a href="">
-        <img src="https://github.com/bkkaggle/L2/workflows/Rust/badge.svg" alt="Rust: CI">
+        <img src="https://github.com/bkkaggle/l2/workflows/Rust/badge.svg" alt="Rust: CI">
     </a>
     <a href="https://opensource.org/licenses/MIT">
         <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT">
     </a>
-    <a href="https://github.com/bkkaggle/L2/pulls">
-        <img alt="GitHub pull requests" src="https://img.shields.io/github/issues-pr/bkkaggle/L2">
+    <a href="https://crates.io/crates/l2">
+        <img alt="crates.io l2 badge" src="http://meritbadge.herokuapp.com/l2">
+    </a>
+    <a href=" https://docs.rs/l2">
+        <img alt="docs.rs l2 badge" src=" https://docs.rs/l2/badge.svg">
     </a>
 </p>
 
@@ -35,7 +38,7 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
--   [What is L2?](#what-is-l2)
+-   [What is l2?](#what-is-l2)
 -   [Quick start](#quick-start)
 -   [Design choices](#design-choices)
 -   [Contributing](#contributing)
@@ -45,15 +48,17 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-# What is L2?
+# What is l2?
 
-> L2 is named after the L2 or Euclidean distance, a popular distance function in deep learning
+> l2 is named after the l2 or Euclidean distance, a popular distance function in deep learning
 
-L2 is a Pytorch-style Tensor+Autograd library written in Rust. It contains a multidimensional array class, `Tensor`, with support for strided arrays, numpy-style array slicing, broadcasting, and most major math operations (including fast, BLAS-accelerated matrix multiplication!). On top of this, L2 has a built-in efficient graph-based autograd engine that keeps track of all operations performed on a tensor and topologically sorts and traverses the graph to compute the gradients.
+l2 is a Pytorch-style Tensor+Autograd library written in Rust. It contains a multidimensional array class, `Tensor`, with support for strided arrays, numpy-style array slicing, broadcasting, and most major math operations (including fast, BLAS-accelerated matrix multiplication!). On top of this, l2 has a built-in efficient graph-based autograd engine that keeps track of all operations performed on a tensor and topologically sorts and traverses the graph to compute the gradients.
 
 I also made a more simplified C++ version of l2 last year, which you can take a look at [here](//todo)
 
 # Quick start
+
+Add `l2 = "1.0.0"` to your `Cargo.toml` file and add the following to `main.rs`
 
 ```rust
 use l2::tensor::*;
@@ -71,9 +76,9 @@ println!("{}", z);
 
 # Design choices
 
-I made L2 to get better at using Rust and to learn more about how libraries like Pytorch and Tensorflow work behind the scenes, so don't expect this library to be production-ready :)
+I made l2 to get better at using Rust and to learn more about how libraries like Pytorch and Tensorflow work behind the scenes, so don't expect this library to be production-ready :)
 
-L2 is surprisingly fast especially since I didn't try very hard to optimize all the operators, it's usually only less than one order of magnitude slower than Pytorch in most of the benchmarks that I ran. L2 only supports a cpu backend at the moment since I'm not familiar enough with rust to start working with CUDA and cudnn. So far, l2 doesn't have any Pytorch-style abstractions like the Parameter, Layer, or Module classes. There might still be some bugs in the transpose operators and calling `.backward()` on tensors with more dimensions. I was interested in using Rust's [Const Generics](https://github.com/rust-lang/rfcs/blob/master/text/2000-const-generics.md) to run compile-time shape checks but I decided to leave it until some other time.
+l2 is surprisingly fast especially since I didn't try very hard to optimize all the operators, it's usually only less than one order of magnitude slower than Pytorch in most of the benchmarks that I ran. l2 only supports a cpu backend at the moment since I'm not familiar enough with rust to start working with CUDA and cudnn. So far, l2 doesn't have any Pytorch-style abstractions like the Parameter, Layer, or Module classes. There might still be some bugs in the transpose operators and calling `.backward()` on tensors with more dimensions. I was interested in using Rust's [Const Generics](https://github.com/rust-lang/rfcs/blob/master/text/2000-const-generics.md) to run compile-time shape checks but I decided to leave it until some other time.
 
 # Contributing
 

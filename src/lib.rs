@@ -32,11 +32,14 @@
 //!
 //!I made L2 to get better at using Rust and to learn more about how libraries like Pytorch and Tensorflow work behind the scenes, so don't expect this library to be production-ready :)
 //!
-//!L2 is surprisingly fast especially since I didn't try very hard to optimize all the operators, it's usually only less than one order of magnitude slower than Pytorch in most of the benchmarks that I ran. L2 //!only supports a cpu backend at the moment since I'm not familiar enough with rust to start working with CUDA and cudnn. So far, l2 doesn't have any Pytorch-style abstractions like the Parameter, Layer, or //!Module classes. There might still be some bugs in the transpose operators and calling `.backward()` on tensors with more dimensions. I was interested in using Rust's [Const Generics](https://github.com///!rust-lang/rfcs/blob/master/text/2000-const-generics.md) to run compile-time shape checks but I decided to leave it until some other time.
+//!L2 is surprisingly fast especially since I didn't try very hard to optimize all the operators, it's usually only less than one order of magnitude slower than Pytorch in most of the benchmarks that I ran. L2 //!only supports a cpu backend at the moment since I'm not familiar enough with rust to start working with CUDA and cudnn. So far, l2 doesn't have any Pytorch-style abstractions like the Parameter, Layer, or
+//!Module classes. There might still be some bugs in the transpose operators and calling `.backward()` on tensors with more dimensions. I was interested in using Rust's [Const Generics](https://github.com/
+//!rust-lang/rfcs/blob/master/text/2000-const-generics.md) to run compile-time shape checks but I decided to leave it until some other time.
 //!
 //!# Contributing
 //!
-//!This repository is still a work in progress, so if you find a bug, think there is something missing, or have any suggestions for new features, feel free to open an issue or a pull request. Feel free to use //!the library or code from it in your own projects, and if you feel that some code used in this project hasn't been properly accredited, please open an issue.
+//!This repository is still a work in progress, so if you find a bug, think there is something missing, or have any suggestions for new features, feel free to open an issue or a pull request. Feel free to use
+//!the library or code from it in your own projects, and if you feel that some code used in this project hasn't been properly accredited, please open an issue.
 //!
 //!# Authors
 //!
@@ -111,6 +114,90 @@ pub mod tensor;
 
 use errors::TensorError;
 use tensor::Tensor;
+
+pub fn add<'a>(lhs: &'a Tensor, rhs: &'a Tensor) -> Tensor<'a> {
+    lhs + rhs
+}
+
+pub fn sub<'a>(lhs: &'a Tensor, rhs: &'a Tensor) -> Tensor<'a> {
+    lhs - rhs
+}
+
+pub fn mul<'a>(lhs: &'a Tensor, rhs: &'a Tensor) -> Tensor<'a> {
+    lhs * rhs
+}
+
+pub fn div<'a>(lhs: &'a Tensor, rhs: &'a Tensor) -> Tensor<'a> {
+    lhs / rhs
+}
+
+pub fn pow<'a>(lhs: &'a Tensor, exp: f32) -> Result<Tensor<'a>, TensorError> {
+    lhs.pow(exp)
+}
+
+pub fn sqrt<'a>(lhs: &'a Tensor) -> Result<Tensor<'a>, TensorError> {
+    lhs.sqrt()
+}
+
+pub fn exp<'a>(lhs: &'a Tensor) -> Result<Tensor<'a>, TensorError> {
+    lhs.exp()
+}
+
+pub fn log10<'a>(lhs: &'a Tensor) -> Result<Tensor<'a>, TensorError> {
+    lhs.log10()
+}
+
+pub fn log<'a>(lhs: &'a Tensor) -> Result<Tensor<'a>, TensorError> {
+    lhs.log()
+}
+
+pub fn abs<'a>(lhs: &'a Tensor) -> Result<Tensor<'a>, TensorError> {
+    lhs.abs()
+}
+
+pub fn sin<'a>(lhs: &'a Tensor) -> Result<Tensor<'a>, TensorError> {
+    lhs.sin()
+}
+
+pub fn cos<'a>(lhs: &'a Tensor) -> Result<Tensor<'a>, TensorError> {
+    lhs.cos()
+}
+
+pub fn tan<'a>(lhs: &'a Tensor) -> Result<Tensor<'a>, TensorError> {
+    lhs.tan()
+}
+
+pub fn sum<'a>(lhs: &'a Tensor, dim: isize) -> Result<Tensor<'a>, TensorError> {
+    lhs.sum(dim)
+}
+
+pub fn mean<'a>(lhs: &'a Tensor, dim: isize) -> Result<Tensor<'a>, TensorError> {
+    lhs.mean(dim)
+}
+
+pub fn max<'a>(lhs: &'a Tensor, dim: isize) -> Result<Tensor<'a>, TensorError> {
+    lhs.max(dim)
+}
+
+pub fn min<'a>(lhs: &'a Tensor, dim: isize) -> Result<Tensor<'a>, TensorError> {
+    lhs.min(dim)
+}
+
+pub fn argmax<'a>(lhs: &'a Tensor, dim: isize) -> Result<Tensor<'a>, TensorError> {
+    lhs.argmax(dim)
+}
+
+pub fn argmin<'a>(lhs: &'a Tensor, dim: isize) -> Result<Tensor<'a>, TensorError> {
+    lhs.argmin(dim)
+}
+
+pub fn matmul<'a>(lhs: &'a Tensor, rhs: &'a Tensor) -> Result<Tensor<'a>, TensorError> {
+    lhs.matmul(rhs)
+}
+
+pub fn concat<'a>(lhs: &'a Tensor, rhs: &'a Tensor, dim: isize) -> Result<Tensor<'a>, TensorError> {
+    lhs.concat(&rhs, dim)
+}
 
 #[cfg(test)]
 mod tests {
@@ -274,88 +361,4 @@ mod tests {
                 && (z.shape == vec![2, 2, 2, 4])
         )
     }
-}
-
-pub fn add<'a>(lhs: &'a Tensor, rhs: &'a Tensor) -> Tensor<'a> {
-    lhs + rhs
-}
-
-pub fn sub<'a>(lhs: &'a Tensor, rhs: &'a Tensor) -> Tensor<'a> {
-    lhs - rhs
-}
-
-pub fn mul<'a>(lhs: &'a Tensor, rhs: &'a Tensor) -> Tensor<'a> {
-    lhs * rhs
-}
-
-pub fn div<'a>(lhs: &'a Tensor, rhs: &'a Tensor) -> Tensor<'a> {
-    lhs / rhs
-}
-
-pub fn pow<'a>(lhs: &'a Tensor, exp: f32) -> Result<Tensor<'a>, TensorError> {
-    lhs.pow(exp)
-}
-
-pub fn sqrt<'a>(lhs: &'a Tensor) -> Result<Tensor<'a>, TensorError> {
-    lhs.sqrt()
-}
-
-pub fn exp<'a>(lhs: &'a Tensor) -> Result<Tensor<'a>, TensorError> {
-    lhs.exp()
-}
-
-pub fn log10<'a>(lhs: &'a Tensor) -> Result<Tensor<'a>, TensorError> {
-    lhs.log10()
-}
-
-pub fn log<'a>(lhs: &'a Tensor) -> Result<Tensor<'a>, TensorError> {
-    lhs.log()
-}
-
-pub fn abs<'a>(lhs: &'a Tensor) -> Result<Tensor<'a>, TensorError> {
-    lhs.abs()
-}
-
-pub fn sin<'a>(lhs: &'a Tensor) -> Result<Tensor<'a>, TensorError> {
-    lhs.sin()
-}
-
-pub fn cos<'a>(lhs: &'a Tensor) -> Result<Tensor<'a>, TensorError> {
-    lhs.cos()
-}
-
-pub fn tan<'a>(lhs: &'a Tensor) -> Result<Tensor<'a>, TensorError> {
-    lhs.tan()
-}
-
-pub fn sum<'a>(lhs: &'a Tensor, dim: isize) -> Result<Tensor<'a>, TensorError> {
-    lhs.sum(dim)
-}
-
-pub fn mean<'a>(lhs: &'a Tensor, dim: isize) -> Result<Tensor<'a>, TensorError> {
-    lhs.mean(dim)
-}
-
-pub fn max<'a>(lhs: &'a Tensor, dim: isize) -> Result<Tensor<'a>, TensorError> {
-    lhs.max(dim)
-}
-
-pub fn min<'a>(lhs: &'a Tensor, dim: isize) -> Result<Tensor<'a>, TensorError> {
-    lhs.min(dim)
-}
-
-pub fn argmax<'a>(lhs: &'a Tensor, dim: isize) -> Result<Tensor<'a>, TensorError> {
-    lhs.argmax(dim)
-}
-
-pub fn argmin<'a>(lhs: &'a Tensor, dim: isize) -> Result<Tensor<'a>, TensorError> {
-    lhs.argmin(dim)
-}
-
-pub fn matmul<'a>(lhs: &'a Tensor, rhs: &'a Tensor) -> Result<Tensor<'a>, TensorError> {
-    lhs.matmul(rhs)
-}
-
-pub fn concat<'a>(lhs: &'a Tensor, rhs: &'a Tensor, dim: isize) -> Result<Tensor<'a>, TensorError> {
-    lhs.concat(&rhs, dim)
 }
