@@ -7,7 +7,7 @@
 //!broadcasting, and most major math operations (including fast, BLAS-accelerated matrix multiplication!). On top of this, L2 has a built-in efficient graph-based autograd engine that keeps track of all
 //!operations performed on a tensor and topologically sorts and traverses the graph to compute the gradients.
 //!
-//!I also made a more simplified C++ version of l2 last year, which you can take a look at [here](//todo)
+//!I also made a more simplified C++ version of l2 last year, which you can take a look at [here](https://github.com/bkkaggle/L2/tree/c%2B%2B)
 //!
 //!# Example
 //!
