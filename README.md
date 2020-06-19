@@ -58,7 +58,7 @@ I also made a more simplified C++ version of l2 last year, which you can take a 
 
 # Quick start
 
-Add `l2 = "1.0.0"` to your `Cargo.toml` file and add the following to `main.rs`
+Add `l2 = "1.0.3"` to your `Cargo.toml` file and add the following to `main.rs`
 
 ```rust
 use l2::tensor::*;
