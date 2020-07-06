@@ -17,7 +17,7 @@
         <img alt="crates.io l2 badge" src="http://meritbadge.herokuapp.com/l2">
     </a>
     <a href=" https://docs.rs/l2">
-        <img alt="docs.rs l2 badge" src=" https://docs.rs/l2/badge.svg">
+        <img alt="docs.rs l2 badge" src="https://docs.rs/l2/badge.svg">
     </a>
 </p>
 
