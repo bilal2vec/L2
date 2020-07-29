@@ -14,7 +14,7 @@ readme = "README.md"
 rand = "0.7.3"
 rand_distr = "0.2.2"
 blas = "0.20.0"
-blas-src = { version = "0.6", features = ["accelerate"] }
+blas-src = { version = "0.6", features = ["netlib"] }
 
 [package.metadata.docs.rs]
 targets = ["x86_64-apple-darwin"]
