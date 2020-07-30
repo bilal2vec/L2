@@ -38,13 +38,13 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
--   [What is l2?](#what-is-l2)
--   [Quick start](#quick-start)
--   [Design choices](#design-choices)
--   [Contributing](#contributing)
--   [Authors](#authors)
--   [License](#license)
--   [Acknowledgements](#acknowledgements)
+- [What is l2?](#what-is-l2)
+- [Quick start](#quick-start)
+- [Design choices](#design-choices)
+- [Contributing](#contributing)
+- [Authors](#authors)
+- [License](#license)
+- [Acknowledgements](#acknowledgements)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -59,6 +59,9 @@ I also made a more simplified C++ version of l2 last year, which you can take a 
 # Quick start
 
 Add `l2 = "1.0.3"` to your `Cargo.toml` file and add the following to `main.rs`
+
+> Note: L2 will by default use Apple's `acclerate` BLAS library on macOS
+> You can also change the BLAS library that you want to use yourself. Take a look at the [`blas-src`](https://crates.io/crates/blas-src) crate for more information
 
 ```rust
 use l2::tensor::*;
