@@ -7,7 +7,7 @@
 //!broadcasting, and most major math operations (including fast, BLAS-accelerated matrix multiplication!). On top of this, L2 has a built-in efficient graph-based autograd engine that keeps track of all
 //!operations performed on a tensor and topologically sorts and traverses the graph to compute the gradients.
 //!
-//!I also made a more simplified C++ version of l2 last year, which you can take a look at [here](https://github.com/bkkaggle/L2/tree/c%2B%2B)
+//!I also made a more simplified C++ version of l2 last year, which you can take a look at [here](https://github.com/bilal2vec/L2/tree/c%2B%2B)
 //!
 //!# Example
 //!
@@ -98,8 +98,8 @@
 //!
 //!This README is based on:
 //!
-//!-   https://github.com/bkkaggle/pytorch_zoo
-//!-   https://github.com/bkkaggle/grover
+//!-   https://github.com/bilal2vec/pytorch_zoo
+//!-   https://github.com/bilal2vec/grover
 //!-   https://github.com/rish-16/gpt2client
 //!-   https://github.com/mxbi/mlcrate
 //!-   https://github.com/athityakumar/colorls

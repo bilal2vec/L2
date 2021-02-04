@@ -5,9 +5,9 @@ version = "1.0.3"
 authors = ["Bilal Khan <bkkaggle@gmail.com>"]
 edition = "2018"
 license = "MIT"
-homepage = "https://github.com/bkkaggle/L2"
+homepage = "https://github.com/bilal2vec/L2"
 documentation = "https://docs.rs/l2"
-repository = "https://github.com/bkkaggle/L2"
+repository = "https://github.com/bilal2vec/L2"
 readme = "README.md"
 
 [dependencies]

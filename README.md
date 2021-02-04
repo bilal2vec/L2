@@ -8,7 +8,7 @@
 
 <p align='center'>
     <a href="">
-        <img src="https://github.com/bkkaggle/l2/workflows/Rust/badge.svg" alt="Rust: CI">
+        <img src="https://github.com/bilal2vec/l2/workflows/Rust/badge.svg" alt="Rust: CI">
     </a>
     <a href="https://opensource.org/licenses/MIT">
         <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT">
@@ -33,18 +33,18 @@
     <img src="./screenshot.png" />
 </div>
 
-<p align='center'><strong>Made by <a href='https://github.com/bkkaggle'>Bilal Khan</a> • https://bilal.software</strong></p>
+<p align='center'><strong>Made by <a href='https://github.com/bilal2vec'>Bilal Khan</a> • https://bilal.software</strong></p>
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-- [What is l2?](#what-is-l2)
-- [Quick start](#quick-start)
-- [Design choices](#design-choices)
-- [Contributing](#contributing)
-- [Authors](#authors)
-- [License](#license)
-- [Acknowledgements](#acknowledgements)
+-   [What is l2?](#what-is-l2)
+-   [Quick start](#quick-start)
+-   [Design choices](#design-choices)
+-   [Contributing](#contributing)
+-   [Authors](#authors)
+-   [License](#license)
+-   [Acknowledgements](#acknowledgements)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -54,7 +54,7 @@
 
 l2 is a Pytorch-style Tensor+Autograd library written in Rust. It contains a multidimensional array class, `Tensor`, with support for strided arrays, numpy-style array slicing, broadcasting, and most major math operations (including fast, BLAS-accelerated matrix multiplication!). On top of this, l2 has a built-in efficient graph-based autograd engine that keeps track of all operations performed on a tensor and topologically sorts and traverses the graph to compute the gradients.
 
-I also made a more simplified C++ version of l2 last year, which you can take a look at [here](https://github.com/bkkaggle/L2/tree/c%2B%2B)
+I also made a more simplified C++ version of l2 last year, which you can take a look at [here](https://github.com/bilal2vec/L2/tree/c%2B%2B)
 
 # Quick start
 
@@ -144,8 +144,8 @@ Some of the resources that I found useful when working on this library include:
 
 This README is based on:
 
--   https://github.com/bkkaggle/pytorch_zoo
--   https://github.com/bkkaggle/grover
+-   https://github.com/bilal2vec/pytorch_zoo
+-   https://github.com/bilal2vec/grover
 -   https://github.com/rish-16/gpt2client
 -   https://github.com/mxbi/mlcrate
 -   https://github.com/athityakumar/colorls
